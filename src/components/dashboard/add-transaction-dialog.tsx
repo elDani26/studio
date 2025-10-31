@@ -62,7 +62,11 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: 'expense',
+      amount: 0,
+      category: '',
       date: new Date(),
+      description: '',
+      account: '',
     },
   });
 
