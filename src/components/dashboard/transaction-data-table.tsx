@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import type { Transaction } from '@/types';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { getColumns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -86,23 +86,30 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
 
   const confirmDelete = async () => {
     if (!user || !transactionToDelete) return;
-    try {
-      await deleteDoc(doc(firestore, 'users', user.uid, 'transactions', transactionToDelete));
-      toast({
-        title: '¡Éxito!',
-        description: 'La transacción ha sido eliminada.',
+    const docRef = doc(firestore, 'users', user.uid, 'transactions', transactionToDelete);
+    deleteDoc(docRef)
+      .then(() => {
+        toast({
+          title: '¡Éxito!',
+          description: 'La transacción ha sido eliminada.',
+        });
+      })
+      .catch((error) => {
+        const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'No se pudo eliminar la transacción. Inténtalo de nuevo.',
+        });
+      })
+      .finally(() => {
+        setIsDeleteDialogOpen(false);
+        setTransactionToDelete(null);
       });
-    } catch (error) {
-       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'No se pudo eliminar la transacción. Inténtalo de nuevo.',
-      });
-      console.error("Error deleting transaction: ", error);
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setTransactionToDelete(null);
-    }
   };
 
   const columns = getColumns(handleEdit, handleDelete);

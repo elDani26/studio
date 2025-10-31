@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
+import { useUser, useAuth as useFirebaseAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,22 +73,31 @@ export default function LoginPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = userCredential.user;
 
-      // Create user document in Firestore
-      const userDocRef = doc(firestore, 'users', newUser.uid);
-      await setDoc(userDocRef, {
+      const userData = {
         id: newUser.uid,
         email: newUser.email,
         currency: 'EUR',
-      });
-      
-      toast({
-        title: '¡Registro exitoso!',
-        description: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
-      });
-      setActiveTab('login');
-      clearForm();
-    } catch (error: any)
-    {
+      };
+      const userDocRef = doc(firestore, 'users', newUser.uid);
+      setDoc(userDocRef, userData)
+        .then(() => {
+          toast({
+            title: '¡Registro exitoso!',
+            description: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
+          });
+          setActiveTab('login');
+          clearForm();
+        })
+        .catch((error) => {
+            const permissionError = new FirestorePermissionError({
+                path: userDocRef.path,
+                operation: 'create',
+                requestResourceData: userData,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            setError('No se pudo crear el perfil de usuario. Por favor, inténtalo de nuevo.');
+        });
+    } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         setError('Este correo electrónico ya está en uso.');
       } else {
