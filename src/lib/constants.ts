@@ -1,10 +1,10 @@
 import {
-  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, type LucideIcon
+  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat
 } from 'lucide-react';
 import type { Category } from '@/context/settings-context';
 
 export const ICONS: Record<string, LucideIcon> = {
-  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper
+  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat
 };
 
 export const TRANSACTION_CATEGORIES: Category[] = [
@@ -27,6 +27,9 @@ export const TRANSACTION_CATEGORIES: Category[] = [
   { value: 'fitness', label: 'Gimnasio/Fitness', icon: 'Dumbbell', type: 'expense' },
   { value: 'subscriptions', label: 'Suscripciones', icon: 'Newspaper', type: 'expense' },
   { value: 'gifts_sent', label: 'Regalos Hechos', icon: 'Gift', type: 'expense' },
+  { value: 'debt', label: 'Deudas', icon: 'CreditCard', type: 'expense' },
+  { value: 'donations', label: 'Donaciones', icon: 'HeartPulse', type: 'expense' },
+  { value: 'family', label: 'Familia', icon: 'Home', type: 'expense' },
   { value: 'other_expenses', label: 'Otros Egresos', icon: 'MoreHorizontal', type: 'expense' },
 
   // Incomes
@@ -36,6 +39,10 @@ export const TRANSACTION_CATEGORIES: Category[] = [
   { value: 'business', label: 'Negocio', icon: 'Building', type: 'income' },
   { value: 'rental_income', label: 'Ingresos por Alquiler', icon: 'Home', type: 'income' },
   { value: 'gifts_received', label: 'Regalos Recibidos', icon: 'Gift', type: 'income' },
+  { value: 'savings', label: 'Ahorros', icon: 'PiggyBank', type: 'income' },
+  { value: 'side_hustle', label: 'Ingreso Extra', icon: 'Sparkles', type: 'income' },
+  { value: 'loan', label: 'Préstamo', icon: 'Handshake', type: 'income' },
+  { value: 'refunds', label: 'Reembolsos', icon: 'Repeat', type: 'income' },
   { value: 'other_income', label: 'Otros Ingresos', icon: 'Coins', type: 'income' },
 ];
 
