@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDown, ArrowUp, Scale } from 'lucide-react';
+import { ExpenseChart } from './expense-chart';
 
 interface StatCardsProps {
   transactions: Transaction[];
