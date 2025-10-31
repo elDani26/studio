@@ -58,7 +58,7 @@ export default function LoginPage() {
       return;
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/;
     if (!passwordRegex.test(password)) {
       setError('La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.');
       setLoading(false);
@@ -160,7 +160,7 @@ export default function LoginPage() {
                   <Label htmlFor="password-signup">Contraseña</Label>
                   <Input id="password-signup" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                    <p className="text-xs text-muted-foreground pt-1">
-                    8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).
+                    8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&_).
                   </p>
                 </div>
                  <div className="space-y-2">
