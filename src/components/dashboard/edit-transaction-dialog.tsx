@@ -29,7 +29,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { SOURCE_ACCOUNTS, ICONS } from '@/lib/constants';
+import { ICONS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -65,7 +65,7 @@ export function EditTransactionDialog({
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories } = useSettings();
+  const { categories, accounts } = useSettings();
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -96,7 +96,7 @@ export function EditTransactionDialog({
   useEffect(() => {
     if (transaction) {
       const currentCategoryValue = form.getValues('category');
-      const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
+      const isCategoryStillValid = filteredCategories.some(c => c.id === currentCategoryValue);
 
       if (!isCategoryStillValid) {
           form.setValue('category', '');
@@ -215,10 +215,10 @@ export function EditTransactionDialog({
                       {filteredCategories.map(cat => {
                         const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
                         return (
-                          <SelectItem key={cat.value} value={cat.value}>
+                          <SelectItem key={cat.id} value={cat.id}>
                              <div className="flex items-center">
                               <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {cat.label}
+                              {cat.name}
                             </div>
                           </SelectItem>
                         );
@@ -294,14 +294,17 @@ export function EditTransactionDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SOURCE_ACCOUNTS.map(acc => (
-                        <SelectItem key={acc.value} value={acc.value}>
+                      {accounts.map(acc => {
+                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                        return (
+                          <SelectItem key={acc.id} value={acc.id}>
                            <div className="flex items-center">
-                            <acc.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {acc.label}
+                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {acc.name}
                           </div>
                         </SelectItem>
-                      ))}
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   <FormMessage />

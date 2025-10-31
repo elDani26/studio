@@ -5,7 +5,6 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
-import { ICONS } from '@/lib/constants';
 
 interface ExpenseChartProps {
   transactions: Transaction[];
@@ -21,20 +20,20 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     const expenses = initialTransactions.filter(t => t.type === 'expense');
 
     const expenseByCategory = expenses.reduce((acc, transaction) => {
-      const category = transaction.category;
-      if (!acc[category]) {
-        acc[category] = 0;
+      const categoryId = transaction.category;
+      if (!acc[categoryId]) {
+        acc[categoryId] = 0;
       }
-      acc[category] += transaction.amount;
+      acc[categoryId] += transaction.amount;
       return acc;
     }, {} as Record<string, number>);
 
 
-    const data = Object.keys(expenseByCategory).map(categoryValue => {
-      const categoryInfo = categories.find(c => c.value === categoryValue);
+    const data = Object.keys(expenseByCategory).map(categoryId => {
+      const categoryInfo = categories.find(c => c.id === categoryId);
       return {
-        name: categoryInfo?.label || categoryValue,
-        value: expenseByCategory[categoryValue],
+        name: categoryInfo?.name || categoryId,
+        value: expenseByCategory[categoryId],
       };
     })
     .filter(item => item.value > 0)

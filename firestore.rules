@@ -3,21 +3,23 @@
  *
  * Core Philosophy:
  * This ruleset enforces a strict user-ownership model. Users can only
- * access their own profiles, source accounts, and transactions.
+ * access their own profiles, source accounts, categories, and transactions.
  *
  * Data Structure:
  * - /users/{userId}: Stores user profiles, accessible only by the user.
  * - /users/{userId}/sourceAccounts/{sourceAccountId}: Stores source accounts owned by the user.
+ * - /users/{userId}/categories/{categoryId}: Stores custom categories for the user.
  * - /users/{userId}/transactions/{transactionId}: Stores transactions created by the user.
  *
  * Key Security Decisions:
  * - Users can only create their own user document using their UID as the document ID.
- * - Users can only access source accounts and transactions that are nested under their user ID.
- * - No public listing of users, source accounts, or transactions is allowed.
+ * - Users can only access subcollections that are nested under their own user ID.
+ * - No public listing of any user-specific data is allowed.
  *
  * Denormalization for Authorization:
- * - The 'userId' field within SourceAccount and Transaction documents is used
- *   to enforce ownership and must match the userId in the path.
+ * - The 'userId' field within Transaction documents is used to enforce ownership
+ *   and must match the userId in the path. This isn't strictly needed for categories
+ *   or source accounts as they are structurally bound to the user path.
  *
  * Force backend re-sync to enable auth providers.
  */
@@ -25,27 +27,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
     /**
      * @description Controls access to user profiles.
      * @path /users/{userId}
-     * @allow (create) - User with UID 'user_abc' can create their profile if userId == 'user_abc'.
-     * @allow (get, update, delete) - User with UID 'user_abc' can read, update, and delete their profile if userId == 'user_abc'.
-     * @deny (create) - User with UID 'user_def' cannot create a profile with userId 'user_abc'.
-     * @deny (get, update, delete) - User with UID 'user_def' cannot read, update, or delete the profile with userId 'user_abc'.
-     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
-      }
-
       allow get: if isOwner(userId);
       allow list: if false;
-
       allow create: if isOwner(userId);
       allow update: if isOwner(userId);
       allow delete: if isOwner(userId) && resource != null;
@@ -54,43 +50,24 @@ service cloud.firestore {
     /**
      * @description Controls access to source accounts owned by a user.
      * @path /users/{userId}/sourceAccounts/{sourceAccountId}
-     * @allow (create, get, update, delete) - User 'user_abc' can create, read, update, and delete their own source accounts.
-     * @deny (create, get, update, delete) - User 'user_def' cannot access source accounts owned by 'user_abc'.
-     * @principle Enforces document ownership and referential integrity.
      */
     match /users/{userId}/sourceAccounts/{sourceAccountId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && resource.data.userId == userId && resource != null;
-      allow delete: if isOwner(userId) && resource != null;
+      allow read, write: if isOwner(userId);
+    }
+    
+    /**
+     * @description Controls access to custom categories owned by a user.
+     * @path /users/{userId}/categories/{categoryId}
+     */
+    match /users/{userId}/categories/{categoryId} {
+      allow read, write: if isOwner(userId);
     }
 
     /**
      * @description Controls access to transactions created by a user.
      * @path /users/{userId}/transactions/{transactionId}
-     * @allow (create, get, update, delete) - User 'user_abc' can create, read, update, and delete their own transactions.
-     * @deny (create, get, update, delete) - User 'user_def' cannot access transactions owned by 'user_abc'.
-     * @principle Enforces document ownership and referential integrity.
      */
     match /users/{userId}/transactions/{transactionId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
-      }
-
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
 

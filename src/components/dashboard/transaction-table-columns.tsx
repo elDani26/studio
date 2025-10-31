@@ -1,7 +1,7 @@
 'use client';
 
 import type { Transaction } from '@/types';
-import { SOURCE_ACCOUNTS, ICONS } from '@/lib/constants';
+import { ICONS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
@@ -18,8 +18,7 @@ interface Column<T> {
 
 const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const { categories } = useSettings();
-  const categoryInfo = categories.find(c => c.value === transaction.category);
-  const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === transaction.account);
+  const categoryInfo = categories.find(c => c.id === transaction.category);
   const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
   const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
   const CategoryIcon = categoryInfo ? (ICONS[categoryInfo.icon] || ICONS.MoreHorizontal) : ICONS.MoreHorizontal;
@@ -30,7 +29,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
         <CategoryIcon className="h-5 w-5" />
       </div>
       <div>
-        <div className="font-medium">{categoryInfo?.label || transaction.category}</div>
+        <div className="font-medium">{categoryInfo?.name || transaction.category}</div>
         <div className="text-sm text-muted-foreground">{transaction.description || "Sin descripción"}</div>
       </div>
     </div>
@@ -63,9 +62,10 @@ const DateCell = ({ date }: { date: any }) => {
     return <div className="text-muted-foreground">{formattedDate}</div>;
 }
 
-const AccountCell = ({ account }: { account?: string }) => {
-    const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === account);
-    return <div className="text-muted-foreground">{accountInfo?.label || account || ''}</div>
+const AccountCell = ({ accountId }: { accountId?: string }) => {
+    const { accounts } = useSettings();
+    const accountInfo = accounts.find(a => a.id === accountId);
+    return <div className="text-muted-foreground">{accountInfo?.name || accountId || ''}</div>
 }
 
 
@@ -88,7 +88,7 @@ export const getColumns = (
   {
     header: 'Cuenta',
     accessor: 'account',
-    cell: (item) => <AccountCell account={item.account} />,
+    cell: (item) => <AccountCell accountId={item.account} />,
     className: 'text-left',
   },
   {

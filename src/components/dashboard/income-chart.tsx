@@ -5,7 +5,6 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
-import { ICONS } from '@/lib/constants';
 
 interface IncomeChartProps {
   transactions: Transaction[];
@@ -20,22 +19,20 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
   useEffect(() => {
     const incomes = initialTransactions.filter(t => t.type === 'income');
     
-    // Group incomes by category and sum their amounts
     const incomeByCategory = incomes.reduce((acc, transaction) => {
-      const category = transaction.category;
-      if (!acc[category]) {
-        acc[category] = 0;
+      const categoryId = transaction.category;
+      if (!acc[categoryId]) {
+        acc[categoryId] = 0;
       }
-      acc[category] += transaction.amount;
+      acc[categoryId] += transaction.amount;
       return acc;
     }, {} as Record<string, number>);
 
-    // Format data for the chart
-    const data = Object.keys(incomeByCategory).map(categoryValue => {
-      const categoryInfo = categories.find(c => c.value === categoryValue);
+    const data = Object.keys(incomeByCategory).map(categoryId => {
+      const categoryInfo = categories.find(c => c.id === categoryId);
       return {
-        name: categoryInfo?.label || categoryValue,
-        value: incomeByCategory[categoryValue],
+        name: categoryInfo?.name || categoryId,
+        value: incomeByCategory[categoryId],
       };
     })
     .filter(item => item.value > 0)

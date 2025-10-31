@@ -11,7 +11,6 @@ import { EditTransactionDialog } from './edit-transaction-dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { SOURCE_ACCOUNTS } from '@/lib/constants';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -40,12 +39,12 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories } = useSettings();
+  const { categories, accounts } = useSettings();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [category, setCategory] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
-  const [account, setAccount] = useState<string>('all');
+  const [accountFilter, setAccountFilter] = useState<string>('all');
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -62,18 +61,12 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
       }
       
       const dateFilter = !dateRange || !dateRange.from || (tDate >= dateRange.from && (!dateRange.to || tDate <= dateRange.to));
-      const categoryFilter = category === 'all' || t.category === category;
+      const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
       const typeFilter = type === 'all' || t.type === type;
-      const accountFilter = account === 'all' || t.account === account;
-      return dateFilter && categoryFilter && typeFilter && accountFilter;
+      const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
+      return dateFilter && categoryFilterPassed && typeFilter && accountFilterPassed;
     });
-  }, [transactions, dateRange, category, type, account]);
-
-  const uniqueAccounts = useMemo(() => {
-    const allAccounts = SOURCE_ACCOUNTS.map(a => a.value);
-    const transactionAccounts = Array.from(new Set(transactions.map(t => t.account).filter(Boolean))) as string[];
-    return ['all', ...Array.from(new Set([...allAccounts, ...transactionAccounts]))];
-  }, [transactions]);
+  }, [transactions, dateRange, categoryFilter, type, accountFilter]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -138,25 +131,22 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                       <SelectItem value="expense">Egreso</SelectItem>
                   </SelectContent>
               </Select>
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="w-full md:w-[150px]">
                       <SelectValue placeholder="Categoría" />
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                      {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              <Select value={account} onValueChange={setAccount}>
+              <Select value={accountFilter} onValueChange={setAccountFilter}>
                   <SelectTrigger className="w-full md:w-[150px]">
                       <SelectValue placeholder="Cuenta" />
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {uniqueAccounts.filter(a => a !== 'all').map(a => {
-                        const accountInfo = SOURCE_ACCOUNTS.find(sa => sa.value === a);
-                        return <SelectItem key={a} value={a}>{accountInfo?.label || a}</SelectItem>
-                      })}
+                      {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <DateRangePicker onUpdate={({ range }) => setDateRange(range)} locale={es} />
