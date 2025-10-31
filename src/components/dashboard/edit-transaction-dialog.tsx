@@ -52,7 +52,7 @@ const transactionSchema = z.object({
 interface EditTransactionDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  transaction: Transaction;
+  transaction: Transaction | null;
   onTransactionUpdated: () => void;
 }
 
@@ -70,10 +70,6 @@ export function EditTransactionDialog({
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      ...transaction,
-      date: (transaction.date as any).toDate ? (transaction.date as any).toDate() : new Date(transaction.date),
-    }
   });
 
   const transactionType = form.watch('type');
@@ -85,9 +81,15 @@ export function EditTransactionDialog({
 
   useEffect(() => {
     if (transaction) {
+      let date;
+      if (transaction.date && typeof (transaction.date as any).toDate === 'function') {
+        date = (transaction.date as any).toDate();
+      } else {
+        date = new Date(transaction.date as any);
+      }
       form.reset({
         ...transaction,
-        date: (transaction.date as any).toDate ? (transaction.date as any).toDate() : new Date(transaction.date),
+        date,
       });
     }
   }, [transaction, form]);
@@ -104,7 +106,7 @@ export function EditTransactionDialog({
 
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
-    if (!user) return;
+    if (!user || !transaction) return;
     setLoading(true);
 
     const transactionRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);

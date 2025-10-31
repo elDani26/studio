@@ -30,7 +30,6 @@ export default function DashboardPage() {
       const userTransactions = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: (doc.data().date as any).toDate(),
       })) as Transaction[];
       setTransactions(userTransactions);
       setLoading(false);

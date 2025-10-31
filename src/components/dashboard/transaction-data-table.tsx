@@ -53,7 +53,13 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
-      const tDate = t.date as unknown as Date;
+      let tDate;
+      if (t.date && typeof (t.date as any).toDate === 'function') {
+        tDate = (t.date as any).toDate();
+      } else {
+        tDate = new Date(t.date as any);
+      }
+      
       const dateFilter = !dateRange || !dateRange.from || (tDate >= dateRange.from && (!dateRange.to || tDate <= dateRange.to));
       const categoryFilter = category === 'all' || t.category === category;
       const typeFilter = type === 'all' || t.type === type;
