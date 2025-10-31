@@ -4,6 +4,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { type DateRange } from 'react-day-picker';
+import { es } from 'date-fns/locale';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ export function DateRangePicker({
   initialDateFrom,
   initialDateTo,
   align = 'end',
-  locale,
+  locale = es,
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: initialDateFrom,
@@ -50,7 +51,7 @@ export function DateRangePicker({
             id="date"
             variant={'outline'}
             className={cn(
-              'w-[260px] justify-start text-left font-normal',
+              'w-full md:w-[260px] justify-start text-left font-normal',
               !date && 'text-muted-foreground'
             )}
           >
@@ -58,14 +59,14 @@ export function DateRangePicker({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, 'LLL dd, y')} -{' '}
-                  {format(date.to, 'LLL dd, y')}
+                  {format(date.from, 'dd/MM/yyyy', { locale })} -{' '}
+                  {format(date.to, 'dd/MM/yyyy', { locale })}
                 </>
               ) : (
-                format(date.from, 'LLL dd, y')
+                format(date.from, 'dd/MM/yyyy', { locale })
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Elige un rango de fechas</span>
             )}
           </Button>
         </PopoverTrigger>

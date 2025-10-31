@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 
 interface ExpenseChartProps {
   transactions: Transaction[];
 }
+
+const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6'];
 
 export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
@@ -21,52 +23,55 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
         const total = expenses
           .filter(expense => expense.category === category.value)
           .reduce((acc, curr) => acc + curr.amount, 0);
-        return { name: category.label, total };
+        return { name: category.label, value: total };
       })
-      .filter(item => item.total > 0)
-      .sort((a, b) => b.total - a.total);
+      .filter(item => item.value > 0)
+      .sort((a, b) => b.value - a.value);
 
     setChartData(data);
   }, [initialTransactions]);
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="p-2 text-sm bg-background border rounded-md shadow-lg">
+          <p className="font-bold">{`${payload[0].name} : ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(payload[0].value)}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle>Top Expenses</CardTitle>
-        <CardDescription>A look at your spending by category.</CardDescription>
+        <CardTitle className="text-base">Egresos por Categoría</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={150}>
           {chartData.length > 0 ? (
-            <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-              <XAxis
-                dataKey="name"
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <Tooltip
-                cursor={{ fill: 'hsla(var(--accent) / 0.3)' }}
-                contentStyle={{
-                    background: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 'var(--radius)',
-                }}
-              />
-              <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-            </BarChart>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={60}
+                fill="#8884d8"
+                dataKey="value"
+                stroke="hsl(var(--background))"
+                strokeWidth={2}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" />
+            </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
-                <p className="text-muted-foreground">No expense data to display.</p>
-                <p className="text-sm text-muted-foreground">Add some expenses to get started.</p>
+                <p className="text-sm text-muted-foreground">No hay datos de egresos.</p>
             </div>
           )}
         </ResponsiveContainer>

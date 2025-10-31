@@ -1,13 +1,13 @@
-import { Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins } from 'lucide-react';
+import { Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard } from 'lucide-react';
 
 export const TRANSACTION_CATEGORIES = [
-  { value: 'salary', label: 'Salary', icon: Briefcase },
-  { value: 'food', label: 'Food', icon: ShoppingBasket },
-  { value: 'transport', label: 'Transport', icon: Car },
-  { value: 'entertainment', label: 'Entertainment', icon: Ticket },
-  { value: 'housing', label: 'Housing', icon: Home },
-  { value: 'health', label: 'Health', icon: HeartPulse },
-  { value: 'shopping', label: 'Shopping', icon: ShoppingBag },
-  { value: 'income', label: 'Income', icon: Coins },
-  { value: 'other', label: 'Other', icon: MoreHorizontal },
+  { value: 'salary', label: 'Salario', icon: Briefcase },
+  { value: 'food', label: 'Alimentación', icon: ShoppingBasket },
+  { value: 'transport', label: 'Transporte', icon: Car },
+  { value: 'entertainment', label: 'Entretenimiento', icon: Clapperboard },
+  { value: 'housing', label: 'Vivienda', icon: Home },
+  { value: 'health', label: 'Salud', icon: HeartPulse },
+  { value: 'shopping', label: 'Compras', icon: ShoppingBag },
+  { value: 'income', label: 'Ingresos', icon: Coins },
+  { value: 'other', label: 'Otros', icon: MoreHorizontal },
 ];

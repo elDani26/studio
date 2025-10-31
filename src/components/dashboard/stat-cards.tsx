@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, DollarSign, Wallet } from 'lucide-react';
+import { ArrowDown, ArrowUp, Scale } from 'lucide-react';
 
 interface StatCardsProps {
   transactions: Transaction[];
@@ -29,43 +29,46 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
   const balance = totalIncome - totalExpenses;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('es-ES', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EUR',
     }).format(amount);
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-          <ArrowDownCircle className="h-4 w-4 text-green-500" />
+          <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
+          <ArrowDown className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalIncome)}</div>
+          <div className="text-2xl font-bold text-green-500">{formatCurrency(totalIncome)}</div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-          <ArrowUpCircle className="h-4 w-4 text-red-500" />
+          <CardTitle className="text-sm font-medium">Egresos Totales</CardTitle>
+          <ArrowUp className="h-4 w-4 text-red-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
+          <div className="text-2xl font-bold text-red-500">{formatCurrency(totalExpenses)}</div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Balance</CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Balance Actual</CardTitle>
+          <Scale className="h-4 w-4 text-blue-500" />
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+          <div className={`text-2xl font-bold text-blue-500`}>
             {formatCurrency(balance)}
           </div>
         </CardContent>
       </Card>
+      <div className="lg:col-span-1">
+        <ExpenseChart transactions={initialTransactions} />
+      </div>
     </div>
   );
 }

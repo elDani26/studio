@@ -33,15 +33,16 @@ import { cn } from '@/lib/utils';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 const transactionSchema = z.object({
-  type: z.enum(['income', 'expense'], { required_error: 'Please select a transaction type.' }),
-  amount: z.coerce.number().positive({ message: 'Amount must be positive.' }),
-  category: z.string().min(1, { message: 'Please select a category.' }),
-  date: z.date({ required_error: 'Please select a date.' }),
+  type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
+  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+  category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
+  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
   description: z.string().optional(),
   account: z.string().optional(),
 });
@@ -80,8 +81,8 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     addDoc(collectionRef, transactionData)
       .then(() => {
         toast({
-          title: 'Success!',
-          description: 'Your transaction has been added.',
+          title: '¡Éxito!',
+          description: 'Tu transacción ha sido agregada.',
         });
         onTransactionAdded();
         setOpen(false);
@@ -98,7 +99,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: 'Failed to add transaction. Please try again.',
+          description: 'No se pudo agregar la transacción. Inténtalo de nuevo.',
         });
       })
       .finally(() => {
@@ -110,15 +111,15 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Transaction</span>
+            <PlusCircle className="h-4 w-4" />
+            <span>Agregar Transacción</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Transaction</DialogTitle>
+          <DialogTitle>Agregar Nueva Transacción</DialogTitle>
           <DialogDescription>
-            Fill in the details below to add a new financial record.
+            Completa los detalles para agregar un nuevo registro financiero.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -128,7 +129,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="type"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Transaction Type</FormLabel>
+                  <FormLabel>Tipo de Transacción</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -139,13 +140,13 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                         <FormControl>
                           <RadioGroupItem value="income" />
                         </FormControl>
-                        <FormLabel className="font-normal">Income</FormLabel>
+                        <FormLabel className="font-normal">Ingreso</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="expense" />
                         </FormControl>
-                        <FormLabel className="font-normal">Expense</FormLabel>
+                        <FormLabel className="font-normal">Egreso</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
@@ -159,7 +160,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Monto</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="0.00" {...field} />
                   </FormControl>
@@ -173,11 +174,11 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Categoría</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Selecciona una categoría" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -198,7 +199,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Transaction Date</FormLabel>
+                  <FormLabel>Fecha de Transacción</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -209,7 +210,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                             !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                          {field.value ? format(field.value, 'PPP', { locale: es }) : <span>Elige una fecha</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -221,23 +222,10 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                         onSelect={field.onChange}
                         disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                         initialFocus
+                        locale={es}
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-             <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Account (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Bank, Cash" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -248,9 +236,23 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel>Descripción</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Groceries" {...field} />
+                    <Input placeholder="Ej: Supermercado" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="account"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cuenta (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: Cuenta de Banco, Efectivo" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -260,7 +262,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
             <DialogFooter>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Transaction
+                Agregar Transacción
               </Button>
             </DialogFooter>
           </form>
