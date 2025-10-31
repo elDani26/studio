@@ -81,11 +81,6 @@ export function EditTransactionDialog({
 
   useEffect(() => {
     if (transaction) {
-      // Ensure the correct transaction type is set before resetting the form
-      // This prevents the category from being wiped if the default type is different
-      if (form.getValues('type') !== transaction.type) {
-        form.setValue('type', transaction.type);
-      }
       form.reset({
         ...transaction,
         date: (transaction.date as any).toDate ? (transaction.date as any).toDate() : new Date(transaction.date),
@@ -94,16 +89,18 @@ export function EditTransactionDialog({
   }, [transaction, form]);
 
   useEffect(() => {
-    // When the filtered categories change (due to type change), check if the current category is still valid
-    const currentCategory = form.getValues('category');
-    if (transactionType && currentCategory) {
-      const currentCategoryIsValid = filteredCategories.some(c => c.value === currentCategory);
-      // If the currently selected category is not in the new filtered list, reset it.
-      if (!currentCategoryIsValid) {
-        form.setValue('category', '');
-      }
+    // When the transaction type changes, re-validate the selected category
+    if (transactionType) {
+        const currentCategoryValue = form.getValues('category');
+        if (currentCategoryValue) {
+            const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
+            if (!isCategoryStillValid) {
+                form.setValue('category', ''); // Reset if the category is not valid for the new type
+            }
+        }
     }
-  }, [filteredCategories, transactionType, form]);
+  }, [transactionType, filteredCategories, form]);
+
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
