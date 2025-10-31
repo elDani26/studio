@@ -9,7 +9,7 @@ import { es } from 'date-fns/locale';
 
 interface Column<T> {
   header: string;
-  accessor: keyof T | 'categoryIcon';
+  accessor: keyof T | 'categoryIcon' | 'actions';
   cell: (item: T) => React.ReactNode;
   className?: string;
 }
@@ -57,7 +57,10 @@ const AccountCell = ({ account }: { account?: string }) => {
 }
 
 
-export const columns: Column<Transaction>[] = [
+export const getColumns = (
+    onEdit: (transaction: Transaction) => void,
+    onDelete: (transactionId: string) => void
+  ): Column<Transaction>[] => [
   {
     header: 'Descripción',
     accessor: 'category',
