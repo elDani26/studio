@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -78,6 +78,10 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     return categories.filter(c => c.type === transactionType);
   }, [categories, transactionType]);
 
+  useEffect(() => {
+    // When transaction type changes, reset the category field.
+    form.setValue('category', '');
+  }, [transactionType, form]);
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
@@ -145,10 +149,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                   <FormLabel>Tipo de Transacción</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue('category', ''); // Reset category on type change
-                      }}
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       className="flex space-x-4"
                     >
