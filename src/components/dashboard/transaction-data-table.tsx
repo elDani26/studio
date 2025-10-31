@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Transaction } from '@/types';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { getColumns } from './transaction-table-columns';
@@ -50,6 +50,20 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+
+  const filteredCategories = useMemo(() => {
+    if (type === 'all') {
+      return categories;
+    }
+    return categories.filter(c => c.type === type);
+  }, [categories, type]);
+
+  useEffect(() => {
+    // If the selected category is no longer valid for the current type, reset it
+    if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
+      setCategoryFilter('all');
+    }
+  }, [type, filteredCategories, categoryFilter]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -137,7 +151,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      {filteredCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={accountFilter} onValueChange={setAccountFilter}>
