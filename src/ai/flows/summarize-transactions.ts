@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeTransactionsPrompt',
   input: {schema: SummarizeTransactionsInputSchema},
   output: {schema: SummarizeTransactionsOutputSchema},
-  prompt: `You are a personal finance expert. Please summarize the following transactions for the user, providing insights into their spending habits, including the percentage of income allocated to each category.
+  prompt: `You are a personal finance expert. Please summarize the following transactions for the user, providing insights into their spending habits, including the percentage of income allocated to each category. The response must be in Spanish.
 
 Transactions:
 {{#each transactions}}
