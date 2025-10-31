@@ -21,8 +21,11 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -40,13 +43,29 @@ export default function LoginPage() {
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
-    if (password.length < 6) {
-        setError("La contraseña debe tener al menos 6 caracteres.");
-        setLoading(false);
-        return;
+
+    if (email !== confirmEmail) {
+      setError('Los correos electrónicos no coinciden.');
+      setLoading(false);
+      return;
     }
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      setLoading(false);
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.');
+      setLoading(false);
+      return;
+    }
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      // The onAuthStateChanged listener in the provider will handle the redirect
     } catch (error: any)
     {
       if (error.code === 'auth/email-already-in-use') {
@@ -59,6 +78,13 @@ export default function LoginPage() {
     }
   };
 
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+    setConfirmEmail('');
+    setConfirmPassword('');
+    setError(null);
+  }
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -85,7 +111,14 @@ export default function LoginPage() {
           <CardDescription>Tu compañero financiero personal</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => {
+                setActiveTab(value);
+                clearForm();
+            }}
+            className="w-full"
+           >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
               <TabsTrigger value="signup">Registrarse</TabsTrigger>
@@ -112,9 +145,20 @@ export default function LoginPage() {
                   <Label htmlFor="email-signup">Correo Electrónico</Label>
                   <Input id="email-signup" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="confirm-email-signup">Confirmar Correo Electrónico</Label>
+                  <Input id="confirm-email-signup" type="email" placeholder="tu@email.com" value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Contraseña</Label>
                   <Input id="password-signup" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                   <p className="text-xs text-muted-foreground pt-1">
+                    8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).
+                  </p>
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="confirm-password-signup">Confirmar Contraseña</Label>
+                  <Input id="confirm-password-signup" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
                 <Button onClick={handleSignUp} disabled={loading || isUserLoading} className="w-full">
