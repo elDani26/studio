@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { Transaction } from '@/types';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { getColumns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -14,8 +14,8 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { SOURCE_ACCOUNTS } from '@/lib/constants';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
-import { FileDown, PlusCircle, Pencil, Trash2 } from 'lucide-react';
-import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
+import { Pencil, Trash2 } from 'lucide-react';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -31,14 +31,13 @@ import {
 import { useSettings } from '@/context/settings-context';
 
 interface TransactionDataTableProps {
-  initialTransactions: Transaction[];
+  transactions: Transaction[];
+  loading: boolean;
 }
 
-export function TransactionDataTable({ initialTransactions }: TransactionDataTableProps) {
+export function TransactionDataTable({ transactions, loading }: TransactionDataTableProps) {
   const { user } = useUser();
   const firestore = useFirestore();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { categories } = useSettings();
 
@@ -51,35 +50,6 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
-
-  const transactionsQuery = useMemoFirebase(() => {
-    if (!user) return null;
-    return query(collection(firestore, 'users', user.uid, 'transactions'), orderBy('date', 'desc'));
-  }, [user, firestore]);
-
-  useEffect(() => {
-    if (!transactionsQuery) {
-      setLoading(false);
-      return;
-    };
-
-    setLoading(true);
-    const unsubscribe = onSnapshot(transactionsQuery, (querySnapshot) => {
-      const userTransactions = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: (doc.data().date as any).toDate(),
-      })) as Transaction[];
-      setTransactions(userTransactions);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching transactions:", error);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [transactionsQuery]);
-
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {

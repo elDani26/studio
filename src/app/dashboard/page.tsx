@@ -53,7 +53,7 @@ export default function DashboardPage() {
           <AiSummary transactions={transactions} />
         </div>
       </div>
-      <TransactionDataTable initialTransactions={[]} />
+      <TransactionDataTable transactions={transactions} loading={loading} />
     </div>
   );
 }
