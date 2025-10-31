@@ -81,6 +81,11 @@ export function EditTransactionDialog({
 
   useEffect(() => {
     if (transaction) {
+      // Ensure the correct transaction type is set before resetting the form
+      // This prevents the category from being wiped if the default type is different
+      if (form.getValues('type') !== transaction.type) {
+        form.setValue('type', transaction.type);
+      }
       form.reset({
         ...transaction,
         date: (transaction.date as any).toDate ? (transaction.date as any).toDate() : new Date(transaction.date),

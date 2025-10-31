@@ -79,9 +79,15 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   }, [categories, transactionType]);
 
   useEffect(() => {
-    // When transaction type changes, reset the category field.
-    form.setValue('category', '');
-  }, [transactionType, form]);
+    // When transaction type changes, check if the current category is still valid.
+    const currentCategory = form.getValues('category');
+    if (currentCategory) {
+      const categoryIsValid = filteredCategories.some(c => c.value === currentCategory);
+      if (!categoryIsValid) {
+        form.setValue('category', '');
+      }
+    }
+  }, [transactionType, filteredCategories, form]);
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
