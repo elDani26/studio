@@ -117,7 +117,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
               <CardTitle>Transacciones Recientes</CardTitle>
               <CardDescription>Consulta y gestiona tus movimientos financieros.</CardDescription>
             </div>
-            <AddTransactionDialog onTransactionAdded={() => {}} />
+            <AddTransactionDialog />
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4">
               <Select value={type} onValueChange={setType}>

@@ -92,17 +92,18 @@ export function EditTransactionDialog({
         date,
       });
     }
-  }, [transaction, form]);
+  }, [transaction, isOpen, form]);
 
   useEffect(() => {
-    const currentCategoryValue = form.getValues('category');
-    if (currentCategoryValue) {
-        const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
-        if (!isCategoryStillValid) {
-            form.setValue('category', '');
-        }
+    if (transaction) {
+      const currentCategoryValue = form.getValues('category');
+      const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
+
+      if (!isCategoryStillValid) {
+          form.setValue('category', '');
+      }
     }
-  }, [transactionType, filteredCategories, form]);
+  }, [transactionType, filteredCategories, form, transaction]);
 
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {

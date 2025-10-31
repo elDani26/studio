@@ -48,11 +48,7 @@ const transactionSchema = z.object({
   account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
 });
 
-interface AddTransactionDialogProps {
-  onTransactionAdded: () => void;
-}
-
-export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialogProps) {
+export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
@@ -79,14 +75,8 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   }, [categories, transactionType]);
 
   useEffect(() => {
-    const currentCategoryValue = form.getValues('category');
-    if (currentCategoryValue) {
-      const categoryIsValidForNewType = filteredCategories.some(c => c.value === currentCategoryValue);
-      if (!categoryIsValidForNewType) {
-        form.setValue('category', '');
-      }
-    }
-  }, [transactionType, filteredCategories, form]);
+    form.setValue('category', '');
+  }, [transactionType, form]);
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
@@ -106,9 +96,15 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
           title: '¡Éxito!',
           description: 'Tu transacción ha sido agregada.',
         });
-        onTransactionAdded();
         setOpen(false);
-        form.reset();
+        form.reset({
+          type: 'expense',
+          amount: 0,
+          category: '',
+          date: new Date(),
+          description: '',
+          account: '',
+        });
       })
       .catch((error) => {
         console.error('Error adding transaction: ', error);
