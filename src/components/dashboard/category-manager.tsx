@@ -53,7 +53,7 @@ export function CategoryManager() {
     }
 
     const newCategory: Category = {
-      value: newCategoryLabel.toLowerCase().replace(/\s+/g, '_'),
+      value: `${newCategoryLabel.toLowerCase().replace(/\s+/g, '_')}_${new Date().getTime()}`,
       label: newCategoryLabel,
       icon: newCategoryIcon,
       type: newCategoryType,
