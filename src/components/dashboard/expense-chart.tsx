@@ -10,15 +10,17 @@ interface ExpenseChartProps {
   transactions: Transaction[];
 }
 
-const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6', '#6B7280'];
+const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6', '#6B7280', '#EC4899', '#D946EF', '#818CF8'];
 
 export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => t.type === 'expense');
+    const incomeCategories = ['salary', 'income'];
+
     const data = TRANSACTION_CATEGORIES
-      .filter(cat => cat.value !== 'salary' && cat.value !== 'income')
+      .filter(cat => !incomeCategories.includes(cat.value))
       .map(category => {
         const total = expenses
           .filter(expense => expense.category === category.value)
