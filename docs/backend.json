@@ -1,0 +1,194 @@
+{
+  "entities": {
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a financial transaction.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who created the transaction. (Relationship: User 1:N Transaction)"
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Type of transaction (income or expense).",
+          "format": "string",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the transaction (e.g., food, transport)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the transaction."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the transaction.",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the transaction."
+        },
+        "sourceAccountId": {
+          "type": "string",
+          "description": "Reference to the SourceAccount used for the transaction. (Relationship: SourceAccount 1:N Transaction)"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "transactionType",
+        "category",
+        "date",
+        "amount"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "Google ID of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        }
+      },
+      "required": [
+        "id",
+        "googleId",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    },
+    "SourceAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SourceAccount",
+      "type": "object",
+      "description": "Represents the source account for a transaction (e.g., bank account, cash).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the source account."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns the account. (Relationship: User 1:N SourceAccount)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the source account (e.g., Checking Account, Savings Account)."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the source account (e.g., bank, cash, credit card)."
+        },
+        "balance": {
+          "type": "number",
+          "description": "Current balance of the account."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "type"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Access is restricted to the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sourceAccounts/{sourceAccountId}",
+        "definition": {
+          "entityName": "SourceAccount",
+          "schema": {
+            "$ref": "#/backend/entities/SourceAccount"
+          },
+          "description": "Stores source accounts owned by a specific user. Access is restricted to the owner.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "sourceAccountId",
+              "description": "The unique identifier of the source account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transactions created by a specific user. Access is restricted to the owner.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier of the transaction."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, Clarity of Intent, and support secure list operations (QAPs). It leverages path-based ownership for user-specific data and denormalization where necessary to avoid `get()` calls in security rules.\n\n*   **Users Collection:** Stores user profiles. Access is restricted to the user themselves.\n*   **SourceAccounts Collection:** Source accounts are stored as subcollections under each user. This enforces clear ownership and simplifies security rules.\n*   **Transactions Collection:** Transactions are stored as subcollections under each user. This clearly associates transactions with users and allows for efficient querying of transactions for a specific user. Denormalization isn't needed here, as Transactions are intrinsically private to the user.\n\nThis structure promotes Authorization Independence by avoiding hierarchical dependencies. Each collection's security rules can be evaluated independently without needing to fetch data from parent documents.\n\nQAPs are supported via structural segregation (separation of user data using path-based ownership), which allows secure listing of resources owned by a specific user."
+  }
+}
