@@ -36,7 +36,7 @@ interface TransactionDataTableProps {
 export function TransactionDataTable({ initialTransactions }: TransactionDataTableProps) {
   const { user } = useUser();
   const firestore = useFirestore();
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -54,13 +54,6 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
     if (!user) return null;
     return query(collection(firestore, 'users', user.uid, 'transactions'), orderBy('date', 'desc'));
   }, [user, firestore]);
-
-  useEffect(() => {
-    setTransactions(initialTransactions);
-     if (initialTransactions.length > 0) {
-      setLoading(false);
-    }
-  }, [initialTransactions]);
 
   useEffect(() => {
     if (!transactionsQuery) {
