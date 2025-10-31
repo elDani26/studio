@@ -22,6 +22,8 @@ import {
 import { Settings } from 'lucide-react';
 import { useSettings } from '@/context/settings-context';
 import { toast } from '@/hooks/use-toast';
+import { CategoryManager } from './category-manager';
+import { Separator } from '../ui/separator';
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -54,7 +56,7 @@ export function SettingsDialog() {
           <span className="sr-only">Ajustes</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Configuración</DialogTitle>
           <DialogDescription>
@@ -83,6 +85,8 @@ export function SettingsDialog() {
             </Select>
           </div>
         </div>
+        <Separator />
+        <CategoryManager />
         <DialogFooter>
           <Button onClick={handleSave}>Guardar Cambios</Button>
         </DialogFooter>

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 import { useSettings } from '@/context/settings-context';
 
 interface IncomeChartProps {
@@ -15,7 +14,7 @@ const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
 
 export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
-  const { currency } = useSettings();
+  const { currency, categories } = useSettings();
 
   useEffect(() => {
     const incomes = initialTransactions.filter(t => t.type === 'income');
@@ -32,7 +31,7 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
 
     // Format data for the chart
     const data = Object.keys(incomeByCategory).map(categoryValue => {
-      const categoryInfo = TRANSACTION_CATEGORIES.find(c => c.value === categoryValue);
+      const categoryInfo = categories.find(c => c.value === categoryValue);
       return {
         name: categoryInfo?.label || categoryValue,
         value: incomeByCategory[categoryValue],
@@ -42,7 +41,7 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
     .sort((a, b) => b.value - a.value);
 
     setChartData(data);
-  }, [initialTransactions]);
+  }, [initialTransactions, categories]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {

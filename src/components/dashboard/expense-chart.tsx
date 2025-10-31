@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 import { useSettings } from '@/context/settings-context';
 
 interface ExpenseChartProps {
@@ -15,7 +14,7 @@ const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6'
 
 export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
-  const { currency } = useSettings();
+  const { currency, categories } = useSettings();
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => t.type === 'expense');
@@ -31,7 +30,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
 
 
     const data = Object.keys(expenseByCategory).map(categoryValue => {
-      const categoryInfo = TRANSACTION_CATEGORIES.find(c => c.value === categoryValue);
+      const categoryInfo = categories.find(c => c.value === categoryValue);
       return {
         name: categoryInfo?.label || categoryValue,
         value: expenseByCategory[categoryValue],
@@ -41,7 +40,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     .sort((a, b) => b.value - a.value);
 
     setChartData(data);
-  }, [initialTransactions]);
+  }, [initialTransactions, categories]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {

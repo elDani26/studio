@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,13 +30,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
+import { SOURCE_ACCOUNTS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useSettings } from '@/context/settings-context';
 
 const transactionSchema = z.object({
   type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
@@ -57,6 +58,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { categories } = useSettings();
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -69,6 +71,13 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
       account: '',
     },
   });
+  
+  const transactionType = form.watch('type');
+
+  const filteredCategories = useMemo(() => {
+    return categories.filter(c => c.type === transactionType);
+  }, [categories, transactionType]);
+
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
@@ -186,7 +195,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {TRANSACTION_CATEGORIES.map(cat => (
+                      {filteredCategories.map(cat => (
                         <SelectItem key={cat.value} value={cat.value}>
                            <div className="flex items-center">
                             <cat.icon className="mr-2 h-4 w-4 text-muted-foreground" />

@@ -1,18 +1,23 @@
-import { Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift } from 'lucide-react';
+import { Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane } from 'lucide-react';
+import type { Category } from '@/context/settings-context';
 
-export const TRANSACTION_CATEGORIES = [
-  { value: 'food', label: 'Alimentación', icon: ShoppingBasket },
-  { value: 'transport', label: 'Transporte', icon: Car },
-  { value: 'housing', label: 'Vivienda', icon: Home },
-  { value: 'bills', label: 'Cuentas y Pagos', icon: Ticket },
-  { value: 'entertainment', label: 'Entretenimiento', icon: Clapperboard },
-  { value: 'health', label: 'Salud', icon: HeartPulse },
-  { value: 'shopping', label: 'Compras', icon: ShoppingBag },
-  { value: 'salary', label: 'Salario', icon: Briefcase },
-  { value: 'investments', label: 'Inversiones', icon: Building },
-  { value: 'gifts', label: 'Regalos', icon: Gift },
-  { value: 'income', label: 'Otros Ingresos', icon: Coins },
-  { value: 'other', label: 'Otros', icon: MoreHorizontal },
+export const TRANSACTION_CATEGORIES: Category[] = [
+  { value: 'food', label: 'Alimentación', icon: ShoppingBasket, type: 'expense' },
+  { value: 'transport', label: 'Transporte', icon: Car, type: 'expense' },
+  { value: 'housing', label: 'Vivienda', icon: Home, type: 'expense' },
+  { value: 'bills', label: 'Cuentas y Pagos', icon: Ticket, type: 'expense' },
+  { value: 'entertainment', label: 'Entretenimiento', icon: Clapperboard, type: 'expense' },
+  { value: 'health', label: 'Salud', icon: HeartPulse, type: 'expense' },
+  { value: 'shopping', label: 'Compras', icon: ShoppingBag, type: 'expense' },
+  { value: 'clothing', label: 'Ropa', icon: Shirt, type: 'expense' },
+  { value: 'restaurants', label: 'Restaurantes', icon: Utensils, type: 'expense' },
+  { value: 'travel', label: 'Viajes', icon: Plane, type: 'expense' },
+  { value: 'salary', label: 'Salario', icon: Briefcase, type: 'income' },
+  { value: 'investments', label: 'Inversiones', icon: Building, type: 'income' },
+  { value: 'gifts_received', label: 'Regalos Recibidos', icon: Gift, type: 'income' },
+  { value: 'other_income', label: 'Otros Ingresos', icon: Coins, type: 'income' },
+  { value: 'gifts_sent', label: 'Regalos Hechos', icon: Gift, type: 'expense' },
+  { value: 'other_expenses', label: 'Otros Egresos', icon: MoreHorizontal, type: 'expense' },
 ];
 
 export const SOURCE_ACCOUNTS = [

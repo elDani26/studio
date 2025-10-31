@@ -11,7 +11,7 @@ import { EditTransactionDialog } from './edit-transaction-dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
+import { SOURCE_ACCOUNTS } from '@/lib/constants';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
 import { FileDown, PlusCircle, Pencil, Trash2 } from 'lucide-react';
@@ -27,7 +27,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { useSettings } from '@/context/settings-context';
 
 interface TransactionDataTableProps {
   initialTransactions: Transaction[];
@@ -39,6 +40,7 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { categories } = useSettings();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [category, setCategory] = useState<string>('all');
@@ -158,7 +160,7 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {TRANSACTION_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                      {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={account} onValueChange={setAccount}>
