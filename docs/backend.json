@@ -75,6 +75,11 @@
         "lastName": {
           "type": "string",
           "description": "Last name of the user."
+        },
+        "currency": {
+            "type": "string",
+            "description": "The user's preferred currency.",
+            "default": "EUR"
         }
       },
       "required": [

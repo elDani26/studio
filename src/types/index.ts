@@ -19,3 +19,11 @@ export type TransactionFormData = {
   description?: string;
   account?: string;
 };
+
+export type User = {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    currency?: string;
+};
