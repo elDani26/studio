@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useAuth as useFirebaseAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useUser, useAuth as useFirebaseAuth, errorEmitter } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import {
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();

@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,7 +35,6 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Transaction } from '@/types';
-import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 
@@ -127,7 +126,6 @@ export function EditTransactionDialog({
             onOpenChange(false);
         })
         .catch((error) => {
-            console.error('Error updating transaction: ', error);
             const permissionError = new FirestorePermissionError({
                 path: transactionRef.path,
                 operation: 'update',

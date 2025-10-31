@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import type { Transaction } from '@/types';
-import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { getColumns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 
 interface TransactionDataTableProps {

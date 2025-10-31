@@ -1,11 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, errorEmitter } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import type { User } from '@/types';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
-import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 
@@ -52,7 +51,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     }, (error) => {
-      console.error("Error fetching user settings:", error);
+      const permissionError = new FirestorePermissionError({
+          path: userDocRef.path,
+          operation: 'get',
+      });
+      errorEmitter.emit('permission-error', permissionError);
     });
     
     // Cleanup the listener on component unmount
@@ -72,7 +75,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
                 requestResourceData: currencyData,
             });
             errorEmitter.emit('permission-error', permissionError);
-            console.error("Error saving currency:", error);
       });
     }
   };

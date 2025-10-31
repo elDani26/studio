@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,7 +35,6 @@ import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 
@@ -103,7 +102,6 @@ export function AddTransactionDialog() {
         form.reset();
       })
       .catch((error) => {
-        console.error('Error adding transaction: ', error);
         const permissionError = new FirestorePermissionError({
             path: collectionRef.path,
             operation: 'create',
