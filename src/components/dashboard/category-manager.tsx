@@ -27,18 +27,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EditCategoryDialog } from './edit-category-dialog';
+import { ICONS } from '@/lib/constants';
 
-const ALL_ICONS = Object.keys(Icons).filter(key => {
-    const Component = (Icons as any)[key];
-    return typeof Component === 'object' && Component.displayName;
-});
+const ALL_ICONS = Object.keys(ICONS);
 
 
 export function CategoryManager() {
   const { categories, addCategory, deleteCategory } = useSettings();
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
   const [newCategoryType, setNewCategoryType] = useState<'income' | 'expense'>('expense');
-  const [newCategoryIcon, setNewCategoryIcon] = useState<keyof typeof Icons>('MoreHorizontal');
+  const [newCategoryIcon, setNewCategoryIcon] = useState<string>('MoreHorizontal');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -57,7 +55,7 @@ export function CategoryManager() {
     const newCategory: Category = {
       value: newCategoryLabel.toLowerCase().replace(/\s+/g, '_'),
       label: newCategoryLabel,
-      icon: (Icons as any)[newCategoryIcon] || Icons.MoreHorizontal,
+      icon: newCategoryIcon,
       type: newCategoryType,
     };
 
@@ -118,14 +116,14 @@ export function CategoryManager() {
                   <Label htmlFor="category-icon">Icono</Label>
                   <Select
                       value={newCategoryIcon}
-                      onValueChange={(value) => setNewCategoryIcon(value as keyof typeof Icons)}
+                      onValueChange={(value) => setNewCategoryIcon(value)}
                   >
                       <SelectTrigger>
                           <SelectValue placeholder="Selecciona un icono" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
                           {ALL_ICONS.map(iconName => {
-                              const IconComponent = (Icons as any)[iconName];
+                              const IconComponent = ICONS[iconName];
                               return (
                                   <SelectItem key={iconName} value={iconName}>
                                       <div className="flex items-center gap-2">
@@ -167,13 +165,15 @@ export function CategoryManager() {
         <div className="space-y-2">
           <h4 className="font-medium">Categorías Existentes</h4>
           <div className="max-h-60 overflow-y-auto rounded-md border">
-            {categories.map((category) => (
+            {categories.map((category) => {
+              const Icon = ICONS[category.icon] || ICONS.MoreHorizontal;
+              return (
               <div
                 key={category.value}
                 className="flex items-center justify-between p-2 hover:bg-muted/50"
               >
                 <div className="flex items-center gap-2">
-                  <category.icon className="h-4 w-4 text-muted-foreground" />
+                  <Icon className="h-4 w-4 text-muted-foreground" />
                   <span>{category.label}</span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
@@ -192,7 +192,7 @@ export function CategoryManager() {
                   </Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </div>

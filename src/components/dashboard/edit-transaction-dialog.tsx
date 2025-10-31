@@ -29,7 +29,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { SOURCE_ACCOUNTS } from '@/lib/constants';
+import { SOURCE_ACCOUNTS, ICONS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -196,14 +196,17 @@ export function EditTransactionDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {filteredCategories.map(cat => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                           <div className="flex items-center">
-                            <cat.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {cat.label}
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {filteredCategories.map(cat => {
+                        const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
+                        return (
+                          <SelectItem key={cat.value} value={cat.value}>
+                             <div className="flex items-center">
+                              <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                              {cat.label}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   <FormMessage />

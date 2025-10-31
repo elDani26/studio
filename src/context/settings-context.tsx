@@ -2,14 +2,13 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
-import type { LucideIcon } from 'lucide-react';
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
 export interface Category {
   value: string;
   label: string;
-  icon: LucideIcon;
+  icon: string; // Icon name as string
   type: 'income' | 'expense';
 }
 

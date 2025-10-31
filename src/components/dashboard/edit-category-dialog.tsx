@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import * as Icons from 'lucide-react';
 import { useSettings, type Category } from '@/context/settings-context';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,20 +32,9 @@ import {
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { ICONS } from '@/lib/constants';
 
-const ALL_ICONS = Object.keys(Icons).filter(key => {
-    const Component = (Icons as any)[key];
-    return typeof Component === 'object' && Component.displayName;
-});
-
-const getIconName = (IconComponent: React.ElementType): keyof typeof Icons | 'MoreHorizontal' => {
-  for (const name in Icons) {
-    if ((Icons as any)[name] === IconComponent) {
-      return name as keyof typeof Icons;
-    }
-  }
-  return 'MoreHorizontal';
-};
+const ALL_ICONS = Object.keys(ICONS);
 
 const categorySchema = z.object({
   label: z.string().min(1, { message: 'El nombre de la categoría es requerido.' }),
@@ -78,7 +66,7 @@ export function EditCategoryDialog({
     if (category) {
       form.reset({
         label: category.label,
-        icon: getIconName(category.icon),
+        icon: category.icon,
       });
     }
   }, [category, form]);
@@ -89,7 +77,7 @@ export function EditCategoryDialog({
     try {
       const updatedCategoryData = {
         label: values.label,
-        icon: (Icons as any)[values.icon as keyof typeof Icons] || Icons.MoreHorizontal,
+        icon: values.icon,
       };
 
       updateCategory(category.value, updatedCategoryData);
@@ -151,7 +139,7 @@ export function EditCategoryDialog({
                     </FormControl>
                     <SelectContent className="max-h-60">
                       {ALL_ICONS.map(iconName => {
-                          const IconComponent = (Icons as any)[iconName];
+                          const IconComponent = ICONS[iconName];
                           return (
                               <SelectItem key={iconName} value={iconName}>
                                   <div className="flex items-center gap-2">

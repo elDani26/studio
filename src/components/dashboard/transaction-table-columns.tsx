@@ -1,7 +1,7 @@
 'use client';
 
 import type { Transaction } from '@/types';
-import { SOURCE_ACCOUNTS } from '@/lib/constants';
+import { SOURCE_ACCOUNTS, ICONS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
@@ -22,12 +22,12 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === transaction.account);
   const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
   const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
-  const CategoryIcon = categoryInfo?.icon;
+  const CategoryIcon = categoryInfo ? (ICONS[categoryInfo.icon] || ICONS.MoreHorizontal) : ICONS.MoreHorizontal;
   
   return (
     <div className="flex items-center gap-3">
        <div className={`rounded-full p-2 ${iconColor}`}>
-        {CategoryIcon ? <CategoryIcon className="h-5 w-5" /> : <ArrowDown className="h-5 w-5" />}
+        <CategoryIcon className="h-5 w-5" />
       </div>
       <div>
         <div className="font-medium">{categoryInfo?.label || transaction.category}</div>
