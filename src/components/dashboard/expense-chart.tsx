@@ -17,18 +17,26 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => t.type === 'expense');
-    const incomeCategories = ['salary', 'income'];
 
-    const data = TRANSACTION_CATEGORIES
-      .filter(cat => !incomeCategories.includes(cat.value))
-      .map(category => {
-        const total = expenses
-          .filter(expense => expense.category === category.value)
-          .reduce((acc, curr) => acc + curr.amount, 0);
-        return { name: category.label, value: total };
-      })
-      .filter(item => item.value > 0)
-      .sort((a, b) => b.value - a.value);
+    const expenseByCategory = expenses.reduce((acc, transaction) => {
+      const category = transaction.category;
+      if (!acc[category]) {
+        acc[category] = 0;
+      }
+      acc[category] += transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+
+    const data = Object.keys(expenseByCategory).map(categoryValue => {
+      const categoryInfo = TRANSACTION_CATEGORIES.find(c => c.value === categoryValue);
+      return {
+        name: categoryInfo?.label || categoryValue,
+        value: expenseByCategory[categoryValue],
+      };
+    })
+    .filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value);
 
     setChartData(data);
   }, [initialTransactions]);
