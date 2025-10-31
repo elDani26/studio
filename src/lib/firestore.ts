@@ -8,16 +8,19 @@ import {
   where,
   Timestamp,
   orderBy,
+  doc,
+  getFirestore,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { initializeFirebase } from '@/firebase';
 import type { Transaction, TransactionFormData } from '@/types';
 
 export async function addTransaction(
   userId: string,
   transactionData: TransactionFormData
 ) {
+  const { firestore } = initializeFirebase();
   try {
-    await addDoc(collection(db, 'transactions'), {
+    await addDoc(collection(firestore, 'users', userId, 'transactions'), {
       ...transactionData,
       userId,
       date: Timestamp.fromDate(transactionData.date),
@@ -29,10 +32,10 @@ export async function addTransaction(
 }
 
 export async function getTransactions(userId: string): Promise<Transaction[]> {
+  const { firestore } = initializeFirebase();
   try {
     const q = query(
-      collection(db, 'transactions'),
-      where('userId', '==', userId),
+      collection(firestore, 'users', userId, 'transactions'),
       orderBy('date', 'desc')
     );
     const querySnapshot = await getDocs(q);

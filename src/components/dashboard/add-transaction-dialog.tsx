@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useAuth } from '@/context/auth-context';
-import { addTransaction } from '@/lib/firestore';
+import { useUser, useFirestore } from '@/firebase';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -34,6 +34,8 @@ import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const transactionSchema = z.object({
   type: z.enum(['income', 'expense'], { required_error: 'Please select a transaction type.' }),
@@ -51,7 +53,8 @@ interface AddTransactionDialogProps {
 export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof transactionSchema>>({
@@ -65,24 +68,42 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
     setLoading(true);
-    try {
-      await addTransaction(user.uid, values);
-      toast({
-        title: 'Success!',
-        description: 'Your transaction has been added.',
+
+    const transactionData = {
+        ...values,
+        userId: user.uid,
+        date: Timestamp.fromDate(values.date),
+    };
+
+    const collectionRef = collection(firestore, 'users', user.uid, 'transactions');
+    
+    addDoc(collectionRef, transactionData)
+      .then(() => {
+        toast({
+          title: 'Success!',
+          description: 'Your transaction has been added.',
+        });
+        onTransactionAdded();
+        setOpen(false);
+        form.reset();
+      })
+      .catch((error) => {
+        console.error('Error adding transaction: ', error);
+        const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: transactionData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to add transaction. Please try again.',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      onTransactionAdded();
-      setOpen(false);
-      form.reset();
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to add transaction. Please try again.',
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Transaction } from '@/types';
 import { getTransactions } from '@/lib/firestore';
-import { useAuth } from '@/context/auth-context';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { columns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,13 +15,15 @@ import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
 import { FileDown, ListFilter, PlusCircle } from 'lucide-react';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 interface TransactionDataTableProps {
   initialTransactions: Transaction[];
 }
 
 export function TransactionDataTable({ initialTransactions }: TransactionDataTableProps) {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const [transactions, setTransactions] = useState(initialTransactions);
   const [loading, setLoading] = useState(true);
 
@@ -29,25 +31,34 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
   const [category, setCategory] = useState<string>('all');
   const [type, setType] = useState<string>('all');
 
-  const fetchUserTransactions = async () => {
-    if (!user) return;
-    setLoading(true);
-    const userTransactions = await getTransactions(user.uid);
-    const deserialized = userTransactions.map(t => ({
-      ...t,
-      date: t.date.toDate(),
-    }));
-    setTransactions(deserialized as unknown as Transaction[]);
-    setLoading(false);
-  };
-  
-  useEffect(() => {
-    fetchUserTransactions();
-  }, [user]);
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'users', user.uid, 'transactions'), orderBy('date', 'desc'));
+  }, [user, firestore]);
 
-  const onTransactionAdded = () => {
-    fetchUserTransactions();
-  };
+  useEffect(() => {
+    if (!transactionsQuery) {
+      setLoading(false);
+      return;
+    };
+
+    setLoading(true);
+    const unsubscribe = onSnapshot(transactionsQuery, (querySnapshot) => {
+      const userTransactions = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: (doc.data().date as any).toDate(),
+      })) as Transaction[];
+      setTransactions(userTransactions);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching transactions:", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [transactionsQuery]);
+
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -95,7 +106,7 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
                 <FileDown className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Export</span>
             </Button>
-            <AddTransactionDialog onTransactionAdded={onTransactionAdded} />
+            <AddTransactionDialog onTransactionAdded={() => {}} />
           </div>
         </div>
       </CardHeader>
