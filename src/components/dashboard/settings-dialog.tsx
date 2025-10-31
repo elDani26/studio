@@ -125,16 +125,15 @@ export function SettingsDialog() {
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="general" className="w-full flex-grow flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="accounts">Cuentas</TabsTrigger>
-            <TabsTrigger value="categories">Categorías</TabsTrigger>
-          </TabsList>
+        <div className="flex-grow overflow-hidden">
+          <Tabs defaultValue="general" className="w-full h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="accounts">Cuentas</TabsTrigger>
+              <TabsTrigger value="categories">Categorías</TabsTrigger>
+            </TabsList>
 
-          <ScrollArea className="flex-grow mt-4 pr-6">
-            {/* General Settings */}
-            <TabsContent value="general" className="mt-0">
+            <TabsContent value="general" className="mt-4 flex-shrink-0">
               <div className="space-y-6 py-4">
                 <div>
                   <h3 className="text-lg font-medium">Moneda</h3>
@@ -165,16 +164,14 @@ export function SettingsDialog() {
               </div>
             </TabsContent>
 
-            {/* Accounts Settings */}
-            <TabsContent value="accounts" className="mt-0">
-               <div className="space-y-6 py-4">
+            <TabsContent value="accounts" className="mt-4 flex-grow overflow-hidden">
+               <div className="space-y-4 py-1 h-full flex flex-col">
                   <div>
                       <h3 className="text-lg font-medium">Tus Cuentas</h3>
                       <p className="text-sm text-muted-foreground">
                       Agrega y gestiona las cuentas que usas (ej. Nequi, Bancolombia, Efectivo).
                       </p>
                   </div>
-
                   <Card>
                       <CardContent className="p-4 space-y-4">
                            <div className="flex flex-col sm:flex-row gap-2">
@@ -200,32 +197,32 @@ export function SettingsDialog() {
                            </div>
                       </CardContent>
                   </Card>
-                  
-                  <div className="space-y-2">
-                  {accounts.map(account => {
-                      const Icon = ICONS[account.icon] || ICONS.MoreHorizontal;
-                      return (
-                          <Card key={account.id}>
-                              <CardContent className="p-3 flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                      <Icon className="h-5 w-5 text-muted-foreground"/>
-                                      <p>{account.name}</p>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                      <Button variant="ghost" size="icon" onClick={() => handleStartEdit(account, 'account')}><Edit className="h-4 w-4"/></Button>
-                                      <Button variant="ghost" size="icon" onClick={() => deleteAccount(account.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                  </div>
-                              </CardContent>
-                          </Card>
-                      )
-                  })}
-                  </div>
+                  <ScrollArea className="flex-grow pr-4">
+                    <div className="space-y-2">
+                    {accounts.map(account => {
+                        const Icon = ICONS[account.icon] || ICONS.MoreHorizontal;
+                        return (
+                            <Card key={account.id}>
+                                <CardContent className="p-3 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Icon className="h-5 w-5 text-muted-foreground"/>
+                                        <p>{account.name}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Button variant="ghost" size="icon" onClick={() => handleStartEdit(account, 'account')}><Edit className="h-4 w-4"/></Button>
+                                        <Button variant="ghost" size="icon" onClick={() => deleteAccount(account.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
+                    </div>
+                  </ScrollArea>
                </div>
             </TabsContent>
 
-            {/* Categories Settings */}
-            <TabsContent value="categories" className="mt-0">
-               <div className="space-y-6 py-4">
+            <TabsContent value="categories" className="mt-4 flex-grow overflow-hidden">
+               <div className="space-y-4 py-1 h-full flex flex-col">
                   <div>
                       <h3 className="text-lg font-medium">Tus Categorías</h3>
                       <p className="text-sm text-muted-foreground">
@@ -266,35 +263,37 @@ export function SettingsDialog() {
                            </div>
                       </CardContent>
                   </Card>
-                  <div className="space-y-2">
-                      {categories.map(category => {
-                          const Icon = ICONS[category.icon] || ICONS.MoreHorizontal;
-                           const typeColor = category.type === 'income' ? 'text-green-500' : 'text-red-500';
-                          return (
-                              <Card key={category.id}>
-                                  <CardContent className="p-3 flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                          <Icon className={`h-5 w-5 ${typeColor}`}/>
-                                          <div>
-                                              <p>{category.name}</p>
-                                              <p className={`text-xs ${typeColor}`}>{category.type === 'income' ? 'Ingreso' : 'Egreso'}</p>
-                                          </div>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                           <Button variant="ghost" size="icon" onClick={() => handleStartEdit(category, 'category')}><Edit className="h-4 w-4"/></Button>
-                                          <Button variant="ghost" size="icon" onClick={() => deleteCategory(category.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                      </div>
-                                  </CardContent>
-                              </Card>
-                          )
-                      })}
-                  </div>
+                  <ScrollArea className="flex-grow pr-4">
+                    <div className="space-y-2">
+                        {categories.map(category => {
+                            const Icon = ICONS[category.icon] || ICONS.MoreHorizontal;
+                             const typeColor = category.type === 'income' ? 'text-green-500' : 'text-red-500';
+                            return (
+                                <Card key={category.id}>
+                                    <CardContent className="p-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <Icon className={`h-5 w-5 ${typeColor}`}/>
+                                            <div>
+                                                <p>{category.name}</p>
+                                                <p className={`text-xs ${typeColor}`}>{category.type === 'income' ? 'Ingreso' : 'Egreso'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                             <Button variant="ghost" size="icon" onClick={() => handleStartEdit(category, 'category')}><Edit className="h-4 w-4"/></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => deleteCategory(category.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )
+                        })}
+                    </div>
+                  </ScrollArea>
                </div>
             </TabsContent>
-          </ScrollArea>
-        </Tabs>
+          </Tabs>
+        </div>
         
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             Cerrar
           </Button>
