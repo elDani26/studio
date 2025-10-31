@@ -47,7 +47,6 @@ export default function LoginPage() {
     }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // User will be redirected by the useEffect below
     } catch (error: any)
     {
       if (error.code === 'auth/email-already-in-use') {
@@ -67,11 +66,22 @@ export default function LoginPage() {
     }
   }, [user, isUserLoading, router]);
 
+  if (isUserLoading || user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Cargando...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">Panel de Finanzas</CardTitle>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
+      <Card className="w-full max-w-md shadow-2xl rounded-2xl">
+        <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center">
+                <Icons.logo className="h-12 w-12 text-primary"/>
+            </div>
+          <CardTitle className="text-3xl font-bold">GestionaTuDinero</CardTitle>
           <CardDescription>Tu compañero financiero personal</CardDescription>
         </CardHeader>
         <CardContent>

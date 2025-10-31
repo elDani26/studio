@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { PT_Sans } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const ptSans = PT_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 
 export const metadata: Metadata = {
-  title: 'Panel de Finanzas',
+  title: 'GestionaTuDinero',
   description: 'Tu gestor de finanzas personales.',
 };
 
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={ptSans.className}>
         <FirebaseClientProvider>
           {children}
           <Toaster />

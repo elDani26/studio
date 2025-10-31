@@ -3,9 +3,12 @@ import { Icons } from '@/components/icons';
 
 export function DashboardHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full bg-card">
+    <header className="sticky top-0 z-40 w-full border-b bg-card">
       <div className="container flex h-16 items-center justify-between p-4 mx-auto">
-        <h1 className="text-xl font-bold tracking-tight text-primary">Panel de Finanzas</h1>
+        <div className="flex items-center gap-2">
+            <Icons.logo className="h-6 w-6" />
+            <h1 className="text-xl font-bold tracking-tight text-primary">GestionaTuDinero</h1>
+        </div>
         <UserNav />
       </div>
     </header>

@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Transaction } from '@/types';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { columns } from './transaction-table-columns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AddTransactionDialog } from './add-transaction-dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
 import { FileDown, PlusCircle } from 'lucide-react';
@@ -80,14 +80,21 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
     });
   }, [transactions, dateRange, category, type, account]);
 
-  const uniqueAccounts = ['all', ...Array.from(new Set(transactions.map(t => t.account).filter(Boolean))) as string[]];
+  const uniqueAccounts = useMemo(() => {
+    const allAccounts = SOURCE_ACCOUNTS.map(a => a.value);
+    const transactionAccounts = Array.from(new Set(transactions.map(t => t.account).filter(Boolean))) as string[];
+    return ['all', ...Array.from(new Set([...allAccounts, ...transactionAccounts]))];
+  }, [transactions]);
 
 
   return (
-    <Card>
+    <Card className="shadow-lg rounded-2xl">
       <CardHeader>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <CardTitle>Transacciones</CardTitle>
+          <div>
+            <CardTitle>Transacciones Recientes</CardTitle>
+            <CardDescription>Consulta y gestiona tus movimientos financieros.</CardDescription>
+          </div>
           <AddTransactionDialog onTransactionAdded={() => {}} />
         </div>
         <div className="flex flex-wrap items-center gap-2 pt-4">
@@ -116,7 +123,10 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">Todas</SelectItem>
-                    {uniqueAccounts.filter(a => a !== 'all').map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                    {uniqueAccounts.filter(a => a !== 'all').map(a => {
+                      const accountInfo = SOURCE_ACCOUNTS.find(sa => sa.value === a);
+                      return <SelectItem key={a} value={a}>{accountInfo?.label || a}</SelectItem>
+                    })}
                 </SelectContent>
              </Select>
             <DateRangePicker onUpdate={({ range }) => setDateRange(range)} locale={es} />
@@ -137,8 +147,8 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={columns.length + 1} className="p-0">
-                           <div className="flex items-center space-x-4 p-4">
+                        <TableCell colSpan={columns.length + 1}>
+                           <div className="flex items-center space-x-4">
                                 <Skeleton className="h-10 w-10 rounded-full" />
                                 <div className="space-y-2 w-full">
                                     <Skeleton className="h-4 w-3/4" />
@@ -164,7 +174,7 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                    No se encontraron transacciones.
+                    No se encontraron transacciones. Comienza agregando una.
                   </TableCell>
                 </TableRow>
               )}

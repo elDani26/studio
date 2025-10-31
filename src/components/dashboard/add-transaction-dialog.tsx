@@ -62,7 +62,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: 'expense',
-      amount: undefined,
+      amount: 0,
       category: '',
       date: new Date(),
       description: '',
@@ -114,9 +114,9 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-1">
-            <PlusCircle className="h-4 w-4" />
-            <span>Agregar Transacción</span>
+        <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Agregar Transacción
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -188,7 +188,10 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                     <SelectContent>
                       {TRANSACTION_CATEGORIES.map(cat => (
                         <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
+                           <div className="flex items-center">
+                            <cat.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {cat.label}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -264,7 +267,10 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                     <SelectContent>
                       {SOURCE_ACCOUNTS.map(acc => (
                         <SelectItem key={acc.value} value={acc.value}>
-                          {acc.label}
+                           <div className="flex items-center">
+                            <acc.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {acc.label}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

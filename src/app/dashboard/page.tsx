@@ -45,7 +45,14 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      <StatCards transactions={transactions} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <StatCards transactions={transactions} />
+        </div>
+        <div className="lg:col-span-1">
+          <AiSummary transactions={transactions} />
+        </div>
+      </div>
       <TransactionDataTable initialTransactions={transactions} />
     </div>
   );

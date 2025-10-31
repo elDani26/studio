@@ -6,22 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 
-interface ExpenseChartProps {
+interface IncomeChartProps {
   transactions: Transaction[];
 }
 
-const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6', '#6B7280'];
+const COLORS = ['#22C55E', '#84CC16', '#FBBF24'];
 
-export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
+export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    const expenses = initialTransactions.filter(t => t.type === 'expense');
+    const incomes = initialTransactions.filter(t => t.type === 'income');
     const data = TRANSACTION_CATEGORIES
-      .filter(cat => cat.value !== 'salary' && cat.value !== 'income')
+      .filter(cat => cat.value === 'salary' || cat.value === 'income' || cat.value === 'other')
       .map(category => {
-        const total = expenses
-          .filter(expense => expense.category === category.value)
+        const total = incomes
+          .filter(income => income.category === category.value)
           .reduce((acc, curr) => acc + curr.amount, 0);
         return { name: category.label, value: total };
       })
@@ -45,8 +45,8 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Distribución de Egresos</CardTitle>
-        <CardDescription>Egresos por categoría</CardDescription>
+        <CardTitle>Distribución de Ingresos</CardTitle>
+        <CardDescription>Ingresos por categoría</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
@@ -72,7 +72,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
-                <p className="text-sm text-muted-foreground">No hay datos de egresos.</p>
+                <p className="text-sm text-muted-foreground">No hay datos de ingresos.</p>
             </div>
           )}
         </ResponsiveContainer>

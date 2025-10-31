@@ -19,15 +19,16 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === transaction.account);
   const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
   const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+  const CategoryIcon = categoryInfo?.icon;
   
   return (
     <div className="flex items-center gap-3">
-       <div className={`rounded-full p-1.5 ${iconColor}`}>
-        <Icon className="h-4 w-4" />
+       <div className={`rounded-full p-2 ${iconColor}`}>
+        {CategoryIcon ? <CategoryIcon className="h-5 w-5" /> : <ArrowDown className="h-5 w-5" />}
       </div>
       <div>
-        <div className="font-medium">{categoryInfo?.label || transaction.category} - <span className="text-muted-foreground font-normal">{transaction.description}</span></div>
-        <div className="text-sm text-muted-foreground">{accountInfo?.label || transaction.account}</div>
+        <div className="font-medium">{categoryInfo?.label || transaction.category}</div>
+        <div className="text-sm text-muted-foreground">{transaction.description || "Sin descripción"}</div>
       </div>
     </div>
   );
@@ -46,8 +47,13 @@ const AmountCell = ({ type, amount }: { type: 'income' | 'expense'; amount: numb
 };
 
 const DateCell = ({ date }: { date: any }) => {
-    const formattedDate = format(new Date(date), "dd MMM", { locale: es });
+    const formattedDate = format(new Date(date), "dd MMM, yyyy", { locale: es });
     return <div className="text-muted-foreground">{formattedDate}</div>;
+}
+
+const AccountCell = ({ account }: { account?: string }) => {
+    const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === account);
+    return <div className="text-muted-foreground">{accountInfo?.label || account || ''}</div>
 }
 
 
@@ -56,18 +62,24 @@ export const columns: Column<Transaction>[] = [
     header: 'Descripción',
     accessor: 'category',
     cell: (item) => <TransactionCell transaction={item} />,
-    className: 'w-[400px]',
-  },
-  {
-    header: 'Monto',
-    accessor: 'amount',
-    cell: (item) => <AmountCell type={item.type} amount={item.amount} />,
-    className: 'text-right',
+    className: 'w-[300px]',
   },
   {
     header: 'Fecha',
     accessor: 'date',
     cell: (item) => <DateCell date={item.date} />,
-    className: 'text-right',
+    className: 'text-left',
+  },
+  {
+    header: 'Cuenta',
+    accessor: 'account',
+    cell: (item) => <AccountCell account={item.account} />,
+    className: 'text-left',
+  },
+  {
+    header: 'Monto',
+    accessor: 'amount',
+    cell: (item) => <AmountCell type={item.type} amount={item.amount} />,
+    className: 'text-right font-bold',
   },
 ];
