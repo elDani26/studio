@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import type { User } from '@/types';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
 
@@ -35,24 +35,26 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   }, [user, firestore]);
 
   useEffect(() => {
-    const fetchUserSettings = async () => {
-      if (userDocRef) {
-        try {
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists()) {
-            const userData = docSnap.data() as User;
-            if (userData.currency) {
-              setCurrencyState(userData.currency as Currency);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching user settings:", error);
-        }
-      }
+    if (!userDocRef) {
+      setCurrencyState('EUR');
+      return;
     };
 
-    fetchUserSettings();
-  }, [userDocRef]);
+    // Use onSnapshot to listen for real-time updates
+    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data() as User;
+        if (userData.currency && userData.currency !== currency) {
+          setCurrencyState(userData.currency as Currency);
+        }
+      }
+    }, (error) => {
+      console.error("Error fetching user settings:", error);
+    });
+    
+    // Cleanup the listener on component unmount
+    return () => unsubscribe();
+  }, [userDocRef, currency]);
 
 
   const setCurrency = async (newCurrency: Currency) => {

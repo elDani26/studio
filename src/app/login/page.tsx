@@ -14,10 +14,12 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const auth = useFirebaseAuth();
+  const firestore = getFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -33,6 +35,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
+      if (!auth) throw new Error('Firebase Auth not available');
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
     } catch (error: any) {
@@ -66,7 +69,18 @@ export default function LoginPage() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      if (!auth) throw new Error('Firebase Auth not available');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
+
+      // Create user document in Firestore
+      const userDocRef = doc(firestore, 'users', newUser.uid);
+      await setDoc(userDocRef, {
+        id: newUser.uid,
+        email: newUser.email,
+        currency: 'EUR',
+      });
+      
       toast({
         title: '¡Registro exitoso!',
         description: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
