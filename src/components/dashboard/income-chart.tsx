@@ -10,23 +10,34 @@ interface IncomeChartProps {
   transactions: Transaction[];
 }
 
-const COLORS = ['#22C55E', '#84CC16', '#FBBF24'];
+const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
 
 export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const incomes = initialTransactions.filter(t => t.type === 'income');
-    const data = TRANSACTION_CATEGORIES
-      .filter(cat => cat.value === 'salary' || cat.value === 'income' || cat.value === 'other')
-      .map(category => {
-        const total = incomes
-          .filter(income => income.category === category.value)
-          .reduce((acc, curr) => acc + curr.amount, 0);
-        return { name: category.label, value: total };
-      })
-      .filter(item => item.value > 0)
-      .sort((a, b) => b.value - a.value);
+    
+    // Group incomes by category and sum their amounts
+    const incomeByCategory = incomes.reduce((acc, transaction) => {
+      const category = transaction.category;
+      if (!acc[category]) {
+        acc[category] = 0;
+      }
+      acc[category] += transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Format data for the chart
+    const data = Object.keys(incomeByCategory).map(categoryValue => {
+      const categoryInfo = TRANSACTION_CATEGORIES.find(c => c.value === categoryValue);
+      return {
+        name: categoryInfo?.label || categoryValue,
+        value: incomeByCategory[categoryValue],
+      };
+    })
+    .filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value);
 
     setChartData(data);
   }, [initialTransactions]);
