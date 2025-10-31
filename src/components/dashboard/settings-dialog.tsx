@@ -65,39 +65,39 @@ export function SettingsDialog() {
             Personaliza la configuración de tu aplicación.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-grow pr-6 -mr-6">
-          <div className="space-y-6 py-4">
-            <div>
-              <h3 className="text-lg font-medium">Moneda</h3>
-              <p className="text-sm text-muted-foreground">
-                Selecciona la moneda principal para tus transacciones.
-              </p>
+        <div className="flex-grow overflow-y-auto pr-6 -mr-6">
+            <div className="space-y-6 py-4">
+              <div>
+                <h3 className="text-lg font-medium">Moneda</h3>
+                <p className="text-sm text-muted-foreground">
+                  Selecciona la moneda principal para tus transacciones.
+                </p>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="currency" className="text-right">
+                  Moneda
+                </Label>
+                <Select
+                  value={selectedCurrency}
+                  onValueChange={(value) => setSelectedCurrency(value as Currency)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Selecciona una moneda" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>
+                        {c.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Separator />
+              <CategoryManager />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="currency" className="text-right">
-                Moneda
-              </Label>
-              <Select
-                value={selectedCurrency}
-                onValueChange={(value) => setSelectedCurrency(value as Currency)}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Selecciona una moneda" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator />
-            <CategoryManager />
-          </div>
-        </ScrollArea>
-        <DialogFooter>
+        </div>
+        <DialogFooter className="mt-auto pt-4">
            <Button variant="outline" onClick={() => setIsOpen(false)}>
             Cancelar
           </Button>
