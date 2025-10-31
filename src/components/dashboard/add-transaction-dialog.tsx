@@ -145,7 +145,10 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
                   <FormLabel>Tipo de Transacción</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('category', ''); // Reset category on type change
+                      }}
                       defaultValue={field.value}
                       className="flex space-x-4"
                     >
@@ -188,7 +191,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Categoría</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecciona una categoría" />

@@ -88,6 +88,16 @@ export function EditTransactionDialog({
     }
   }, [transaction, form]);
 
+  useEffect(() => {
+    // When the filtered categories change, check if the current category is still valid
+    if (transactionType && form.getValues('category')) {
+      const currentCategoryIsValid = filteredCategories.some(c => c.value === form.getValues('category'));
+      if (!currentCategoryIsValid) {
+        form.setValue('category', '');
+      }
+    }
+  }, [filteredCategories, transactionType, form]);
+
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
     setLoading(true);
@@ -146,7 +156,10 @@ export function EditTransactionDialog({
                   <FormLabel>Tipo de Transacción</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('category', ''); // Reset category when type changes
+                      }}
                       value={field.value}
                       className="flex space-x-4"
                     >
