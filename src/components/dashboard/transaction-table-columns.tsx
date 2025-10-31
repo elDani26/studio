@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useSettings } from '@/context/settings-context';
+import React from 'react';
 
 interface Column<T> {
   header: string;
@@ -35,12 +37,13 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
 };
 
 const AmountCell = ({ type, amount }: { type: 'income' | 'expense'; amount: number }) => {
+  const { currency } = useSettings();
   const isIncome = type === 'income';
   const color = isIncome ? 'text-green-600' : 'text-red-600';
   const sign = isIncome ? '+' : '-';
   const formattedAmount = new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: 'EUR',
+    currency: currency,
   }).format(amount);
 
   return <div className={`font-semibold ${color}`}>{`${sign}${formattedAmount}`}</div>;

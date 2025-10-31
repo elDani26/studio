@@ -1,5 +1,6 @@
 import { UserNav } from '@/components/dashboard/user-nav';
 import { Icons } from '@/components/icons';
+import { SettingsDialog } from '@/components/dashboard/settings-dialog';
 
 export function DashboardHeader() {
   return (
@@ -9,7 +10,10 @@ export function DashboardHeader() {
             <Icons.logo className="h-6 w-6" />
             <h1 className="text-xl font-bold tracking-tight text-primary">GestionaTuDinero</h1>
         </div>
-        <UserNav />
+        <div className="flex items-center gap-2">
+            <SettingsDialog />
+            <UserNav />
+        </div>
       </div>
     </header>
   );

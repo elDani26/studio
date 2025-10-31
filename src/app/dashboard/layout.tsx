@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { SettingsProvider } from '@/context/settings-context';
 
 export default function DashboardLayout({
   children,
@@ -42,9 +43,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-      <main>{children}</main>
-    </div>
+    <SettingsProvider>
+      <div className="min-h-screen bg-background">
+        <DashboardHeader />
+        <main>{children}</main>
+      </div>
+    </SettingsProvider>
   );
 }

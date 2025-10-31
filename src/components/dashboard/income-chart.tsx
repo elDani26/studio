@@ -5,6 +5,7 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { useSettings } from '@/context/settings-context';
 
 interface IncomeChartProps {
   transactions: Transaction[];
@@ -14,6 +15,7 @@ const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
 
 export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
+  const { currency } = useSettings();
 
   useEffect(() => {
     const incomes = initialTransactions.filter(t => t.type === 'income');
@@ -46,7 +48,7 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
     if (active && payload && payload.length) {
       return (
         <div className="p-2 text-sm bg-background border rounded-md shadow-lg">
-          <p className="font-bold">{`${payload[0].name} : ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(payload[0].value)}`}</p>
+          <p className="font-bold">{`${payload[0].name} : ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: currency }).format(payload[0].value)}`}</p>
         </div>
       );
     }

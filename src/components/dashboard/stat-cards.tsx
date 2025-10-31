@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDown, ArrowUp, Scale } from 'lucide-react';
 import { ExpenseChart } from './expense-chart';
 import { IncomeChart } from './income-chart';
+import { useSettings } from '@/context/settings-context';
 
 interface StatCardsProps {
   transactions: Transaction[];
@@ -14,6 +15,7 @@ interface StatCardsProps {
 export function StatCards({ transactions: initialTransactions }: StatCardsProps) {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const { currency } = useSettings();
   
   useEffect(() => {
     const income = initialTransactions
@@ -33,7 +35,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
-      currency: 'EUR',
+      currency: currency,
     }).format(amount);
   };
 

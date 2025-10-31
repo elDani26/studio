@@ -5,6 +5,7 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { useSettings } from '@/context/settings-context';
 
 interface ExpenseChartProps {
   transactions: Transaction[];
@@ -14,6 +15,7 @@ const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6'
 
 export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
+  const { currency } = useSettings();
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => t.type === 'expense');
@@ -45,7 +47,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     if (active && payload && payload.length) {
       return (
         <div className="p-2 text-sm bg-background border rounded-md shadow-lg">
-          <p className="font-bold">{`${payload[0].name} : ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(payload[0].value)}`}</p>
+          <p className="font-bold">{`${payload[0].name} : ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: currency }).format(payload[0].value)}`}</p>
         </div>
       );
     }
