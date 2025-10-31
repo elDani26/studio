@@ -51,7 +51,7 @@ const AmountCell = ({ type, amount }: { type: 'income' | 'expense'; amount: numb
 };
 
 const DateCell = ({ date }: { date: any }) => {
-    const formattedDate = format(new Date(date), "dd MMM, yyyy", { locale: es });
+    const formattedDate = format(new Date(date.seconds * 1000), "dd MMM, yyyy", { locale: es });
     return <div className="text-muted-foreground">{formattedDate}</div>;
 }
 
