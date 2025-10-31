@@ -13,11 +13,13 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -65,13 +67,18 @@ export default function LoginPage() {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // The onAuthStateChanged listener in the provider will handle the redirect
+      toast({
+        title: '¡Registro exitoso!',
+        description: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
+      });
+      setActiveTab('login');
+      clearForm();
     } catch (error: any)
     {
       if (error.code === 'auth/email-already-in-use') {
         setError('Este correo electrónico ya está en uso.');
       } else {
-        setError('Error al registrar. Por favor, inténtalo de nuevo.');
+        setError(error.message || 'Error al registrar. Por favor, inténtalo de nuevo.');
       }
     } finally {
       setLoading(false);
