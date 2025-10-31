@@ -46,7 +46,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     <Card className="h-full">
       <CardHeader>
         <CardTitle>Distribución de Egresos</CardTitle>
-        <CardDescription>Egresos por categoría</CardDescription>
+        <CardDescription>Visualiza tus egresos por categoría</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>

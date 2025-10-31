@@ -5,7 +5,6 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDown, ArrowUp, Scale } from 'lucide-react';
 import { ExpenseChart } from './expense-chart';
-import { IncomeChart } from './income-chart';
 
 interface StatCardsProps {
   transactions: Transaction[];
@@ -38,8 +37,8 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
   };
 
   return (
-    <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-8">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
@@ -70,10 +69,9 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
           </CardContent>
         </Card>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 mt-4">
-        <IncomeChart transactions={initialTransactions} />
+      <div className="lg:col-span-1">
         <ExpenseChart transactions={initialTransactions} />
       </div>
-    </>
+    </div>
   );
 }
