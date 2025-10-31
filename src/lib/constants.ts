@@ -30,7 +30,7 @@ export const TRANSACTION_CATEGORIES: Category[] = [
   { value: 'debt', label: 'Deudas', icon: 'CreditCard', type: 'expense' },
   { value: 'donations', label: 'Donaciones', icon: 'HeartPulse', type: 'expense' },
   { value: 'family', label: 'Familia', icon: 'Home', type: 'expense' },
-  { value: 'other_expenses', label: 'Otros Egresos', icon: 'MoreHorizontal', type: 'expense' },
+  { value: 'other_expenses', label: 'Otros', icon: 'MoreHorizontal', type: 'expense' },
 
   // Incomes
   { value: 'salary', label: 'Salario', icon: 'Briefcase', type: 'income' },
@@ -43,7 +43,7 @@ export const TRANSACTION_CATEGORIES: Category[] = [
   { value: 'side_hustle', label: 'Ingreso Extra', icon: 'Sparkles', type: 'income' },
   { value: 'loan', label: 'Préstamo', icon: 'Handshake', type: 'income' },
   { value: 'refunds', label: 'Reembolsos', icon: 'Repeat', type: 'income' },
-  { value: 'other_income', label: 'Otros Ingresos', icon: 'Coins', type: 'income' },
+  { value: 'other_income', label: 'Otros', icon: 'Coins', type: 'income' },
 ];
 
 export const SOURCE_ACCOUNTS = [
