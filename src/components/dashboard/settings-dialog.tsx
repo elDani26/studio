@@ -24,6 +24,8 @@ import { useSettings } from '@/context/settings-context';
 import { toast } from '@/hooks/use-toast';
 import { CategoryManager } from './category-manager';
 import { Separator } from '../ui/separator';
+import { ScrollArea } from '../ui/scroll-area';
+
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -56,38 +58,49 @@ export function SettingsDialog() {
           <span className="sr-only">Ajustes</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Configuración</DialogTitle>
           <DialogDescription>
             Personaliza la configuración de tu aplicación.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="currency" className="text-right">
-              Moneda
-            </Label>
-            <Select
-              value={selectedCurrency}
-              onValueChange={(value) => setSelectedCurrency(value as Currency)}
-            >
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Selecciona una moneda" />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <ScrollArea className="flex-grow pr-6 -mr-6">
+          <div className="space-y-6 py-4">
+            <div>
+              <h3 className="text-lg font-medium">Moneda</h3>
+              <p className="text-sm text-muted-foreground">
+                Selecciona la moneda principal para tus transacciones.
+              </p>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="currency" className="text-right">
+                Moneda
+              </Label>
+              <Select
+                value={selectedCurrency}
+                onValueChange={(value) => setSelectedCurrency(value as Currency)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecciona una moneda" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator />
+            <CategoryManager />
           </div>
-        </div>
-        <Separator />
-        <CategoryManager />
+        </ScrollArea>
         <DialogFooter>
+           <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancelar
+          </Button>
           <Button onClick={handleSave}>Guardar Cambios</Button>
         </DialogFooter>
       </DialogContent>
