@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2 } from 'lucide-react';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -39,7 +39,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories, accounts } = useSettings();
+  const { categories, accounts, currency } = useSettings();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -59,7 +59,6 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   }, [categories, type]);
 
   useEffect(() => {
-    // If the selected category is no longer valid for the current type, reset it
     if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
       setCategoryFilter('all');
     }
@@ -81,6 +80,22 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
       return dateFilter && categoryFilterPassed && typeFilter && accountFilterPassed;
     });
   }, [transactions, dateRange, categoryFilter, type, accountFilter]);
+
+  const filteredTotals = useMemo(() => {
+    const income = filteredTransactions
+      .filter(t => t.type === 'income')
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    return {
+      income,
+      expenses,
+      balance: income - expenses,
+    };
+  }, [filteredTransactions]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -118,6 +133,13 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
         setIsDeleteDialogOpen(false);
         setTransactionToDelete(null);
       });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
   };
 
   const columns = getColumns(handleEdit, handleDelete);
@@ -167,6 +189,38 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
           </div>
         </CardHeader>
         <CardContent>
+          <div className="grid gap-4 md:grid-cols-3 mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Ingresos Filtrados</CardTitle>
+                <ArrowUp className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Egresos Filtrados</CardTitle>
+                <ArrowDown className="h-4 w-4 text-red-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Balance Filtrado</CardTitle>
+                <Scale className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
+                  {formatCurrency(filteredTotals.balance)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -213,7 +267,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                 ) : (
                   <TableRow>
                     <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                      No se encontraron transacciones. Comienza agregando una.
+                      No se encontraron transacciones que coincidan con los filtros.
                     </TableCell>
                   </TableRow>
                 )}
