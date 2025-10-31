@@ -70,6 +70,10 @@ export function EditTransactionDialog({
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      ...transaction,
+      date: (transaction.date as any).toDate ? (transaction.date as any).toDate() : new Date(transaction.date),
+    }
   });
 
   const transactionType = form.watch('type');
@@ -89,14 +93,11 @@ export function EditTransactionDialog({
   }, [transaction, form]);
 
   useEffect(() => {
-    // When the transaction type changes, re-validate the selected category
-    if (transactionType) {
-        const currentCategoryValue = form.getValues('category');
-        if (currentCategoryValue) {
-            const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
-            if (!isCategoryStillValid) {
-                form.setValue('category', ''); // Reset if the category is not valid for the new type
-            }
+    const currentCategoryValue = form.getValues('category');
+    if (currentCategoryValue) {
+        const isCategoryStillValid = filteredCategories.some(c => c.value === currentCategoryValue);
+        if (!isCategoryStillValid) {
+            form.setValue('category', '');
         }
     }
   }, [transactionType, filteredCategories, form]);

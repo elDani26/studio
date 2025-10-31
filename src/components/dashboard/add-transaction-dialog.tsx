@@ -79,8 +79,6 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
   }, [categories, transactionType]);
 
   useEffect(() => {
-    // When transaction type changes, check if the current category is still valid.
-    // If not, reset the category field.
     const currentCategoryValue = form.getValues('category');
     if (currentCategoryValue) {
       const categoryIsValidForNewType = filteredCategories.some(c => c.value === currentCategoryValue);
