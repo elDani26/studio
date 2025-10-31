@@ -27,10 +27,18 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
     setSummary('');
 
     try {
-      const serializableTransactions = initialTransactions.map(t => ({
-        ...t,
-        date: (t.date as any).toDate().toISOString().split('T')[0],
-      })) as SummarizeTransactionsInput['transactions'];
+      const serializableTransactions = initialTransactions.map(t => {
+        let date;
+        if (t.date && typeof (t.date as any).toDate === 'function') {
+          date = (t.date as any).toDate().toISOString().split('T')[0];
+        } else {
+          date = new Date(t.date as any).toISOString().split('T')[0];
+        }
+        return {
+          ...t,
+          date,
+        };
+      }) as SummarizeTransactionsInput['transactions'];
 
       const result = await summarizeTransactions({ transactions: serializableTransactions });
       setSummary(result.summary);

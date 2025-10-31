@@ -51,7 +51,15 @@ const AmountCell = ({ type, amount }: { type: 'income' | 'expense'; amount: numb
 };
 
 const DateCell = ({ date }: { date: any }) => {
-    const formattedDate = format(new Date(date.seconds * 1000), "dd MMM, yyyy", { locale: es });
+    let dateObj: Date;
+    if (date && typeof date.toDate === 'function') {
+        dateObj = date.toDate();
+    } else if (date) {
+        dateObj = new Date(date);
+    } else {
+        return <div className="text-muted-foreground">Fecha inválida</div>;
+    }
+    const formattedDate = format(dateObj, "dd MMM, yyyy", { locale: es });
     return <div className="text-muted-foreground">{formattedDate}</div>;
 }
 
