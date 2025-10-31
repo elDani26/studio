@@ -58,7 +58,7 @@ export function SettingsDialog() {
           <span className="sr-only">Ajustes</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl max-h-[80vh]">
+      <DialogContent className="sm:max-w-xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Configuración</DialogTitle>
           <DialogDescription>
