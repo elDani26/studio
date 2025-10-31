@@ -30,7 +30,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -44,7 +44,7 @@ const transactionSchema = z.object({
   category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
   date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
   description: z.string().optional(),
-  account: z.string().optional(),
+  account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
 });
 
 interface AddTransactionDialogProps {
@@ -62,7 +62,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: 'expense',
-      amount: 0,
+      amount: undefined,
       category: '',
       date: new Date(),
       description: '',
@@ -240,7 +240,7 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción</FormLabel>
+                  <FormLabel>Descripción (Opcional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Ej: Supermercado" {...field} />
                   </FormControl>
@@ -249,15 +249,26 @@ export function AddTransactionDialog({ onTransactionAdded }: AddTransactionDialo
               )}
             />
 
-            <FormField
+             <FormField
               control={form.control}
               name="account"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cuenta (Opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: Cuenta de Banco, Efectivo" {...field} />
-                  </FormControl>
+                  <FormLabel>Cuenta</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona una cuenta" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SOURCE_ACCOUNTS.map(acc => (
+                        <SelectItem key={acc.value} value={acc.value}>
+                          {acc.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

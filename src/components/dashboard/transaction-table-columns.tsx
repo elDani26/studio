@@ -1,7 +1,7 @@
 'use client';
 
 import type { Transaction } from '@/types';
-import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,6 +16,7 @@ interface Column<T> {
 
 const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const categoryInfo = TRANSACTION_CATEGORIES.find(c => c.value === transaction.category);
+  const accountInfo = SOURCE_ACCOUNTS.find(a => a.value === transaction.account);
   const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
   const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
   
@@ -26,7 +27,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
       </div>
       <div>
         <div className="font-medium">{categoryInfo?.label || transaction.category} - <span className="text-muted-foreground font-normal">{transaction.description}</span></div>
-        <div className="text-sm text-muted-foreground">{transaction.account}</div>
+        <div className="text-sm text-muted-foreground">{accountInfo?.label || transaction.account}</div>
       </div>
     </div>
   );
