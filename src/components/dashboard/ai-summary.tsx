@@ -19,7 +19,7 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
 
   const handleGenerateSummary = async () => {
     if (initialTransactions.length === 0) {
-      setError('No transactions available to summarize.');
+      setError('No hay transacciones disponibles para resumir.');
       return;
     }
     setLoading(true);
@@ -35,7 +35,7 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
       const result = await summarizeTransactions({ transactions: serializableTransactions });
       setSummary(result.summary);
     } catch (e) {
-      setError('Failed to generate summary. Please try again.');
+      setError('No se pudo generar el resumen. Por favor, inténtalo de nuevo.');
       console.error(e);
     } finally {
       setLoading(false);
@@ -45,9 +45,9 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
-        <CardTitle>AI-Powered Summary</CardTitle>
+        <CardTitle>Resumen con IA</CardTitle>
         <CardDescription>
-          Get instant insights into your spending habits.
+          Obtén información instantánea sobre tus hábitos de gasto.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
@@ -62,8 +62,8 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
         ) : (
            <div className="flex flex-col items-center justify-center h-full text-center p-4 rounded-lg border-2 border-dashed border-border">
                 <Wand2 className="h-10 w-10 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold">Generate Your Financial Report</h3>
-                <p className="text-sm text-muted-foreground">Click the button below to get an AI-powered summary of your transactions.</p>
+                <h3 className="text-lg font-semibold">Genera tu Informe Financiero</h3>
+                <p className="text-sm text-muted-foreground">Haz clic en el botón de abajo para obtener un resumen de tus transacciones con IA.</p>
            </div>
         )}
         {error && (
@@ -78,12 +78,12 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
+              Generando...
             </>
           ) : (
             <>
               <Wand2 className="mr-2 h-4 w-4" />
-              Generate Summary
+              Generar Resumen
             </>
           )}
         </Button>
