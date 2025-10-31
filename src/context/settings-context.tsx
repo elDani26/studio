@@ -16,9 +16,6 @@ interface SettingsContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   categories: Category[];
-  addCategory: (category: Category) => void;
-  updateCategory: (categoryValue: string, updatedCategory: Omit<Category, 'value' | 'type'>) => void;
-  deleteCategory: (categoryValue: string) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -27,20 +24,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [categories, setCategories] = useState<Category[]>(TRANSACTION_CATEGORIES);
 
-  const addCategory = (category: Category) => {
-    setCategories(prev => [...prev, category]);
-  }
-
-  const updateCategory = (categoryValue: string, updatedCategory: Omit<Category, 'value' | 'type'>) => {
-    setCategories(prev => prev.map(c => c.value === categoryValue ? { ...c, ...updatedCategory } : c));
-  }
-
-  const deleteCategory = (categoryValue: string) => {
-    setCategories(prev => prev.filter(c => c.value !== categoryValue));
-  }
-
   return (
-    <SettingsContext.Provider value={{ currency, setCurrency, categories, addCategory, updateCategory, deleteCategory }}>
+    <SettingsContext.Provider value={{ currency, setCurrency, categories }}>
       {children}
     </SettingsContext.Provider>
   );
