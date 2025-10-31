@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import * as Icons from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,6 +60,7 @@ export function CategoryManager() {
 
     addCategory(newCategory);
     setNewCategoryLabel('');
+    setNewCategoryIcon('MoreHorizontal');
     toast({
       title: '¡Categoría agregada!',
       description: `La categoría "${newCategory.label}" ha sido creada.`,
