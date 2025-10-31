@@ -30,22 +30,3 @@ export async function addTransaction(
     throw new Error('Failed to add transaction.');
   }
 }
-
-export async function getTransactions(userId: string): Promise<Transaction[]> {
-  const { firestore } = initializeFirebase();
-  try {
-    const q = query(
-      collection(firestore, 'users', userId, 'transactions'),
-      orderBy('date', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    const transactions = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Transaction[];
-    return transactions;
-  } catch (error) {
-    console.error('Error getting transactions: ', error);
-    return [];
-  }
-}

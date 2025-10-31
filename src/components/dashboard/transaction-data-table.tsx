@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { Transaction } from '@/types';
-import { getTransactions } from '@/lib/firestore';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { columns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +34,13 @@ export function TransactionDataTable({ initialTransactions }: TransactionDataTab
     if (!user) return null;
     return query(collection(firestore, 'users', user.uid, 'transactions'), orderBy('date', 'desc'));
   }, [user, firestore]);
+
+  useEffect(() => {
+    setTransactions(initialTransactions);
+     if (initialTransactions.length > 0) {
+      setLoading(false);
+    }
+  }, [initialTransactions]);
 
   useEffect(() => {
     if (!transactionsQuery) {
