@@ -18,6 +18,8 @@
  * Denormalization for Authorization:
  * - The 'userId' field within SourceAccount and Transaction documents is used
  *   to enforce ownership and must match the userId in the path.
+ *
+ * Force backend re-sync to enable auth providers.
  */
 rules_version = '2';
 service cloud.firestore {
