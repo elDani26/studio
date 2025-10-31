@@ -5,6 +5,9 @@ import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import type { User } from '@/types';
 import { TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -60,11 +63,17 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const setCurrency = async (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
     if (userDocRef) {
-      try {
-        await setDoc(userDocRef, { currency: newCurrency }, { merge: true });
-      } catch (error) {
-        console.error("Error saving currency:", error);
-      }
+      const currencyData = { currency: newCurrency };
+      setDoc(userDocRef, currencyData, { merge: true })
+        .catch((error) => {
+            const permissionError = new FirestorePermissionError({
+                path: userDocRef.path,
+                operation: 'update',
+                requestResourceData: currencyData,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            console.error("Error saving currency:", error);
+      });
     }
   };
 
