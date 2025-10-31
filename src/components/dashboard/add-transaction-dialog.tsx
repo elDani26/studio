@@ -75,8 +75,11 @@ export function AddTransactionDialog() {
   }, [categories, transactionType]);
 
   useEffect(() => {
-    form.setValue('category', '');
-  }, [transactionType, form]);
+    const currentCategory = form.getValues('category');
+    if (currentCategory && !filteredCategories.some(c => c.value === currentCategory)) {
+        form.setValue('category', '');
+    }
+  }, [transactionType, form, filteredCategories]);
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user) return;
@@ -97,14 +100,7 @@ export function AddTransactionDialog() {
           description: 'Tu transacción ha sido agregada.',
         });
         setOpen(false);
-        form.reset({
-          type: 'expense',
-          amount: 0,
-          category: '',
-          date: new Date(),
-          description: '',
-          account: '',
-        });
+        form.reset();
       })
       .catch((error) => {
         console.error('Error adding transaction: ', error);
