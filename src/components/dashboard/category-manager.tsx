@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { EditCategoryDialog } from './edit-category-dialog';
 
 const ALL_ICONS = Object.keys(Icons).filter(key => {
     const Component = (Icons as any)[key];
@@ -40,6 +41,8 @@ export function CategoryManager() {
   const [newCategoryIcon, setNewCategoryIcon] = useState<keyof typeof Icons>('MoreHorizontal');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
 
   const handleAddCategory = () => {
     if (!newCategoryLabel.trim()) {
@@ -81,6 +84,11 @@ export function CategoryManager() {
     }
     setIsDeleteConfirmOpen(false);
     setCategoryToDelete(null);
+  };
+
+  const openEditDialog = (category: Category) => {
+    setCategoryToEdit(category);
+    setIsEditDialogOpen(true);
   };
 
 
@@ -176,7 +184,7 @@ export function CategoryManager() {
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(category)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openDeleteDialog(category.value)}>
@@ -186,11 +194,9 @@ export function CategoryManager() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground pt-2">
-            La edición de categorías estará disponible próximamente.
-          </p>
         </div>
       </div>
+
        <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -210,6 +216,15 @@ export function CategoryManager() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {categoryToEdit && (
+        <EditCategoryDialog
+            isOpen={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            category={categoryToEdit}
+            onCategoryUpdated={() => setIsEditDialogOpen(false)}
+        />
+      )}
     </>
   );
 }

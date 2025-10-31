@@ -18,6 +18,7 @@ interface SettingsContextType {
   setCurrency: (currency: Currency) => void;
   categories: Category[];
   addCategory: (category: Category) => void;
+  updateCategory: (categoryValue: string, updatedCategory: Omit<Category, 'value' | 'type'>) => void;
   deleteCategory: (categoryValue: string) => void;
 }
 
@@ -31,12 +32,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     setCategories(prev => [...prev, category]);
   }
 
+  const updateCategory = (categoryValue: string, updatedCategory: Omit<Category, 'value' | 'type'>) => {
+    setCategories(prev => prev.map(c => c.value === categoryValue ? { ...c, ...updatedCategory } : c));
+  }
+
   const deleteCategory = (categoryValue: string) => {
     setCategories(prev => prev.filter(c => c.value !== categoryValue));
   }
 
   return (
-    <SettingsContext.Provider value={{ currency, setCurrency, categories, addCategory, deleteCategory }}>
+    <SettingsContext.Provider value={{ currency, setCurrency, categories, addCategory, updateCategory, deleteCategory }}>
       {children}
     </SettingsContext.Provider>
   );
