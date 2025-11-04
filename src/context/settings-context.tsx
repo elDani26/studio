@@ -15,6 +15,9 @@ type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 interface SettingsContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
+  locale: string;
+  setLocale: (locale: string) => void;
+  isDataLoading: boolean;
   categories: WithId<Category>[];
   accounts: WithId<SourceAccount>[];
   addCategory: (category: Category) => Promise<void>;
@@ -34,83 +37,85 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const t = useTranslations('Toasts');
   
   const [currency, setCurrencyState] = useState<Currency>('EUR');
+  const [locale, setLocaleState] = useState('es');
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
   const [accounts, setAccounts] = useState<WithId<SourceAccount>[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   
   const userDocRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [user, firestore]);
   const categoriesColRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'categories') : null, [user, firestore]);
   const accountsColRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'sourceAccounts') : null, [user, firestore]);
 
-
-  // Effect for user currency
   useEffect(() => {
-    if (!userDocRef) return;
-    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const userData = docSnap.data() as User;
-        if (userData.currency && userData.currency !== currency) {
-          setCurrencyState(userData.currency as Currency);
+    if (!user) {
+      setIsDataLoading(false);
+      return;
+    }
+    const unsubscribes = [
+      onSnapshot(userDocRef!, (docSnap) => {
+        if (docSnap.exists()) {
+          const userData = docSnap.data() as User;
+          if (userData.currency) setCurrencyState(userData.currency as Currency);
+          if (userData.locale) setLocaleState(userData.locale);
         }
-      }
-    }, (error) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'get' }));
-    });
-    return () => unsubscribe();
-  }, [userDocRef, currency]);
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef!.path, operation: 'get' }))),
 
-  // Effect for user categories
-  useEffect(() => {
-    if (!categoriesColRef) return;
-    const unsubscribe = onSnapshot(categoriesColRef, (snapshot) => {
-        if (snapshot.empty) {
-            // First time user, let's create default categories for them
-            const batch = writeBatch(firestore);
-            TRANSACTION_CATEGORIES.forEach(cat => {
-                const newCatRef = doc(categoriesColRef);
-                batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
-            });
-            batch.commit().catch(e => console.error("Failed to create default categories", e));
-        } else {
-            const userCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<Category>[];
-            setCategories(userCategories);
-        }
-    }, (error) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef.path, operation: 'list' }));
-    });
-    return () => unsubscribe();
-  }, [categoriesColRef, firestore]);
+      onSnapshot(categoriesColRef!, (snapshot) => {
+          if (snapshot.empty) {
+              const batch = writeBatch(firestore);
+              TRANSACTION_CATEGORIES.forEach(cat => {
+                  const newCatRef = doc(categoriesColRef!);
+                  batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
+              });
+              batch.commit().catch(e => console.error("Failed to create default categories", e));
+          } else {
+              setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<Category>[]);
+          }
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef!.path, operation: 'list' }))),
 
-   // Effect for user source accounts
-  useEffect(() => {
-    if (!accountsColRef) return;
-    const unsubscribe = onSnapshot(accountsColRef, (snapshot) => {
-        if (snapshot.empty) {
-            // First time user, let's create default accounts for them
-            const batch = writeBatch(firestore);
-            SOURCE_ACCOUNTS.forEach(acc => {
-                const newAccRef = doc(accountsColRef);
-                batch.set(newAccRef, {name: acc.label, icon: acc.icon});
-            });
-            batch.commit().catch(e => console.error("Failed to create default accounts", e));
-        } else {
-            const userAccounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<SourceAccount>[];
-            setAccounts(userAccounts);
-        }
-    }, (error) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef.path, operation: 'list' }));
-    });
-    return () => unsubscribe();
-  }, [accountsColRef, firestore]);
+      onSnapshot(accountsColRef!, (snapshot) => {
+          if (snapshot.empty) {
+              const batch = writeBatch(firestore);
+              SOURCE_ACCOUNTS.forEach(acc => {
+                  const newAccRef = doc(accountsColRef!);
+                  batch.set(newAccRef, {name: acc.label, icon: acc.icon});
+              });
+              batch.commit().catch(e => console.error("Failed to create default accounts", e));
+          } else {
+              setAccounts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<SourceAccount>[]);
+          }
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef!.path, operation: 'list' })))
+    ];
 
+    Promise.all([
+      getDoc(userDocRef!),
+      getDoc(categoriesColRef!).then(snap => !snap.empty),
+      getDoc(accountsColRef!).then(snap => !snap.empty)
+    ]).finally(() => setIsDataLoading(false));
+
+    return () => unsubscribes.forEach(unsub => unsub());
+
+  }, [user, firestore]);
 
   const setCurrency = async (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
     if (userDocRef) {
-      const currencyData = { currency: newCurrency };
-      setDoc(userDocRef, currencyData, { merge: true })
+      const data = { currency: newCurrency };
+      setDoc(userDocRef, data, { merge: true })
         .catch((error) => {
-            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: currencyData }));
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: data }));
       });
+    }
+  };
+  
+  const setLocale = async (newLocale: string) => {
+    setLocaleState(newLocale);
+    if (userDocRef) {
+      const data = { locale: newLocale };
+      setDoc(userDocRef, data, { merge: true })
+        .catch((error) => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: data }));
+        });
     }
   };
 
@@ -118,7 +123,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     toast({ variant: 'destructive', title: t('operationError'), description: t('operationErrorDescription') });
   }
 
-  // Category Management
   const addCategory = async (category: Category) => {
     if (!categoriesColRef) return;
     await addDoc(categoriesColRef, category).catch(handleError('addCategory'));
@@ -134,7 +138,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     await deleteDoc(docRef).catch(handleError('deleteCategory'));
   }
 
-  // Account Management
   const addAccount = async (account: SourceAccount) => {
     if (!accountsColRef) return;
     await addDoc(accountsColRef, account).catch(handleError('addAccount'));
@@ -155,6 +158,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     <SettingsContext.Provider value={{ 
         currency, 
         setCurrency, 
+        locale,
+        setLocale,
+        isDataLoading,
         categories, 
         accounts,
         addCategory,

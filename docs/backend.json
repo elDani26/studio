@@ -77,6 +77,11 @@
             "type": "string",
             "description": "The user's preferred currency.",
             "default": "EUR"
+        },
+        "locale": {
+          "type": "string",
+          "description": "The user's preferred language/locale.",
+          "default": "es"
         }
       },
       "required": [

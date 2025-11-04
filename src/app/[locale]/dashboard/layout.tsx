@@ -1,29 +1,38 @@
 'use client';
 
 import { useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { SettingsProvider } from '@/context/settings-context';
-import { useTranslations } from 'next-intl';
+import { SettingsProvider, useSettings } from '@/context/settings-context';
+import { useTranslations, useLocale } from 'next-intl';
+import { locales } from '@/i18n';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
+  const { locale: savedLocale, isDataLoading: isSettingsLoading } = useSettings();
+  const currentLocale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations('DashboardLayout');
 
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router]);
+  const isLoading = isUserLoading || isSettingsLoading;
 
-  if (isUserLoading || !user) {
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push(`/${currentLocale}/login`);
+    }
+  }, [user, isLoading, router, currentLocale]);
+
+  useEffect(() => {
+    if (!isLoading && user && savedLocale && currentLocale !== savedLocale && locales.includes(savedLocale)) {
+      const newPath = pathname.replace(`/${currentLocale}`, `/${savedLocale}`);
+      router.replace(newPath);
+    }
+  }, [isLoading, user, savedLocale, currentLocale, pathname, router]);
+
+  if (isLoading || !user || currentLocale !== savedLocale) {
     return (
       <div className="flex flex-col h-screen bg-background">
         <div className="flex items-center justify-between p-4 border-b">
@@ -45,11 +54,22 @@ export default function DashboardLayout({
   }
 
   return (
+    <div className="min-h-screen bg-background">
+      <DashboardHeader />
+      <main>{children}</main>
+    </div>
+  );
+}
+
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
     <SettingsProvider>
-      <div className="min-h-screen bg-background">
-        <DashboardHeader />
-        <main>{children}</main>
-      </div>
+      <LayoutContent>{children}</LayoutContent>
     </SettingsProvider>
   );
 }

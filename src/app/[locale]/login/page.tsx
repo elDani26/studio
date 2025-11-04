@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getFirestore } from 'firebase/firestore';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
@@ -26,6 +26,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const t = useTranslations('LoginPage');
   const tToast = useTranslations('Toasts');
+  const locale = useLocale();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +42,7 @@ export default function LoginPage() {
     try {
       if (!auth) throw new Error('Firebase Auth not available');
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
+      router.push(`/${locale}/dashboard`);
     } catch (error: any) {
       setError(t('invalidCredentialsError'));
     } finally {
@@ -81,6 +82,7 @@ export default function LoginPage() {
         id: newUser.uid,
         email: newUser.email,
         currency: 'EUR',
+        locale: locale,
       };
       const userDocRef = doc(firestore, 'users', newUser.uid);
       setDoc(userDocRef, userData)
@@ -122,9 +124,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isUserLoading && user) {
-      router.push('/dashboard');
+      router.push(`/${locale}/dashboard`);
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, locale]);
 
   if (isUserLoading || user) {
     return (

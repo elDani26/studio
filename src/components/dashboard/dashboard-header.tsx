@@ -15,16 +15,18 @@ import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { locales } from '@/i18n';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSettings } from '@/context/settings-context';
 
 export function DashboardHeader() {
   const t = useTranslations('DashboardHeader');
-  const locale = useLocale();
+  const currentLocale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const { setLocale } = useSettings();
 
   const handleLocaleChange = (newLocale: string) => {
-    // The pathname is like `/es/dashboard`. We need to replace the locale part.
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
+    setLocale(newLocale);
+    const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
     router.replace(newPath);
   };
   
@@ -45,7 +47,7 @@ export function DashboardHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {locales.map((loc) => (
-                <DropdownMenuItem key={loc} onClick={() => handleLocaleChange(loc)}>
+                <DropdownMenuItem key={loc} onClick={() => handleLocaleChange(loc)} disabled={currentLocale === loc}>
                   {t(`languages.${loc}`)}
                 </DropdownMenuItem>
               ))}
