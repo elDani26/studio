@@ -43,6 +43,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const { categories, accounts, currency } = useSettings();
   const t = useTranslations('TransactionDataTable');
   const tToasts = useTranslations('Toasts');
+  const tColumns = useTranslations('TransactionTableColumns');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
@@ -234,7 +235,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                   {columns.map(column => (
                     <TableHead key={column.accessor.toString()} className={column.className}>{column.header}</TableHead>
                   ))}
-                  <TableHead className="text-right">{t('TransactionTableColumns.actions')}</TableHead>
+                  <TableHead className="text-right">{tColumns('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
