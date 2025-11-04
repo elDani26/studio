@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getFirestore } from 'firebase/firestore';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useTranslations, useLocale } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
@@ -82,7 +83,6 @@ export default function LoginPage() {
         id: newUser.uid,
         email: newUser.email,
         currency: 'EUR',
-        locale: 'es',
       };
       const userDocRef = doc(firestore, 'users', newUser.uid);
       setDoc(userDocRef, userData)
@@ -138,6 +138,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <Card className="w-full max-w-md shadow-2xl rounded-2xl">
         <CardHeader className="text-center space-y-4">
             <div className="flex justify-center">

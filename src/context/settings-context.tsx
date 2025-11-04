@@ -57,7 +57,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           if (userData.currency) setCurrencyState(userData.currency as Currency);
         } else {
             // First time user, create their document
-            const initialUserData = { id: user.uid, email: user.email, currency: 'EUR', locale: 'es' };
+            const initialUserData = { id: user.uid, email: user.email, currency: 'EUR' };
             setDoc(userDocRef, initialUserData)
                 .catch(e => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'create', requestResourceData: initialUserData })));
         }
@@ -67,7 +67,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           if (snapshot.empty) {
               const batch = writeBatch(firestore);
               TRANSACTION_CATEGORIES.forEach(cat => {
-                  const newCatRef = doc(categoriesColRef);
+                  const newCatRef = doc(collection(firestore, 'users', user.uid, 'categories'));
                   batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
               });
               batch.commit().catch(e => console.error("Failed to create default categories", e));
@@ -84,7 +84,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           if (snapshot.empty) {
               const batch = writeBatch(firestore);
               SOURCE_ACCOUNTS.forEach(acc => {
-                  const newAccRef = doc(accountsColRef);
+                  const newAccRef = doc(collection(firestore, 'users', user.uid, 'sourceAccounts'));
                   batch.set(newAccRef, {name: acc.label, icon: acc.icon});
               });
               batch.commit().catch(e => console.error("Failed to create default accounts", e));
