@@ -70,6 +70,12 @@
     "filterCategory": "Category",
     "filterAccount": "Account",
     "filterDate": "Pick a date range",
+    "datePicker": {
+      "placeholder": "Filter by date",
+      "singleTab": "Single",
+      "rangeTab": "Range",
+      "clearButton": "Clear"
+    },
     "all": "All",
     "income": "Income",
     "expense": "Expense",
@@ -173,3 +179,5 @@
     "invalidDate": "Invalid date"
   }
 }
+
+    

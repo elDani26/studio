@@ -70,6 +70,12 @@
     "filterCategory": "Kategorie",
     "filterAccount": "Konto",
     "filterDate": "Wählen Sie einen Datumsbereich",
+    "datePicker": {
+      "placeholder": "Nach Datum filtern",
+      "singleTab": "Einzel",
+      "rangeTab": "Bereich",
+      "clearButton": "Löschen"
+    },
     "all": "Alle",
     "income": "Einnahme",
     "expense": "Ausgabe",
@@ -173,3 +179,5 @@
     "invalidDate": "Ungültiges Datum"
   }
 }
+
+    

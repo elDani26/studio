@@ -70,6 +70,12 @@
     "filterCategory": "Categoria",
     "filterAccount": "Conta",
     "filterDate": "Escolha um intervalo de datas",
+    "datePicker": {
+      "placeholder": "Filtrar por data",
+      "singleTab": "Único",
+      "rangeTab": "Intervalo",
+      "clearButton": "Limpar"
+    },
     "all": "Todos",
     "income": "Renda",
     "expense": "Despesa",
@@ -173,3 +179,5 @@
     "invalidDate": "Data inválida"
   }
 }
+
+    

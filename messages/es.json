@@ -70,6 +70,12 @@
     "filterCategory": "Categoría",
     "filterAccount": "Cuenta",
     "filterDate": "Elige un rango de fechas",
+    "datePicker": {
+      "placeholder": "Filtrar por fecha",
+      "singleTab": "Fecha",
+      "rangeTab": "Rango",
+      "clearButton": "Limpiar"
+    },
     "all": "Todos",
     "income": "Ingreso",
     "expense": "Egreso",
@@ -173,3 +179,5 @@
     "invalidDate": "Fecha inválida"
   }
 }
+
+    

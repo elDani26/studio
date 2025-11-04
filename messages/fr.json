@@ -70,6 +70,12 @@
     "filterCategory": "Catégorie",
     "filterAccount": "Compte",
     "filterDate": "Choisir une période",
+    "datePicker": {
+      "placeholder": "Filtrer par date",
+      "singleTab": "Unique",
+      "rangeTab": "Plage",
+      "clearButton": "Effacer"
+    },
     "all": "Tous",
     "income": "Revenu",
     "expense": "Dépense",
@@ -173,3 +179,5 @@
     "invalidDate": "Date invalide"
   }
 }
+
+    

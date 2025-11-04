@@ -70,6 +70,12 @@
     "filterCategory": "Categoria",
     "filterAccount": "Conto",
     "filterDate": "Scegli un intervallo di date",
+    "datePicker": {
+      "placeholder": "Filtra per data",
+      "singleTab": "Singolo",
+      "rangeTab": "Intervallo",
+      "clearButton": "Pulisci"
+    },
     "all": "Tutti",
     "income": "Entrata",
     "expense": "Uscita",
@@ -127,7 +133,7 @@
     "currencyLabel": "Valuta",
     "selectCurrency": "Seleziona una valuta",
     "accountsSectionTitle": "I tuoi conti",
-    "accountsSectionDescription": "Aggiungi e gestisci i conti che usi (es: Banca, Contanti).",
+    "accountsSectionDescription": "Aggiungi e gestisci i conti che utilizzi (es. Banca, Contanti).",
     "newAccountPlaceholder": "Nome nuovo conto",
     "icon": "Icona",
     "categoriesSectionTitle": "Le tue categorie",
@@ -136,13 +142,13 @@
     "income": "Entrata",
     "expense": "Uscita",
     "closeButton": "Chiudi",
-    "saveCurrencyButton": "Salva valuta",
-    "currencySuccessToast": "Valuta salvata!",
+    "saveCurrencyButton": "Salva Valuta",
+    "currencySuccessToast": "Valuta Salvata!",
     "currencySuccessDescription": "La tua valuta principale è stata aggiornata.",
     "accountAddedToast": "Conto aggiunto!",
     "categoryAddedToast": "Categoria aggiunta!",
-    "editAccountTitle": "Modifica conto",
-    "editCategoryTitle": "Modifica categoria",
+    "editAccountTitle": "Modifica Conto",
+    "editCategoryTitle": "Modifica Categoria",
     "nameLabel": "Nome",
     "cancelButton": "Annulla",
     "saveButton": "Salva",
@@ -150,21 +156,21 @@
     "categoryUpdatedToast": "Categoria aggiornata!"
   },
   "ExpenseChart": {
-    "title": "Distribuzione delle uscite",
+    "title": "Distribuzione Uscite",
     "description": "Visualizza le tue uscite per categoria",
-    "noData": "Nessun dato sulle uscite disponibile."
+    "noData": "Nessun dato di spesa disponibile."
   },
   "IncomeChart": {
-    "title": "Distribuzione delle entrate",
+    "title": "Distribuzione Entrate",
     "description": "Entrate per categoria",
-    "noData": "Nessun dato sulle entrate disponibile."
+    "noData": "Nessun dato di reddito disponibile."
   },
   "Toasts": {
     "signupSuccessTitle": "Registrazione riuscita!",
     "signupSuccessDescription": "Il tuo account è stato creato. Ora puoi accedere.",
     "transactionDeletedSuccess": "La transazione è stata eliminata.",
     "transactionDeletedError": "Impossibile eliminare la transazione. Per favore, riprova.",
-    "operationError": "Errore operazione",
+    "operationError": "Errore Operazione",
     "operationErrorDescription": "Impossibile completare l'operazione."
   },
   "misc": {
@@ -173,3 +179,5 @@
     "invalidDate": "Data non valida"
   }
 }
+
+    

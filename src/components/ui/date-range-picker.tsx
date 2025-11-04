@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { type DateRange } from 'react-day-picker';
-import { es } from 'date-fns/locale';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type DatePickerWithRangeProps = React.HTMLAttributes<HTMLDivElement> & {
-  onUpdate: (values: { range: DateRange }) => void;
+  onUpdate: (values: { range: DateRange | undefined }) => void;
   initialDateFrom?: Date;
   initialDateTo?: Date;
   align?: 'start' | 'center' | 'end';
@@ -29,23 +30,47 @@ export function DateRangePicker({
   initialDateFrom,
   initialDateTo,
   align = 'end',
-  locale = es,
+  locale,
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: initialDateFrom,
     to: initialDateTo,
   });
+  const [open, setOpen] = React.useState(false);
+  const t = useTranslations('TransactionDataTable.datePicker');
+
 
   const handleUpdate = (range: DateRange | undefined) => {
     setDate(range);
-    if (range) {
-      onUpdate({ range });
-    }
+    onUpdate({ range });
   };
+
+  const handleSelect = (range: DateRange | undefined) => {
+    handleUpdate(range);
+    if (range?.from && range?.to) {
+        setOpen(false);
+    } else if (range?.from && !range.to) {
+        // This keeps it open for range selection
+    } else {
+        setOpen(false);
+    }
+  }
+
+  const handleSingleSelect = (day: Date | undefined) => {
+    if (day) {
+      handleUpdate({ from: day, to: day });
+      setOpen(false);
+    }
+  }
+  
+  const handleClear = () => {
+    handleUpdate(undefined);
+    setOpen(false);
+  }
 
   return (
     <div className={cn('grid gap-2', className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -57,29 +82,49 @@ export function DateRangePicker({
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
-              date.to ? (
+              date.to && date.from !== date.to ? (
                 <>
-                  {format(date.from, 'dd/MM/yyyy', { locale })} -{' '}
-                  {format(date.to, 'dd/MM/yyyy', { locale })}
+                  {format(date.from, 'LLL dd, y', { locale })} -{' '}
+                  {format(date.to, 'LLL dd, y', { locale })}
                 </>
               ) : (
-                format(date.from, 'dd/MM/yyyy', { locale })
+                format(date.from, 'LLL dd, y', { locale })
               )
             ) : (
-              <span>Elige un rango de fechas</span>
+              <span>{t('placeholder')}</span>
             )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align={align}>
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={handleUpdate}
-            numberOfMonths={2}
-            locale={locale}
-          />
+          <Tabs defaultValue="range">
+            <TabsList className="grid w-full grid-cols-2 rounded-none">
+              <TabsTrigger value="single">{t('singleTab')}</TabsTrigger>
+              <TabsTrigger value="range">{t('rangeTab')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="single">
+              <Calendar
+                initialFocus
+                mode="single"
+                selected={date?.from}
+                onSelect={handleSingleSelect}
+                locale={locale}
+                />
+            </TabsContent>
+            <TabsContent value="range">
+                <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={handleSelect}
+                    numberOfMonths={2}
+                    locale={locale}
+                />
+            </TabsContent>
+          </Tabs>
+          <div className="p-2 border-t">
+              <Button onClick={handleClear} variant="ghost" className="w-full justify-center">{t('clearButton')}</Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

@@ -70,6 +70,12 @@
     "filterCategory": "类别",
     "filterAccount": "账户",
     "filterDate": "选择日期范围",
+    "datePicker": {
+      "placeholder": "按日期筛选",
+      "singleTab": "单个",
+      "rangeTab": "范围",
+      "clearButton": "清除"
+    },
     "all": "全部",
     "income": "收入",
     "expense": "支出",
@@ -173,3 +179,5 @@
     "invalidDate": "无效日期"
   }
 }
+
+    

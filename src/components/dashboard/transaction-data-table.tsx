@@ -30,6 +30,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
+import { startOfDay, endOfDay } from 'date-fns';
 
 interface TransactionDataTableProps {
   transactions: Transaction[];
@@ -80,7 +81,13 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
         tDate = new Date(t.date as any);
       }
       
-      const dateFilter = !dateRange || !dateRange.from || (tDate >= dateRange.from && (!dateRange.to || tDate <= dateRange.to));
+      let dateFilter = true;
+      if (dateRange?.from) {
+        const fromDate = startOfDay(dateRange.from);
+        const toDate = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+        dateFilter = tDate >= fromDate && tDate <= toDate;
+      }
+
       const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
       const typeFilter = type === 'all' || t.type === type;
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
@@ -307,9 +314,3 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">{t('delete')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
-}
