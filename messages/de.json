@@ -1,0 +1,175 @@
+{
+  "LoginPage": {
+    "title": "VerwalteDeinGeld",
+    "description": "Ihr persönlicher Finanzbegleiter",
+    "loginTab": "Anmelden",
+    "signupTab": "Registrieren",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "sie@email.com",
+    "passwordLabel": "Passwort",
+    "confirmEmailLabel": "E-Mail bestätigen",
+    "confirmPasswordLabel": "Passwort bestätigen",
+    "passwordHint": "8+ Zeichen, ein Großbuchstabe, ein Kleinbuchstabe, eine Zahl und ein Sonderzeichen (@$!%*?&_).",
+    "loginButton": "Anmelden",
+    "loggingInButton": "Anmelden...",
+    "signupButton": "Registrieren",
+    "signingUpButton": "Registrieren...",
+    "loading": "Laden...",
+    "invalidCredentialsError": "Ungültige Anmeldeinformationen. Bitte versuchen Sie es erneut.",
+    "emailMismatchError": "E-Mails stimmen nicht überein.",
+    "passwordMismatchError": "Passwörter stimmen nicht überein.",
+    "weakPasswordError": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+    "emailInUseError": "Diese E-Mail wird bereits verwendet.",
+    "signupError": "Fehler bei der Registrierung. Bitte versuchen Sie es erneut.",
+    "userProfileError": "Benutzerprofil konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
+  },
+  "DashboardLayout": {
+    "loadingTitle": "Dashboard wird geladen...",
+    "loadingDescription": "Bitte warten Sie, während wir Ihre Finanzdaten laden."
+  },
+  "DashboardHeader": {
+    "title": "VerwalteDeinGeld",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "languages": {
+      "es": "Spanisch",
+      "en": "Englisch",
+      "fr": "Französisch",
+      "it": "Italienisch",
+      "pt": "Portugiesisch",
+      "zh": "Chinesisch",
+      "de": "Deutsch"
+    },
+    "language": "Sprache"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "Statistikübersicht",
+    "aiSummaryTitle": "KI-Zusammenfassung",
+    "transactionsTitle": "Transaktionstabelle"
+  },
+  "StatCards": {
+    "totalIncome": "Gesamteinnahmen",
+    "totalExpenses": "Gesamtausgaben",
+    "currentBalance": "Aktueller Kontostand"
+  },
+  "AiSummary": {
+    "title": "KI-Zusammenfassung",
+    "description": "Erhalten Sie sofort Einblicke in Ihre Ausgabengewohnheiten.",
+    "generateButton": "Zusammenfassung erstellen",
+    "generatingButton": "Wird erstellt...",
+    "placeholderTitle": "Erstellen Sie Ihren Finanzbericht",
+    "placeholderDescription": "Klicken Sie auf die Schaltfläche unten, um eine KI-gestützte Zusammenfassung Ihrer Transaktionen zu erhalten.",
+    "error": "Zusammenfassung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+    "noTransactions": "Keine Transaktionen zum Zusammenfassen verfügbar."
+  },
+  "TransactionDataTable": {
+    "title": "Letzte Transaktionen",
+    "description": "Sehen und verwalten Sie Ihre Finanzbewegungen.",
+    "addTransaction": "Transaktion hinzufügen",
+    "filterType": "Typ",
+    "filterCategory": "Kategorie",
+    "filterAccount": "Konto",
+    "filterDate": "Wählen Sie einen Datumsbereich",
+    "all": "Alle",
+    "income": "Einnahme",
+    "expense": "Ausgabe",
+    "filteredIncome": "Gefilterte Einnahmen",
+    "filteredExpenses": "Gefilterte Ausgaben",
+    "filteredBalance": "Gefilterter Kontostand",
+    "noTransactions": "Keine Transaktionen gefunden, die den Filtern entsprechen.",
+    "confirmDeleteTitle": "Sind Sie sicher?",
+    "confirmDeleteDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch wird die Transaktion dauerhaft aus Ihren Unterlagen gelöscht.",
+    "cancel": "Abbrechen",
+    "delete": "Löschen"
+  },
+  "TransactionTableColumns": {
+    "description": "Beschreibung",
+    "date": "Datum",
+    "account": "Konto",
+    "amount": "Betrag",
+    "actions": "Aktionen",
+    "noDescription": "Keine Beschreibung"
+  },
+  "AddTransactionDialog": {
+    "title": "Neue Transaktion hinzufügen",
+    "description": "Vervollständigen Sie die Details, um einen neuen Finanzdatensatz hinzuzufügen.",
+    "transactionType": "Transaktionstyp",
+    "income": "Einnahme",
+    "expense": "Ausgabe",
+    "amount": "Betrag",
+    "category": "Kategorie",
+    "selectCategory": "Wählen Sie eine Kategorie",
+    "date": "Transaktionsdatum",
+    "pickDate": "Wählen Sie ein Datum",
+    "optionalDescription": "Beschreibung (Optional)",
+    "descriptionPlaceholder": "z.B. Supermarkt",
+    "account": "Konto",
+    "selectAccount": "Wählen Sie ein Konto",
+    "addButton": "Transaktion hinzufügen",
+    "successToast": "Ihre Transaktion wurde hinzugefügt!",
+    "errorToast": "Transaktion konnte nicht hinzugefügt werden. Bitte versuchen Sie es erneut."
+  },
+  "EditTransactionDialog": {
+    "title": "Transaktion bearbeiten",
+    "description": "Aktualisieren Sie die Details Ihres Finanzdatensatzes.",
+    "saveButton": "Änderungen speichern",
+    "successToast": "Ihre Transaktion wurde aktualisiert!",
+    "errorToast": "Transaktion konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+  },
+  "SettingsDialog": {
+    "title": "Einstellungen",
+    "description": "Passen Sie Ihre Anwendungseinstellungen, Konten und Kategorien an.",
+    "generalTab": "Allgemein",
+    "accountsTab": "Konten",
+    "categoriesTab": "Kategorien",
+    "currencySectionTitle": "Währung",
+    "currencySectionDescription": "Wählen Sie die Hauptwährung für Ihre Transaktionen.",
+    "currencyLabel": "Währung",
+    "selectCurrency": "Wählen Sie eine Währung",
+    "accountsSectionTitle": "Ihre Konten",
+    "accountsSectionDescription": "Fügen Sie die von Ihnen verwendeten Konten hinzu und verwalten Sie sie (z. B. Bank, Bargeld).",
+    "newAccountPlaceholder": "Neuer Kontoname",
+    "icon": "Symbol",
+    "categoriesSectionTitle": "Ihre Kategorien",
+    "categoriesSectionDescription": "Organisieren Sie Ihre Einnahmen und Ausgaben mit benutzerdefinierten Kategorien.",
+    "newCategoryPlaceholder": "Kategoriename",
+    "income": "Einnahme",
+    "expense": "Ausgabe",
+    "closeButton": "Schließen",
+    "saveCurrencyButton": "Währung speichern",
+    "currencySuccessToast": "Währung gespeichert!",
+    "currencySuccessDescription": "Ihre Hauptwährung wurde aktualisiert.",
+    "accountAddedToast": "Konto hinzugefügt!",
+    "categoryAddedToast": "Kategorie hinzugefügt!",
+    "editAccountTitle": "Konto bearbeiten",
+    "editCategoryTitle": "Kategorie bearbeiten",
+    "nameLabel": "Name",
+    "cancelButton": "Abbrechen",
+    "saveButton": "Speichern",
+    "accountUpdatedToast": "Konto aktualisiert!",
+    "categoryUpdatedToast": "Kategorie aktualisiert!"
+  },
+  "ExpenseChart": {
+    "title": "Ausgabenverteilung",
+    "description": "Visualisieren Sie Ihre Ausgaben nach Kategorie",
+    "noData": "Keine Ausgabendaten verfügbar."
+  },
+  "IncomeChart": {
+    "title": "Einkommensverteilung",
+    "description": "Einkommen nach Kategorie",
+    "noData": "Keine Einkommensdaten verfügbar."
+  },
+  "Toasts": {
+    "signupSuccessTitle": "Registrierung erfolgreich!",
+    "signupSuccessDescription": "Ihr Konto wurde erstellt. Sie können sich jetzt anmelden.",
+    "transactionDeletedSuccess": "Die Transaktion wurde gelöscht.",
+    "transactionDeletedError": "Transaktion konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "operationError": "Betriebsfehler",
+    "operationErrorDescription": "Der Vorgang konnte nicht abgeschlossen werden."
+  },
+  "misc": {
+    "unknownCategory": "Unbekannte Kategorie",
+    "unknownAccount": "Unbekanntes Konto",
+    "invalidDate": "Ungültiges Datum"
+  }
+}
