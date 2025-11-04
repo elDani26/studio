@@ -10,10 +10,8 @@ import { AddTransactionDialog } from './add-transaction-dialog';
 import { EditTransactionDialog } from './edit-transaction-dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Skeleton } from '../ui/skeleton';
-import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2 } from 'lucide-react';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -28,9 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
-import { useTranslations, useLocale } from 'next-intl';
-import { getLocale, cn } from '@/lib/utils';
-import { startOfDay, endOfDay, format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 
 interface TransactionDataTableProps {
   transactions: Transaction[];
@@ -45,12 +41,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const t = useTranslations('TransactionDataTable');
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
-  const tDatePicker = useTranslations('TransactionDataTable.datePicker');
-  const locale = useLocale();
-  const dateFnsLocale = getLocale(locale);
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>();
-  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
@@ -76,26 +67,12 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
-      let tDate;
-      if (t.date && typeof (t.date as any).toDate === 'function') {
-        tDate = (t.date as any).toDate();
-      } else {
-        tDate = new Date(t.date as any);
-      }
-      
-      let dateFilter = true;
-      if (dateFrom) {
-        const fromDate = startOfDay(dateFrom);
-        const toDate = dateTo ? endOfDay(dateTo) : endOfDay(dateFrom);
-        dateFilter = tDate >= fromDate && tDate <= toDate;
-      }
-
       const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
       const typeFilter = type === 'all' || t.type === type;
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
-      return dateFilter && categoryFilterPassed && typeFilter && accountFilterPassed;
+      return categoryFilterPassed && typeFilter && accountFilterPassed;
     });
-  }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter]);
+  }, [transactions, categoryFilter, type, accountFilter]);
 
   const filteredTotals = useMemo(() => {
     const income = filteredTransactions
@@ -151,11 +128,6 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
       });
   };
   
-  const clearDates = () => {
-    setDateFrom(undefined);
-    setDateTo(undefined);
-  }
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -206,53 +178,6 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                       {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={'outline'}
-                    className={cn(
-                      'w-full sm:w-auto justify-start text-left font-normal',
-                      !dateFrom && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    initialFocus
-                    locale={dateFnsLocale}
-                  />
-                </PopoverContent>
-              </Popover>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={'outline'}
-                    className={cn(
-                      'w-full sm:w-auto justify-start text-left font-normal',
-                      !dateTo && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    initialFocus
-                    locale={dateFnsLocale}
-                  />
-                </PopoverContent>
-              </Popover>
-              {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
           </div>
         </CardHeader>
         <CardContent>
