@@ -15,10 +15,10 @@ const SummarizeTransactionsInputSchema = z.object({
   transactions: z.array(
     z.object({
       type: z.enum(['income', 'expense']),
-      category: z.string(),
+      category: z.string().describe('The name of the category (e.g., "Alimentación", "Salario").'),
       description: z.string().optional(),
       date: z.string(),
-      account: z.string().optional(),
+      account: z.string().optional().describe('The name of the source account (e.g., "Cuenta de Banco", "Efectivo").'),
       amount: z.number(),
     })
   ).describe('An array of transaction objects.'),

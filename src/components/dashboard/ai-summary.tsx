@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import type { Transaction } from '@/types';
+import type { Transaction, WithId, Category, SourceAccount } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { summarizeTransactions, type SummarizeTransactionsInput } from '@/ai/flows/summarize-transactions';
 import { Loader2, Wand2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useSettings } from '@/context/settings-context';
 
 interface AiSummaryProps {
   transactions: Transaction[];
@@ -16,6 +17,7 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
   const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { categories, accounts } = useSettings();
 
   const handleGenerateSummary = async () => {
     if (initialTransactions.length === 0) {
@@ -27,6 +29,10 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
     setSummary('');
 
     try {
+      // Create maps for quick lookups
+      const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+      const accountMap = new Map(accounts.map(a => [a.id, a.name]));
+
       const serializableTransactions = initialTransactions.map(t => {
         let date;
         if (t.date && typeof (t.date as any).toDate === 'function') {
@@ -34,9 +40,14 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
         } else {
           date = new Date(t.date as any).toISOString().split('T')[0];
         }
+
         return {
-          ...t,
+          type: t.type,
+          category: categoryMap.get(t.category) || 'Categoría desconocida',
+          description: t.description,
           date,
+          account: accountMap.get(t.account) || 'Cuenta desconocida',
+          amount: t.amount,
         };
       }) as SummarizeTransactionsInput['transactions'];
 
