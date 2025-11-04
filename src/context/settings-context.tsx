@@ -95,7 +95,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
     return () => unsubscribes.forEach(unsub => unsub());
 
-  }, [user, firestore]);
+  }, [user, firestore, userDocRef, categoriesColRef, accountsColRef]);
 
   const setCurrency = async (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
