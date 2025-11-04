@@ -13,24 +13,24 @@ interface StatCardsProps {
   transactions: Transaction[];
 }
 
-export function StatCards({ transactions: initialTransactions }: StatCardsProps) {
+export function StatCards({ transactions }: StatCardsProps) {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const { currency } = useSettings();
   const t = useTranslations('StatCards');
 
   useEffect(() => {
-    const income = initialTransactions
+    const income = transactions
       .filter(t => t.type === 'income')
       .reduce((acc, t) => acc + t.amount, 0);
     
-    const expenses = initialTransactions
+    const expenses = transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => acc + t.amount, 0);
 
     setTotalIncome(income);
     setTotalExpenses(expenses);
-  }, [initialTransactions]);
+  }, [transactions]);
   
   const balance = totalIncome - totalExpenses;
 
@@ -76,8 +76,8 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
       </div>
       
       <div className="grid gap-8 md:grid-cols-2">
-          <ExpenseChart transactions={initialTransactions} />
-          <IncomeChart transactions={initialTransactions} />
+          <ExpenseChart transactions={transactions} />
+          <IncomeChart transactions={transactions} />
       </div>
     </div>
   );
