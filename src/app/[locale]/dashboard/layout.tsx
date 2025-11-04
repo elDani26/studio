@@ -2,7 +2,7 @@
 
 import { useUser } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { SettingsProvider, useSettings } from '@/context/settings-context';
@@ -15,7 +15,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const currentLocale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const t = useTranslations('DashboardLayout');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const isLoading = isUserLoading || isSettingsLoading;
 
@@ -26,15 +26,40 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, router, currentLocale]);
 
   useEffect(() => {
-    if (!isLoading && user && savedLocale && currentLocale !== savedLocale && locales.includes(savedLocale)) {
+    const shouldRedirect = !isLoading && user && savedLocale && currentLocale !== savedLocale && locales.includes(savedLocale) && !isRedirecting;
+
+    if (shouldRedirect) {
+      setIsRedirecting(true);
       const newPath = pathname.replace(`/${currentLocale}`, `/${savedLocale}`);
       router.replace(newPath);
     }
-  }, [isLoading, user, savedLocale, currentLocale, pathname, router]);
+  }, [isLoading, user, savedLocale, currentLocale, pathname, router, isRedirecting]);
 
-  if (isLoading || !user || currentLocale !== savedLocale) {
+  if (isLoading || !user) {
     return (
       <div className="flex flex-col h-screen bg-background">
+        <div className="flex items-center justify-between p-4 border-b">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+        <div className="flex-1 p-4 md:p-8 space-y-8">
+          <Skeleton className="h-12 w-1/4" />
+          <div className="grid gap-4 md:grid-cols-3">
+             <Skeleton className="h-28" />
+             <Skeleton className="h-28" />
+             <Skeleton className="h-28" />
+          </div>
+          <Skeleton className="w-full h-64" />
+          <Skeleton className="w-full h-96" />
+        </div>
+      </div>
+    );
+  }
+
+  // Prevents showing content for the old locale while redirecting
+  if (currentLocale !== savedLocale && locales.includes(savedLocale)) {
+    return (
+       <div className="flex flex-col h-screen bg-background">
         <div className="flex items-center justify-between p-4 border-b">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-10 rounded-full" />
