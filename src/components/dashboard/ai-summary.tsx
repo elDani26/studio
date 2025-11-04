@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import type { Transaction, WithId, Category, SourceAccount } from '@/types';
+import type { Transaction } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { summarizeTransactions, type SummarizeTransactionsInput } from '@/ai/flows/summarize-transactions';
 import { Loader2, Wand2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSettings } from '@/context/settings-context';
+import { useTranslations } from 'next-intl';
 
 interface AiSummaryProps {
   transactions: Transaction[];
@@ -18,10 +19,12 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { categories, accounts } = useSettings();
+  const t = useTranslations('AiSummary');
+  const tMisc = useTranslations('misc');
 
   const handleGenerateSummary = async () => {
     if (initialTransactions.length === 0) {
-      setError('No hay transacciones disponibles para resumir.');
+      setError(t('noTransactions'));
       return;
     }
     setLoading(true);
@@ -43,10 +46,10 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
 
         return {
           type: t.type,
-          category: categoryMap.get(t.category) || 'Categoría desconocida',
+          category: categoryMap.get(t.category) || tMisc('unknownCategory'),
           description: t.description,
           date,
-          account: accountMap.get(t.account) || 'Cuenta desconocida',
+          account: accountMap.get(t.account) || tMisc('unknownAccount'),
           amount: t.amount,
         };
       }) as SummarizeTransactionsInput['transactions'];
@@ -54,7 +57,7 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
       const result = await summarizeTransactions({ transactions: serializableTransactions });
       setSummary(result.summary);
     } catch (e) {
-      setError('No se pudo generar el resumen. Por favor, inténtalo de nuevo.');
+      setError(t('error'));
       console.error(e);
     } finally {
       setLoading(false);
@@ -64,9 +67,9 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
-        <CardTitle>Resumen con IA</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
         <CardDescription>
-          Obtén información instantánea sobre tus hábitos de gasto.
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
@@ -81,8 +84,8 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
         ) : (
            <div className="flex flex-col items-center justify-center h-full text-center p-4 rounded-lg border-2 border-dashed border-border">
                 <Wand2 className="h-10 w-10 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold">Genera tu Informe Financiero</h3>
-                <p className="text-sm text-muted-foreground">Haz clic en el botón de abajo para obtener un resumen de tus transacciones con IA.</p>
+                <h3 className="text-lg font-semibold">{t('placeholderTitle')}</h3>
+                <p className="text-sm text-muted-foreground">{t('placeholderDescription')}</p>
            </div>
         )}
         {error && (
@@ -97,12 +100,12 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generando...
+              {t('generatingButton')}
             </>
           ) : (
             <>
               <Wand2 className="mr-2 h-4 w-4" />
-              Generar Resumen
+              {t('generateButton')}
             </>
           )}
         </Button>

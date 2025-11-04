@@ -1,0 +1,174 @@
+{
+  "LoginPage": {
+    "title": "ManageYourMoney",
+    "description": "Your personal financial companion",
+    "loginTab": "Login",
+    "signupTab": "Sign Up",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@email.com",
+    "passwordLabel": "Password",
+    "confirmEmailLabel": "Confirm Email",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordHint": "8+ characters, one uppercase, one lowercase, one number, and one special character (@$!%*?&_).",
+    "loginButton": "Login",
+    "loggingInButton": "Logging in...",
+    "signupButton": "Sign Up",
+    "signingUpButton": "Signing up...",
+    "loading": "Loading...",
+    "invalidCredentialsError": "Invalid credentials. Please try again.",
+    "emailMismatchError": "Emails do not match.",
+    "passwordMismatchError": "Passwords do not match.",
+    "weakPasswordError": "Password must be at least 8 characters long, with one uppercase, one lowercase, one number, and one special character.",
+    "emailInUseError": "This email is already in use.",
+    "signupError": "Error signing up. Please try again.",
+    "userProfileError": "Could not create user profile. Please try again."
+  },
+  "DashboardLayout": {
+    "loadingTitle": "Loading Dashboard...",
+    "loadingDescription": "Please wait while we load your financial data."
+  },
+  "DashboardHeader": {
+    "title": "ManageYourMoney",
+    "settings": "Settings",
+    "logout": "Logout",
+    "languages": {
+      "es": "Spanish",
+      "en": "English",
+      "fr": "French",
+      "it": "Italian",
+      "pt": "Portuguese",
+      "zh": "Chinese"
+    },
+    "language": "Language"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "Statistics Summary",
+    "aiSummaryTitle": "AI Summary",
+    "transactionsTitle": "Transactions Table"
+  },
+  "StatCards": {
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "currentBalance": "Current Balance"
+  },
+  "AiSummary": {
+    "title": "AI Summary",
+    "description": "Get instant insights into your spending habits.",
+    "generateButton": "Generate Summary",
+    "generatingButton": "Generating...",
+    "placeholderTitle": "Generate Your Financial Report",
+    "placeholderDescription": "Click the button below to get an AI-powered summary of your transactions.",
+    "error": "Could not generate summary. Please try again.",
+    "noTransactions": "No transactions available to summarize."
+  },
+  "TransactionDataTable": {
+    "title": "Recent Transactions",
+    "description": "View and manage your financial movements.",
+    "addTransaction": "Add Transaction",
+    "filterType": "Type",
+    "filterCategory": "Category",
+    "filterAccount": "Account",
+    "filterDate": "Pick a date range",
+    "all": "All",
+    "income": "Income",
+    "expense": "Expense",
+    "filteredIncome": "Filtered Income",
+    "filteredExpenses": "Filtered Expenses",
+    "filteredBalance": "Filtered Balance",
+    "noTransactions": "No transactions found matching the filters.",
+    "confirmDeleteTitle": "Are you sure?",
+    "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the transaction from your records.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "TransactionTableColumns": {
+    "description": "Description",
+    "date": "Date",
+    "account": "Account",
+    "amount": "Amount",
+    "actions": "Actions",
+    "noDescription": "No description"
+  },
+  "AddTransactionDialog": {
+    "title": "Add New Transaction",
+    "description": "Complete the details to add a new financial record.",
+    "transactionType": "Transaction Type",
+    "income": "Income",
+    "expense": "Expense",
+    "amount": "Amount",
+    "category": "Category",
+    "selectCategory": "Select a category",
+    "date": "Transaction Date",
+    "pickDate": "Pick a date",
+    "optionalDescription": "Description (Optional)",
+    "descriptionPlaceholder": "e.g., Supermarket",
+    "account": "Account",
+    "selectAccount": "Select an account",
+    "addButton": "Add Transaction",
+    "successToast": "Your transaction has been added!",
+    "errorToast": "Could not add transaction. Please try again."
+  },
+  "EditTransactionDialog": {
+    "title": "Edit Transaction",
+    "description": "Update the details of your financial record.",
+    "saveButton": "Save Changes",
+    "successToast": "Your transaction has been updated!",
+    "errorToast": "Could not update transaction. Please try again."
+  },
+  "SettingsDialog": {
+    "title": "Settings",
+    "description": "Customize your application settings, accounts, and categories.",
+    "generalTab": "General",
+    "accountsTab": "Accounts",
+    "categoriesTab": "Categories",
+    "currencySectionTitle": "Currency",
+    "currencySectionDescription": "Select the main currency for your transactions.",
+    "currencyLabel": "Currency",
+    "selectCurrency": "Select a currency",
+    "accountsSectionTitle": "Your Accounts",
+    "accountsSectionDescription": "Add and manage the accounts you use (e.g., Bank, Cash).",
+    "newAccountPlaceholder": "New account name",
+    "icon": "Icon",
+    "categoriesSectionTitle": "Your Categories",
+    "categoriesSectionDescription": "Organize your income and expenses with custom categories.",
+    "newCategoryPlaceholder": "Category name",
+    "income": "Income",
+    "expense": "Expense",
+    "closeButton": "Close",
+    "saveCurrencyButton": "Save Currency",
+    "currencySuccessToast": "Currency Saved!",
+    "currencySuccessDescription": "Your main currency has been updated.",
+    "accountAddedToast": "Account added!",
+    "categoryAddedToast": "Category added!",
+    "editAccountTitle": "Edit Account",
+    "editCategoryTitle": "Edit Category",
+    "nameLabel": "Name",
+    "cancelButton": "Cancel",
+    "saveButton": "Save",
+    "accountUpdatedToast": "Account updated!",
+    "categoryUpdatedToast": "Category updated!"
+  },
+  "ExpenseChart": {
+    "title": "Expense Distribution",
+    "description": "Visualize your expenses by category",
+    "noData": "No expense data available."
+  },
+  "IncomeChart": {
+    "title": "Income Distribution",
+    "description": "Income by category",
+    "noData": "No income data available."
+  },
+  "Toasts": {
+    "signupSuccessTitle": "Signup successful!",
+    "signupSuccessDescription": "Your account has been created. You can now log in.",
+    "transactionDeletedSuccess": "The transaction has been deleted.",
+    "transactionDeletedError": "Could not delete the transaction. Please try again.",
+    "operationError": "Operation Error",
+    "operationErrorDescription": "Could not complete the operation."
+  },
+  "misc": {
+    "unknownCategory": "Unknown category",
+    "unknownAccount": "Unknown account",
+    "invalidDate": "Invalid date"
+  }
+}

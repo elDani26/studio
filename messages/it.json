@@ -1,0 +1,174 @@
+{
+  "LoginPage": {
+    "title": "GestisciIlTuoDenaro",
+    "description": "Il tuo compagno finanziario personale",
+    "loginTab": "Accedi",
+    "signupTab": "Registrati",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tua@email.com",
+    "passwordLabel": "Password",
+    "confirmEmailLabel": "Conferma Email",
+    "confirmPasswordLabel": "Conferma Password",
+    "passwordHint": "8+ caratteri, una maiuscola, una minuscola, un numero e un carattere speciale (@$!%*?&_).",
+    "loginButton": "Accedi",
+    "loggingInButton": "Accesso in corso...",
+    "signupButton": "Registrati",
+    "signingUpButton": "Registrazione...",
+    "loading": "Caricamento...",
+    "invalidCredentialsError": "Credenziali non valide. Per favore, riprova.",
+    "emailMismatchError": "Le email non corrispondono.",
+    "passwordMismatchError": "Le password non corrispondono.",
+    "weakPasswordError": "La password deve contenere almeno 8 caratteri, una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
+    "emailInUseError": "Questa email è già in uso.",
+    "signupError": "Errore durante la registrazione. Per favore, riprova.",
+    "userProfileError": "Impossibile creare il profilo utente. Per favore, riprova."
+  },
+  "DashboardLayout": {
+    "loadingTitle": "Caricamento dashboard...",
+    "loadingDescription": "Attendere prego, stiamo caricando i tuoi dati finanziari."
+  },
+  "DashboardHeader": {
+    "title": "GestisciIlTuoDenaro",
+    "settings": "Impostazioni",
+    "logout": "Esci",
+    "languages": {
+      "es": "Spagnolo",
+      "en": "Inglese",
+      "fr": "Francese",
+      "it": "Italiano",
+      "pt": "Portoghese",
+      "zh": "Cinese"
+    },
+    "language": "Lingua"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "Riepilogo statistiche",
+    "aiSummaryTitle": "Riepilogo IA",
+    "transactionsTitle": "Tabella transazioni"
+  },
+  "StatCards": {
+    "totalIncome": "Entrate totali",
+    "totalExpenses": "Uscite totali",
+    "currentBalance": "Saldo attuale"
+  },
+  "AiSummary": {
+    "title": "Riepilogo IA",
+    "description": "Ottieni informazioni immediate sulle tue abitudini di spesa.",
+    "generateButton": "Genera riepilogo",
+    "generatingButton": "Generazione...",
+    "placeholderTitle": "Genera il tuo report finanziario",
+    "placeholderDescription": "Clicca il pulsante qui sotto per ottenere un riepilogo delle tue transazioni basato sull'IA.",
+    "error": "Impossibile generare il riepilogo. Per favore, riprova.",
+    "noTransactions": "Nessuna transazione disponibile da riepilogare."
+  },
+  "TransactionDataTable": {
+    "title": "Transazioni recenti",
+    "description": "Visualizza e gestisci i tuoi movimenti finanziari.",
+    "addTransaction": "Aggiungi transazione",
+    "filterType": "Tipo",
+    "filterCategory": "Categoria",
+    "filterAccount": "Conto",
+    "filterDate": "Scegli un intervallo di date",
+    "all": "Tutti",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "filteredIncome": "Entrate filtrate",
+    "filteredExpenses": "Uscite filtrate",
+    "filteredBalance": "Saldo filtrato",
+    "noTransactions": "Nessuna transazione trovata che corrisponda ai filtri.",
+    "confirmDeleteTitle": "Sei sicuro?",
+    "confirmDeleteDescription": "Questa azione non può essere annullata. Eliminerà permanentemente la transazione dai tuoi registri.",
+    "cancel": "Annulla",
+    "delete": "Elimina"
+  },
+  "TransactionTableColumns": {
+    "description": "Descrizione",
+    "date": "Data",
+    "account": "Conto",
+    "amount": "Importo",
+    "actions": "Azioni",
+    "noDescription": "Nessuna descrizione"
+  },
+  "AddTransactionDialog": {
+    "title": "Aggiungi nuova transazione",
+    "description": "Completa i dettagli per aggiungere una nuova registrazione finanziaria.",
+    "transactionType": "Tipo di transazione",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "amount": "Importo",
+    "category": "Categoria",
+    "selectCategory": "Seleziona una categoria",
+    "date": "Data della transazione",
+    "pickDate": "Scegli una data",
+    "optionalDescription": "Descrizione (opzionale)",
+    "descriptionPlaceholder": "Es: Supermercato",
+    "account": "Conto",
+    "selectAccount": "Seleziona un conto",
+    "addButton": "Aggiungi transazione",
+    "successToast": "La tua transazione è stata aggiunta!",
+    "errorToast": "Impossibile aggiungere la transazione. Per favore, riprova."
+  },
+  "EditTransactionDialog": {
+    "title": "Modifica transazione",
+    "description": "Aggiorna i dettagli della tua registrazione finanziaria.",
+    "saveButton": "Salva modifiche",
+    "successToast": "La tua transazione è stata aggiornata!",
+    "errorToast": "Impossibile aggiornare la transazione. Per favore, riprova."
+  },
+  "SettingsDialog": {
+    "title": "Impostazioni",
+    "description": "Personalizza le impostazioni dell'applicazione, i conti e le categorie.",
+    "generalTab": "Generale",
+    "accountsTab": "Conti",
+    "categoriesTab": "Categorie",
+    "currencySectionTitle": "Valuta",
+    "currencySectionDescription": "Seleziona la valuta principale per le tue transazioni.",
+    "currencyLabel": "Valuta",
+    "selectCurrency": "Seleziona una valuta",
+    "accountsSectionTitle": "I tuoi conti",
+    "accountsSectionDescription": "Aggiungi e gestisci i conti che usi (es: Banca, Contanti).",
+    "newAccountPlaceholder": "Nome nuovo conto",
+    "icon": "Icona",
+    "categoriesSectionTitle": "Le tue categorie",
+    "categoriesSectionDescription": "Organizza le tue entrate e uscite con categorie personalizzate.",
+    "newCategoryPlaceholder": "Nome categoria",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "closeButton": "Chiudi",
+    "saveCurrencyButton": "Salva valuta",
+    "currencySuccessToast": "Valuta salvata!",
+    "currencySuccessDescription": "La tua valuta principale è stata aggiornata.",
+    "accountAddedToast": "Conto aggiunto!",
+    "categoryAddedToast": "Categoria aggiunta!",
+    "editAccountTitle": "Modifica conto",
+    "editCategoryTitle": "Modifica categoria",
+    "nameLabel": "Nome",
+    "cancelButton": "Annulla",
+    "saveButton": "Salva",
+    "accountUpdatedToast": "Conto aggiornato!",
+    "categoryUpdatedToast": "Categoria aggiornata!"
+  },
+  "ExpenseChart": {
+    "title": "Distribuzione delle uscite",
+    "description": "Visualizza le tue uscite per categoria",
+    "noData": "Nessun dato sulle uscite disponibile."
+  },
+  "IncomeChart": {
+    "title": "Distribuzione delle entrate",
+    "description": "Entrate per categoria",
+    "noData": "Nessun dato sulle entrate disponibile."
+  },
+  "Toasts": {
+    "signupSuccessTitle": "Registrazione riuscita!",
+    "signupSuccessDescription": "Il tuo account è stato creato. Ora puoi accedere.",
+    "transactionDeletedSuccess": "La transazione è stata eliminata.",
+    "transactionDeletedError": "Impossibile eliminare la transazione. Per favore, riprova.",
+    "operationError": "Errore operazione",
+    "operationErrorDescription": "Impossibile completare l'operazione."
+  },
+  "misc": {
+    "unknownCategory": "Categoria sconosciuta",
+    "unknownAccount": "Conto sconosciuto",
+    "invalidDate": "Data non valida"
+  }
+}

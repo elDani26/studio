@@ -7,6 +7,7 @@ import { ArrowDown, ArrowUp, Scale } from 'lucide-react';
 import { ExpenseChart } from './expense-chart';
 import { IncomeChart } from './income-chart';
 import { useSettings } from '@/context/settings-context';
+import { useTranslations } from 'next-intl';
 
 interface StatCardsProps {
   transactions: Transaction[];
@@ -16,6 +17,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const { currency } = useSettings();
+  const t = useTranslations('StatCards');
   
   useEffect(() => {
     const income = initialTransactions
@@ -44,7 +46,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('totalIncome')}</CardTitle>
             <ArrowUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -53,7 +55,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Egresos Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('totalExpenses')}</CardTitle>
             <ArrowDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
@@ -62,7 +64,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Balance Actual</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('currentBalance')}</CardTitle>
             <Scale className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>

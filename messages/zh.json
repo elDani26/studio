@@ -1,0 +1,174 @@
+{
+  "LoginPage": {
+    "title": "管理您的资金",
+    "description": "您的个人财务伴侣",
+    "loginTab": "登录",
+    "signupTab": "注册",
+    "emailLabel": "电子邮件",
+    "emailPlaceholder": "you@email.com",
+    "passwordLabel": "密码",
+    "confirmEmailLabel": "确认电子邮件",
+    "confirmPasswordLabel": "确认密码",
+    "passwordHint": "8个以上字符，一个大写字母，一个小写字母，一个数字和一个特殊字符（@$!%*?&_）。",
+    "loginButton": "登录",
+    "loggingInButton": "正在登录...",
+    "signupButton": "注册",
+    "signingUpButton": "正在注册...",
+    "loading": "加载中...",
+    "invalidCredentialsError": "凭据无效。请重试。",
+    "emailMismatchError": "电子邮件不匹配。",
+    "passwordMismatchError": "密码不匹配。",
+    "weakPasswordError": "密码必须至少为8个字符，包含一个大写字母、一个小写字母、一个数字和一个特殊字符。",
+    "emailInUseError": "此电子邮件已被使用。",
+    "signupError": "注册时出错。请重试。",
+    "userProfileError": "无法创建用户个人资料。请重试。"
+  },
+  "DashboardLayout": {
+    "loadingTitle": "正在加载仪表板...",
+    "loadingDescription": "请稍候，我们正在加载您的财务数据。"
+  },
+  "DashboardHeader": {
+    "title": "管理您的资金",
+    "settings": "设置",
+    "logout": "登出",
+    "languages": {
+      "es": "西班牙语",
+      "en": "英语",
+      "fr": "法语",
+      "it": "意大利语",
+      "pt": "葡萄牙语",
+      "zh": "中文"
+    },
+    "language": "语言"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "统计摘要",
+    "aiSummaryTitle": "AI摘要",
+    "transactionsTitle": "交易表"
+  },
+  "StatCards": {
+    "totalIncome": "总收入",
+    "totalExpenses": "总支出",
+    "currentBalance": "当前余额"
+  },
+  "AiSummary": {
+    "title": "AI摘要",
+    "description": "即时了解您的消费习惯。",
+    "generateButton": "生成摘要",
+    "generatingButton": "正在生成...",
+    "placeholderTitle": "生成您的财务报告",
+    "placeholderDescription": "点击下方按钮，获取由AI支持的交易摘要。",
+    "error": "无法生成摘要。请重试。",
+    "noTransactions": "没有可供摘要的交易。"
+  },
+  "TransactionDataTable": {
+    "title": "最近的交易",
+    "description": "查看和管理您的财务动向。",
+    "addTransaction": "添加交易",
+    "filterType": "类型",
+    "filterCategory": "类别",
+    "filterAccount": "账户",
+    "filterDate": "选择日期范围",
+    "all": "全部",
+    "income": "收入",
+    "expense": "支出",
+    "filteredIncome": "筛选后的收入",
+    "filteredExpenses": "筛选后的支出",
+    "filteredBalance": "筛选后的余额",
+    "noTransactions": "未找到与筛选条件匹配的交易。",
+    "confirmDeleteTitle": "您确定吗？",
+    "confirmDeleteDescription": "此操作无法撤销。这将从您的记录中永久删除该交易。",
+    "cancel": "取消",
+    "delete": "删除"
+  },
+  "TransactionTableColumns": {
+    "description": "描述",
+    "date": "日期",
+    "account": "账户",
+    "amount": "金额",
+    "actions": "操作",
+    "noDescription": "无描述"
+  },
+  "AddTransactionDialog": {
+    "title": "添加新交易",
+    "description": "填写详细信息以添加新的财务记录。",
+    "transactionType": "交易类型",
+    "income": "收入",
+    "expense": "支出",
+    "amount": "金额",
+    "category": "类别",
+    "selectCategory": "选择一个类别",
+    "date": "交易日期",
+    "pickDate": "选择一个日期",
+    "optionalDescription": "描述（可选）",
+    "descriptionPlaceholder": "例如：超市",
+    "account": "账户",
+    "selectAccount": "选择一个账户",
+    "addButton": "添加交易",
+    "successToast": "您的交易已添加！",
+    "errorToast": "无法添加交易。请重试。"
+  },
+  "EditTransactionDialog": {
+    "title": "编辑交易",
+    "description": "更新您的财务记录详情。",
+    "saveButton": "保存更改",
+    "successToast": "您的交易已更新！",
+    "errorToast": "无法更新交易。请重试。"
+  },
+  "SettingsDialog": {
+    "title": "设置",
+    "description": "自定义您的应用程序设置、账户和类别。",
+    "generalTab": "常规",
+    "accountsTab": "账户",
+    "categoriesTab": "类别",
+    "currencySectionTitle": "货币",
+    "currencySectionDescription": "选择您交易的主要货币。",
+    "currencyLabel": "货币",
+    "selectCurrency": "选择一种货币",
+    "accountsSectionTitle": "您的账户",
+    "accountsSectionDescription": "添加和管理您使用的账户（例如：银行、现金）。",
+    "newAccountPlaceholder": "新账户名称",
+    "icon": "图标",
+    "categoriesSectionTitle": "您的类别",
+    "categoriesSectionDescription": "使用自定义类别整理您的收入和支出。",
+    "newCategoryPlaceholder": "类别名称",
+    "income": "收入",
+    "expense": "支出",
+    "closeButton": "关闭",
+    "saveCurrencyButton": "保存货币",
+    "currencySuccessToast": "货币已保存！",
+    "currencySuccessDescription": "您的主要货币已更新。",
+    "accountAddedToast": "账户已添加！",
+    "categoryAddedToast": "类别已添加！",
+    "editAccountTitle": "编辑账户",
+    "editCategoryTitle": "编辑类别",
+    "nameLabel": "名称",
+    "cancelButton": "取消",
+    "saveButton": "保存",
+    "accountUpdatedToast": "账户已更新！",
+    "categoryUpdatedToast": "类别已更新！"
+  },
+  "ExpenseChart": {
+    "title": "支出分布",
+    "description": "按类别查看您的支出",
+    "noData": "无可用支出数据。"
+  },
+  "IncomeChart": {
+    "title": "收入分布",
+    "description": "按类别查看收入",
+    "noData": "无可用收入数据。"
+  },
+  "Toasts": {
+    "signupSuccessTitle": "注册成功！",
+    "signupSuccessDescription": "您的账户已创建。现在您可以登录了。",
+    "transactionDeletedSuccess": "交易已删除。",
+    "transactionDeletedError": "无法删除交易。请重试。",
+    "operationError": "操作错误",
+    "operationErrorDescription": "无法完成操作。"
+  },
+  "misc": {
+    "unknownCategory": "未知类别",
+    "unknownAccount": "未知账户",
+    "invalidDate": "无效日期"
+  }
+}

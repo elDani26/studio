@@ -7,6 +7,7 @@ import type { User, Category, SourceAccount, WithId } from '@/types';
 import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
@@ -30,6 +31,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const t = useTranslations('Toasts');
   
   const [currency, setCurrencyState] = useState<Currency>('EUR');
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
@@ -113,7 +115,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleError = (operation: string) => (error: any) => {
-    toast({ variant: 'destructive', title: `Error en ${operation}`, description: 'No se pudo completar la operación.' });
+    toast({ variant: 'destructive', title: t('operationError'), description: t('operationErrorDescription') });
   }
 
   // Category Management

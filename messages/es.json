@@ -1,0 +1,174 @@
+{
+  "LoginPage": {
+    "title": "GestionaTuDinero",
+    "description": "Tu compañero financiero personal",
+    "loginTab": "Iniciar Sesión",
+    "signupTab": "Registrarse",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "tu@email.com",
+    "passwordLabel": "Contraseña",
+    "confirmEmailLabel": "Confirmar Correo Electrónico",
+    "confirmPasswordLabel": "Confirmar Contraseña",
+    "passwordHint": "8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&_).",
+    "loginButton": "Iniciar Sesión",
+    "loggingInButton": "Iniciando sesión...",
+    "signupButton": "Registrarse",
+    "signingUpButton": "Registrando...",
+    "loading": "Cargando...",
+    "invalidCredentialsError": "Credenciales inválidas. Por favor, inténtalo de nuevo.",
+    "emailMismatchError": "Los correos electrónicos no coinciden.",
+    "passwordMismatchError": "Las contraseñas no coinciden.",
+    "weakPasswordError": "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.",
+    "emailInUseError": "Este correo electrónico ya está en uso.",
+    "signupError": "Error al registrar. Por favor, inténtalo de nuevo.",
+    "userProfileError": "No se pudo crear el perfil de usuario. Por favor, inténtalo de nuevo."
+  },
+  "DashboardLayout": {
+    "loadingTitle": "Cargando Panel de Control...",
+    "loadingDescription": "Por favor espera mientras cargamos tus datos financieros."
+  },
+  "DashboardHeader": {
+    "title": "GestionaTuDinero",
+    "settings": "Ajustes",
+    "logout": "Cerrar Sesión",
+    "languages": {
+      "es": "Español",
+      "en": "Inglés",
+      "fr": "Francés",
+      "it": "Italiano",
+      "pt": "Portugués",
+      "zh": "Chino"
+    },
+    "language": "Idioma"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "Resumen de Estadísticas",
+    "aiSummaryTitle": "Resumen con IA",
+    "transactionsTitle": "Tabla de Transacciones"
+  },
+  "StatCards": {
+    "totalIncome": "Ingresos Totales",
+    "totalExpenses": "Egresos Totales",
+    "currentBalance": "Balance Actual"
+  },
+  "AiSummary": {
+    "title": "Resumen con IA",
+    "description": "Obtén información instantánea sobre tus hábitos de gasto.",
+    "generateButton": "Generar Resumen",
+    "generatingButton": "Generando...",
+    "placeholderTitle": "Genera tu Informe Financiero",
+    "placeholderDescription": "Haz clic en el botón de abajo para obtener un resumen de tus transacciones con IA.",
+    "error": "No se pudo generar el resumen. Por favor, inténtalo de nuevo.",
+    "noTransactions": "No hay transacciones disponibles para resumir."
+  },
+  "TransactionDataTable": {
+    "title": "Transacciones Recientes",
+    "description": "Consulta y gestiona tus movimientos financieros.",
+    "addTransaction": "Agregar Transacción",
+    "filterType": "Tipo",
+    "filterCategory": "Categoría",
+    "filterAccount": "Cuenta",
+    "filterDate": "Elige un rango de fechas",
+    "all": "Todos",
+    "income": "Ingreso",
+    "expense": "Egreso",
+    "filteredIncome": "Ingresos Filtrados",
+    "filteredExpenses": "Egresos Filtrados",
+    "filteredBalance": "Balance Filtrado",
+    "noTransactions": "No se encontraron transacciones que coincidan con los filtros.",
+    "confirmDeleteTitle": "¿Estás seguro?",
+    "confirmDeleteDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la transacción de tus registros.",
+    "cancel": "Cancelar",
+    "delete": "Eliminar"
+  },
+  "TransactionTableColumns": {
+    "description": "Descripción",
+    "date": "Fecha",
+    "account": "Cuenta",
+    "amount": "Monto",
+    "actions": "Acciones",
+    "noDescription": "Sin descripción"
+  },
+  "AddTransactionDialog": {
+    "title": "Agregar Nueva Transacción",
+    "description": "Completa los detalles para agregar un nuevo registro financiero.",
+    "transactionType": "Tipo de Transacción",
+    "income": "Ingreso",
+    "expense": "Egreso",
+    "amount": "Monto",
+    "category": "Categoría",
+    "selectCategory": "Selecciona una categoría",
+    "date": "Fecha de Transacción",
+    "pickDate": "Elige una fecha",
+    "optionalDescription": "Descripción (Opcional)",
+    "descriptionPlaceholder": "Ej: Supermercado",
+    "account": "Cuenta",
+    "selectAccount": "Selecciona una cuenta",
+    "addButton": "Agregar Transacción",
+    "successToast": "¡Tu transacción ha sido agregada!",
+    "errorToast": "No se pudo agregar la transacción. Inténtalo de nuevo."
+  },
+  "EditTransactionDialog": {
+    "title": "Editar Transacción",
+    "description": "Actualiza los detalles de tu registro financiero.",
+    "saveButton": "Guardar Cambios",
+    "successToast": "¡Tu transacción ha sido actualizada!",
+    "errorToast": "No se pudo actualizar la transacción. Inténtalo de nuevo."
+  },
+  "SettingsDialog": {
+    "title": "Configuración",
+    "description": "Personaliza la configuración de tu aplicación, tus cuentas y categorías.",
+    "generalTab": "General",
+    "accountsTab": "Cuentas",
+    "categoriesTab": "Categorías",
+    "currencySectionTitle": "Moneda",
+    "currencySectionDescription": "Selecciona la moneda principal para tus transacciones.",
+    "currencyLabel": "Moneda",
+    "selectCurrency": "Selecciona una moneda",
+    "accountsSectionTitle": "Tus Cuentas",
+    "accountsSectionDescription": "Agrega y gestiona las cuentas que usas (ej. Nequi, Bancolombia, Efectivo).",
+    "newAccountPlaceholder": "Nombre de la nueva cuenta",
+    "icon": "Icono",
+    "categoriesSectionTitle": "Tus Categorías",
+    "categoriesSectionDescription": "Organiza tus ingresos y egresos con categorías personalizadas.",
+    "newCategoryPlaceholder": "Nombre de la categoría",
+    "income": "Ingreso",
+    "expense": "Egreso",
+    "closeButton": "Cerrar",
+    "saveCurrencyButton": "Guardar Moneda",
+    "currencySuccessToast": "¡Moneda Guardada!",
+    "currencySuccessDescription": "Tu moneda principal ha sido actualizada.",
+    "accountAddedToast": "¡Cuenta agregada!",
+    "categoryAddedToast": "¡Categoría agregada!",
+    "editAccountTitle": "Editar Cuenta",
+    "editCategoryTitle": "Editar Categoría",
+    "nameLabel": "Nombre",
+    "cancelButton": "Cancelar",
+    "saveButton": "Guardar",
+    "accountUpdatedToast": "¡Cuenta actualizada!",
+    "categoryUpdatedToast": "¡Categoría actualizada!"
+  },
+  "ExpenseChart": {
+    "title": "Distribución de Egresos",
+    "description": "Visualiza tus egresos por categoría",
+    "noData": "No hay datos de egresos."
+  },
+  "IncomeChart": {
+    "title": "Distribución de Ingresos",
+    "description": "Ingresos por categoría",
+    "noData": "No hay datos de ingresos."
+  },
+  "Toasts": {
+    "signupSuccessTitle": "¡Registro exitoso!",
+    "signupSuccessDescription": "Tu cuenta ha sido creada. Ahora puedes iniciar sesión.",
+    "transactionDeletedSuccess": "La transacción ha sido eliminada.",
+    "transactionDeletedError": "No se pudo eliminar la transacción. Inténtalo de nuevo.",
+    "operationError": "Error en la operación",
+    "operationErrorDescription": "No se pudo completar la operación."
+  },
+  "misc": {
+    "unknownCategory": "Categoría desconocida",
+    "unknownAccount": "Cuenta desconocida",
+    "invalidDate": "Fecha inválida"
+  }
+}

@@ -15,7 +15,6 @@ import { type DateRange } from 'react-day-picker';
 import { Skeleton } from '../ui/skeleton';
 import { ArrowDown, ArrowUp, Pencil, Scale, Trash2 } from 'lucide-react';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -29,6 +28,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
+import { useTranslations, useLocale } from 'next-intl';
+import { getLocale } from '@/lib/utils';
 
 interface TransactionDataTableProps {
   transactions: Transaction[];
@@ -40,6 +41,10 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   const firestore = useFirestore();
   const { toast } = useToast();
   const { categories, accounts, currency } = useSettings();
+  const t = useTranslations('TransactionDataTable');
+  const tToasts = useTranslations('Toasts');
+  const locale = useLocale();
+  const dateFnsLocale = getLocale(locale);
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -114,8 +119,8 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
     deleteDoc(docRef)
       .then(() => {
         toast({
-          title: '¡Éxito!',
-          description: 'La transacción ha sido eliminada.',
+          title: 'Success!',
+          description: tToasts('transactionDeletedSuccess'),
         });
       })
       .catch((error) => {
@@ -127,7 +132,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: 'No se pudo eliminar la transacción. Inténtalo de nuevo.',
+          description: tToasts('transactionDeletedError'),
         });
       })
       .finally(() => {
@@ -152,48 +157,48 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
         <CardHeader>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle>Transacciones Recientes</CardTitle>
-              <CardDescription>Consulta y gestiona tus movimientos financieros.</CardDescription>
+              <CardTitle>{t('title')}</CardTitle>
+              <CardDescription>{t('description')}</CardDescription>
             </div>
             <AddTransactionDialog />
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4">
               <Select value={type} onValueChange={setType}>
                   <SelectTrigger className="w-full md:w-[120px]">
-                      <SelectValue placeholder="Tipo" />
+                      <SelectValue placeholder={t('filterType')} />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="income">Ingreso</SelectItem>
-                      <SelectItem value="expense">Egreso</SelectItem>
+                      <SelectItem value="all">{t('all')}</SelectItem>
+                      <SelectItem value="income">{t('income')}</SelectItem>
+                      <SelectItem value="expense">{t('expense')}</SelectItem>
                   </SelectContent>
               </Select>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="w-full md:w-[150px]">
-                      <SelectValue placeholder="Categoría" />
+                      <SelectValue placeholder={t('filterCategory')} />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="all">{t('all')}</SelectItem>
                       {filteredCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={accountFilter} onValueChange={setAccountFilter}>
                   <SelectTrigger className="w-full md:w-[150px]">
-                      <SelectValue placeholder="Cuenta" />
+                      <SelectValue placeholder={t('filterAccount')} />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="all">{t('all')}</SelectItem>
                       {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              <DateRangePicker onUpdate={({ range }) => setDateRange(range)} locale={es} />
+              <DateRangePicker onUpdate={({ range }) => setDateRange(range)} locale={dateFnsLocale} />
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3 mb-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Ingresos Filtrados</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
                 <ArrowUp className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
@@ -202,7 +207,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Egresos Filtrados</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
                 <ArrowDown className="h-4 w-4 text-red-500" />
               </CardHeader>
               <CardContent>
@@ -211,7 +216,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Balance Filtrado</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
                 <Scale className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
@@ -229,7 +234,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                   {columns.map(column => (
                     <TableHead key={column.accessor.toString()} className={column.className}>{column.header}</TableHead>
                   ))}
-                  <TableHead className="text-right">Acciones</TableHead>
+                  <TableHead className="text-right">{t('TransactionTableColumns.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -268,7 +273,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
                 ) : (
                   <TableRow>
                     <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                      No se encontraron transacciones que coincidan con los filtros.
+                      {t('noTransactions')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -293,14 +298,14 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogTitle>{t('confirmDeleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente la transacción de tus registros.
+              {t('confirmDeleteDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">{t('delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

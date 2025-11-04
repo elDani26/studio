@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { SettingsProvider } from '@/context/settings-context';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,7 @@ export default function DashboardLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const t = useTranslations('DashboardLayout');
 
   useEffect(() => {
     if (!isUserLoading && !user) {

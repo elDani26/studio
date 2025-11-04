@@ -5,6 +5,7 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
+import { useTranslations } from 'next-intl';
 
 interface ExpenseChartProps {
   transactions: Transaction[];
@@ -15,6 +16,7 @@ const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6'
 export function ExpenseChart({ transactions: initialTransactions }: ExpenseChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
   const { currency, categories } = useSettings();
+  const t = useTranslations('ExpenseChart');
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => t.type === 'expense');
@@ -56,8 +58,8 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Distribución de Egresos</CardTitle>
-        <CardDescription>Visualiza tus egresos por categoría</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
@@ -83,7 +85,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
-                <p className="text-sm text-muted-foreground">No hay datos de egresos.</p>
+                <p className="text-sm text-muted-foreground">{t('noData')}</p>
             </div>
           )}
         </ResponsiveContainer>

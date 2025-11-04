@@ -32,12 +32,12 @@ import { cn } from '@/lib/utils';
 import { ICONS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Transaction } from '@/types';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
-
+import { useTranslations, useLocale } from 'next-intl';
+import { getLocale } from '@/lib/utils';
 
 const transactionSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -66,6 +66,10 @@ export function EditTransactionDialog({
   const firestore = useFirestore();
   const { toast } = useToast();
   const { categories, accounts } = useSettings();
+  const t = useTranslations('EditTransactionDialog');
+  const tAdd = useTranslations('AddTransactionDialog');
+  const locale = useLocale();
+  const dateFnsLocale = getLocale(locale);
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -119,8 +123,8 @@ export function EditTransactionDialog({
     updateDoc(transactionRef, transactionData)
         .then(() => {
             toast({
-              title: '¡Éxito!',
-              description: 'Tu transacción ha sido actualizada.',
+              title: 'Success!',
+              description: t('successToast'),
             });
             onTransactionUpdated();
             onOpenChange(false);
@@ -135,7 +139,7 @@ export function EditTransactionDialog({
             toast({
               variant: 'destructive',
               title: 'Error',
-              description: 'No se pudo actualizar la transacción. Inténtalo de nuevo.',
+              description: t('errorToast'),
             });
         })
         .finally(() => {
@@ -147,9 +151,9 @@ export function EditTransactionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Editar Transacción</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Actualiza los detalles de tu registro financiero.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -159,7 +163,7 @@ export function EditTransactionDialog({
               name="type"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Tipo de Transacción</FormLabel>
+                  <FormLabel>{tAdd('transactionType')}</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -170,13 +174,13 @@ export function EditTransactionDialog({
                         <FormControl>
                           <RadioGroupItem value="income" />
                         </FormControl>
-                        <FormLabel className="font-normal">Ingreso</FormLabel>
+                        <FormLabel className="font-normal">{tAdd('income')}</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="expense" />
                         </FormControl>
-                        <FormLabel className="font-normal">Egreso</FormLabel>
+                        <FormLabel className="font-normal">{tAdd('expense')}</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
@@ -190,7 +194,7 @@ export function EditTransactionDialog({
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Monto</FormLabel>
+                  <FormLabel>{tAdd('amount')}</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -204,11 +208,11 @@ export function EditTransactionDialog({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categoría</FormLabel>
+                  <FormLabel>{tAdd('category')}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona una categoría" />
+                        <SelectValue placeholder={tAdd('selectCategory')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -235,7 +239,7 @@ export function EditTransactionDialog({
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Fecha de Transacción</FormLabel>
+                  <FormLabel>{tAdd('date')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -246,7 +250,7 @@ export function EditTransactionDialog({
                             !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {field.value ? format(field.value, 'PPP', { locale: es }) : <span>Elige una fecha</span>}
+                          {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tAdd('pickDate')}</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -258,7 +262,7 @@ export function EditTransactionDialog({
                         onSelect={field.onChange}
                         disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                         initialFocus
-                        locale={es}
+                        locale={dateFnsLocale}
                       />
                     </PopoverContent>
                   </Popover>
@@ -272,9 +276,9 @@ export function EditTransactionDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción (Opcional)</FormLabel>
+                  <FormLabel>{tAdd('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: Supermercado" {...field} value={field.value ?? ''} />
+                    <Input placeholder={tAdd('descriptionPlaceholder')} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -286,11 +290,11 @@ export function EditTransactionDialog({
               name="account"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cuenta</FormLabel>
+                  <FormLabel>{tAdd('account')}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona una cuenta" />
+                        <SelectValue placeholder={tAdd('selectAccount')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -315,7 +319,7 @@ export function EditTransactionDialog({
             <DialogFooter>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Guardar Cambios
+                {t('saveButton')}
               </Button>
             </DialogFooter>
           </form>

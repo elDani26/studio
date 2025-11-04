@@ -1,0 +1,174 @@
+{
+  "LoginPage": {
+    "title": "GerencieSeuDinheiro",
+    "description": "Seu companheiro financeiro pessoal",
+    "loginTab": "Entrar",
+    "signupTab": "Cadastrar-se",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "voce@email.com",
+    "passwordLabel": "Senha",
+    "confirmEmailLabel": "Confirmar E-mail",
+    "confirmPasswordLabel": "Confirmar Senha",
+    "passwordHint": "8+ caracteres, uma maiúscula, uma minúscula, um número e um caractere especial (@$!%*?&_).",
+    "loginButton": "Entrar",
+    "loggingInButton": "Entrando...",
+    "signupButton": "Cadastrar-se",
+    "signingUpButton": "Cadastrando...",
+    "loading": "Carregando...",
+    "invalidCredentialsError": "Credenciais inválidas. Por favor, tente novamente.",
+    "emailMismatchError": "Os e-mails não correspondem.",
+    "passwordMismatchError": "As senhas não correspondem.",
+    "weakPasswordError": "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.",
+    "emailInUseError": "Este e-mail já está em uso.",
+    "signupError": "Erro ao se cadastrar. Por favor, tente novamente.",
+    "userProfileError": "Não foi possível criar o perfil de usuário. Por favor, tente novamente."
+  },
+  "DashboardLayout": {
+    "loadingTitle": "Carregando painel...",
+    "loadingDescription": "Por favor, aguarde enquanto carregamos seus dados financeiros."
+  },
+  "DashboardHeader": {
+    "title": "GerencieSeuDinheiro",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "languages": {
+      "es": "Espanhol",
+      "en": "Inglês",
+      "fr": "Francês",
+      "it": "Italiano",
+      "pt": "Português",
+      "zh": "Chinês"
+    },
+    "language": "Idioma"
+  },
+  "DashboardPage": {
+    "statCardsTitle": "Resumo de estatísticas",
+    "aiSummaryTitle": "Resumo por IA",
+    "transactionsTitle": "Tabela de transações"
+  },
+  "StatCards": {
+    "totalIncome": "Renda total",
+    "totalExpenses": "Despesas totais",
+    "currentBalance": "Saldo atual"
+  },
+  "AiSummary": {
+    "title": "Resumo por IA",
+    "description": "Obtenha insights instantâneos sobre seus hábitos de consumo.",
+    "generateButton": "Gerar resumo",
+    "generatingButton": "Gerando...",
+    "placeholderTitle": "Gere seu relatório financeiro",
+    "placeholderDescription": "Clique no botão abaixo para obter um resumo de suas transações com tecnologia de IA.",
+    "error": "Não foi possível gerar o resumo. Por favor, tente novamente.",
+    "noTransactions": "Nenhuma transação disponível para resumir."
+  },
+  "TransactionDataTable": {
+    "title": "Transações recentes",
+    "description": "Visualize e gerencie seus movimentos financeiros.",
+    "addTransaction": "Adicionar transação",
+    "filterType": "Tipo",
+    "filterCategory": "Categoria",
+    "filterAccount": "Conta",
+    "filterDate": "Escolha um intervalo de datas",
+    "all": "Todos",
+    "income": "Renda",
+    "expense": "Despesa",
+    "filteredIncome": "Rendas filtradas",
+    "filteredExpenses": "Despesas filtradas",
+    "filteredBalance": "Saldo filtrado",
+    "noTransactions": "Nenhuma transação encontrada correspondente aos filtros.",
+    "confirmDeleteTitle": "Você tem certeza?",
+    "confirmDeleteDescription": "Esta ação não pode ser desfeita. Isso excluirá permanentemente a transação de seus registros.",
+    "cancel": "Cancelar",
+    "delete": "Excluir"
+  },
+  "TransactionTableColumns": {
+    "description": "Descrição",
+    "date": "Data",
+    "account": "Conta",
+    "amount": "Valor",
+    "actions": "Ações",
+    "noDescription": "Sem descrição"
+  },
+  "AddTransactionDialog": {
+    "title": "Adicionar nova transação",
+    "description": "Preencha os detalhes para adicionar um novo registro financeiro.",
+    "transactionType": "Tipo de transação",
+    "income": "Renda",
+    "expense": "Despesa",
+    "amount": "Valor",
+    "category": "Categoria",
+    "selectCategory": "Selecione uma categoria",
+    "date": "Data da transação",
+    "pickDate": "Escolha uma data",
+    "optionalDescription": "Descrição (opcional)",
+    "descriptionPlaceholder": "Ex: Supermercado",
+    "account": "Conta",
+    "selectAccount": "Selecione uma conta",
+    "addButton": "Adicionar transação",
+    "successToast": "Sua transação foi adicionada!",
+    "errorToast": "Não foi possível adicionar a transação. Por favor, tente novamente."
+  },
+  "EditTransactionDialog": {
+    "title": "Editar transação",
+    "description": "Atualize os detalhes de seu registro financeiro.",
+    "saveButton": "Salvar alterações",
+    "successToast": "Sua transação foi atualizada!",
+    "errorToast": "Não foi possível atualizar a transação. Por favor, tente novamente."
+  },
+  "SettingsDialog": {
+    "title": "Configurações",
+    "description": "Personalize as configurações do seu aplicativo, contas e categorias.",
+    "generalTab": "Geral",
+    "accountsTab": "Contas",
+    "categoriesTab": "Categorias",
+    "currencySectionTitle": "Moeda",
+    "currencySectionDescription": "Selecione a moeda principal para suas transações.",
+    "currencyLabel": "Moeda",
+    "selectCurrency": "Selecione uma moeda",
+    "accountsSectionTitle": "Suas contas",
+    "accountsSectionDescription": "Adicione e gerencie as contas que você usa (ex: Banco, Dinheiro).",
+    "newAccountPlaceholder": "Nome da nova conta",
+    "icon": "Ícone",
+    "categoriesSectionTitle": "Suas categorias",
+    "categoriesSectionDescription": "Organize suas receitas e despesas com categorias personalizadas.",
+    "newCategoryPlaceholder": "Nome da categoria",
+    "income": "Renda",
+    "expense": "Despesa",
+    "closeButton": "Fechar",
+    "saveCurrencyButton": "Salvar moeda",
+    "currencySuccessToast": "Moeda salva!",
+    "currencySuccessDescription": "Sua moeda principal foi atualizada.",
+    "accountAddedToast": "Conta adicionada!",
+    "categoryAddedToast": "Categoria adicionada!",
+    "editAccountTitle": "Editar conta",
+    "editCategoryTitle": "Editar categoria",
+    "nameLabel": "Nome",
+    "cancelButton": "Cancelar",
+    "saveButton": "Salvar",
+    "accountUpdatedToast": "Conta atualizada!",
+    "categoryUpdatedToast": "Categoria atualizada!"
+  },
+  "ExpenseChart": {
+    "title": "Distribuição de despesas",
+    "description": "Visualize suas despesas por categoria",
+    "noData": "Nenhum dado de despesa disponível."
+  },
+  "IncomeChart": {
+    "title": "Distribuição de renda",
+    "description": "Renda por categoria",
+    "noData": "Nenhum dado de renda disponível."
+  },
+  "Toasts": {
+    "signupSuccessTitle": "Cadastro bem-sucedido!",
+    "signupSuccessDescription": "Sua conta foi criada. Agora você pode fazer login.",
+    "transactionDeletedSuccess": "A transação foi excluída.",
+    "transactionDeletedError": "Não foi possível excluir a transação. Por favor, tente novamente.",
+    "operationError": "Erro de operação",
+    "operationErrorDescription": "Não foi possível concluir a operação."
+  },
+  "misc": {
+    "unknownCategory": "Categoria desconhecida",
+    "unknownAccount": "Conta desconhecida",
+    "invalidDate": "Data inválida"
+  }
+}

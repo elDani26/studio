@@ -1,29 +1,14 @@
-import type { Metadata } from 'next';
-import { FirebaseClientProvider } from '@/firebase';
-import { Toaster } from '@/components/ui/toaster';
-import './globals.css';
-import { PT_Sans } from 'next/font/google';
+// This is the root layout component for your Next.js app.
+// It applies to all routes.
 
-const ptSans = PT_Sans({ subsets: ['latin'], weight: ['400', '700'] });
+import { ReactNode } from 'react';
 
-export const metadata: Metadata = {
-  title: 'GestionaTuDinero',
-  description: 'Tu gestor de finanzas personales.',
+type Props = {
+  children: ReactNode;
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={ptSans.className}>
-        <FirebaseClientProvider>
-          {children}
-          <Toaster />
-        </FirebaseClientProvider>
-      </body>
-    </html>
-  );
+// Since we have a `not-found.tsx` page on the root, a layout file
+// is required, even if it's just passing children through.
+export default function RootLayout({children}: Props) {
+  return children;
 }

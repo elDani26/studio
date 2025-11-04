@@ -5,6 +5,7 @@ import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
+import { useTranslations } from 'next-intl';
 
 interface IncomeChartProps {
   transactions: Transaction[];
@@ -15,6 +16,7 @@ const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
 export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
   const { currency, categories } = useSettings();
+  const t = useTranslations('IncomeChart');
 
   useEffect(() => {
     const incomes = initialTransactions.filter(t => t.type === 'income');
@@ -55,8 +57,8 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Distribución de Ingresos</CardTitle>
-        <CardDescription>Ingresos por categoría</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
@@ -82,7 +84,7 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
-                <p className="text-sm text-muted-foreground">No hay datos de ingresos.</p>
+                <p className="text-sm text-muted-foreground">{t('noData')}</p>
             </div>
           )}
         </ResponsiveContainer>

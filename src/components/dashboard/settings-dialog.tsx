@@ -26,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ICONS } from '@/lib/constants';
 import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
-import { ScrollArea } from '../ui/scroll-area';
+import { useTranslations } from 'next-intl';
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -51,6 +51,7 @@ export function SettingsDialog() {
     updateCategory,
     deleteCategory
   } = useSettings();
+  const t = useTranslations('SettingsDialog');
 
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currency);
 
@@ -66,8 +67,8 @@ export function SettingsDialog() {
   const handleSaveCurrency = () => {
     setCurrency(selectedCurrency);
     toast({
-      title: '¡Moneda Guardada!',
-      description: 'Tu moneda principal ha sido actualizada.',
+      title: t('currencySuccessToast'),
+      description: t('currencySuccessDescription'),
     });
   };
 
@@ -76,7 +77,7 @@ export function SettingsDialog() {
     await addAccount({ name: newAccountName, icon: newAccountIcon });
     setNewAccountName('');
     setNewAccountIcon('Landmark');
-    toast({ title: '¡Cuenta agregada!' });
+    toast({ title: t('accountAddedToast') });
   };
 
   const handleAddCategory = async () => {
@@ -85,7 +86,7 @@ export function SettingsDialog() {
     setNewCategoryName('');
     setNewCategoryType('expense');
     setNewCategoryIcon('ShoppingBasket');
-    toast({ title: '¡Categoría agregada!' });
+    toast({ title: t('categoryAddedToast') });
   };
   
   const handleStartEdit = (item: {id: string, name: string, icon: string}, type: 'account' | 'category') => {
@@ -97,14 +98,14 @@ export function SettingsDialog() {
 
     if (editingItem.type === 'account') {
         await updateAccount(editingItem.id, { name: editingItem.name, icon: editingItem.icon });
-        toast({ title: '¡Cuenta actualizada!' });
+        toast({ title: t('accountUpdatedToast') });
     } else {
         // Here, we don't update the 'type' of the category as it's not editable in the modal
         const originalCategory = categories.find(c => c.id === editingItem.id);
         if (originalCategory) {
             await updateCategory(editingItem.id, { name: editingItem.name, icon: editingItem.icon, type: originalCategory.type });
         }
-        toast({ title: '¡Categoría actualizada!' });
+        toast({ title: t('categoryUpdatedToast') });
     }
     setEditingItem(null);
   };
@@ -116,43 +117,43 @@ export function SettingsDialog() {
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Settings className="h-5 w-5" />
-          <span className="sr-only">Ajustes</span>
+          <span className="sr-only">{t('title')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md md:max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Configuración</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Personaliza la configuración de tu aplicación, tus cuentas y categorías.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="general" className="flex-grow flex flex-col overflow-hidden">
           <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="accounts">Cuentas</TabsTrigger>
-            <TabsTrigger value="categories">Categorías</TabsTrigger>
+            <TabsTrigger value="general">{t('generalTab')}</TabsTrigger>
+            <TabsTrigger value="accounts">{t('accountsTab')}</TabsTrigger>
+            <TabsTrigger value="categories">{t('categoriesTab')}</TabsTrigger>
           </TabsList>
 
           <div className="flex-grow overflow-y-auto mt-4 pr-4">
               <TabsContent value="general">
                 <div className="space-y-6 py-4">
                   <div>
-                    <h3 className="text-lg font-medium">Moneda</h3>
+                    <h3 className="text-lg font-medium">{t('currencySectionTitle')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Selecciona la moneda principal para tus transacciones.
+                      {t('currencySectionDescription')}
                     </p>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="currency" className="text-right">
-                      Moneda
+                      {t('currencyLabel')}
                     </Label>
                     <Select
                       value={selectedCurrency}
                       onValueChange={(value) => setSelectedCurrency(value as Currency)}
                     >
                       <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Selecciona una moneda" />
+                        <SelectValue placeholder={t('selectCurrency')} />
                       </SelectTrigger>
                       <SelectContent>
                         {CURRENCIES.map((c) => (
@@ -169,19 +170,19 @@ export function SettingsDialog() {
               <TabsContent value="accounts">
                 <div className="space-y-4 py-1 h-full flex flex-col">
                     <div>
-                        <h3 className="text-lg font-medium">Tus Cuentas</h3>
+                        <h3 className="text-lg font-medium">{t('accountsSectionTitle')}</h3>
                         <p className="text-sm text-muted-foreground">
-                        Agrega y gestiona las cuentas que usas (ej. Nequi, Bancolombia, Efectivo).
+                        {t('accountsSectionDescription')}
                         </p>
                     </div>
                     <Card>
                         <CardContent className="p-4 space-y-4">
                             <div className="flex flex-col sm:flex-row gap-2">
-                                <Input placeholder="Nombre de la nueva cuenta" value={newAccountName} onChange={e => setNewAccountName(e.target.value)} />
+                                <Input placeholder={t('newAccountPlaceholder')} value={newAccountName} onChange={e => setNewAccountName(e.target.value)} />
                                 <div className="flex gap-2">
                                   <Select value={newAccountIcon} onValueChange={setNewAccountIcon}>
                                       <SelectTrigger className="w-full sm:w-[180px]">
-                                          <SelectValue placeholder="Icono" />
+                                          <SelectValue placeholder={t('icon')} />
                                       </SelectTrigger>
                                       <SelectContent>
                                           {Object.keys(ICONS).map(iconName => {
@@ -224,28 +225,28 @@ export function SettingsDialog() {
               <TabsContent value="categories">
                 <div className="space-y-4 py-1 h-full flex flex-col">
                     <div>
-                        <h3 className="text-lg font-medium">Tus Categorías</h3>
+                        <h3 className="text-lg font-medium">{t('categoriesSectionTitle')}</h3>
                         <p className="text-sm text-muted-foreground">
-                        Organiza tus ingresos y egresos con categorías personalizadas.
+                        {t('categoriesSectionDescription')}
                         </p>
                     </div>
                     <Card>
                         <CardContent className="p-4 space-y-4">
                             <div className="flex flex-col sm:flex-row gap-2">
-                                <Input placeholder="Nombre de la categoría" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
+                                <Input placeholder={t('newCategoryPlaceholder')} value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
                                 <div className="flex gap-2">
                                   <Select value={newCategoryType} onValueChange={(v) => setNewCategoryType(v as any)}>
                                       <SelectTrigger className="w-[120px]">
                                           <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                          <SelectItem value="expense">Egreso</SelectItem>
-                                          <SelectItem value="income">Ingreso</SelectItem>
+                                          <SelectItem value="expense">{t('expense')}</SelectItem>
+                                          <SelectItem value="income">{t('income')}</SelectItem>
                                       </SelectContent>
                                   </Select>
                                   <Select value={newCategoryIcon} onValueChange={setNewCategoryIcon}>
                                       <SelectTrigger className="w-[180px]">
-                                          <SelectValue placeholder="Icono" />
+                                          <SelectValue placeholder={t('icon')} />
                                       </SelectTrigger>
                                       <SelectContent>
                                           {Object.keys(ICONS).map(iconName => {
@@ -274,7 +275,7 @@ export function SettingsDialog() {
                                           <Icon className={`h-5 w-5 ${typeColor}`}/>
                                           <div>
                                               <p>{category.name}</p>
-                                              <p className={`text-xs ${typeColor}`}>{category.type === 'income' ? 'Ingreso' : 'Egreso'}</p>
+                                              <p className={`text-xs ${typeColor}`}>{category.type === 'income' ? t('income') : t('expense')}</p>
                                           </div>
                                       </div>
                                       <div className="flex items-center gap-1">
@@ -293,9 +294,9 @@ export function SettingsDialog() {
         
         <DialogFooter className="pt-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
-            Cerrar
+            {t('closeButton')}
           </Button>
-          <Button onClick={handleSaveCurrency}>Guardar Moneda</Button>
+          <Button onClick={handleSaveCurrency}>{t('saveCurrencyButton')}</Button>
         </DialogFooter>
 
       </DialogContent>
@@ -305,15 +306,15 @@ export function SettingsDialog() {
     <Dialog open={!!editingItem} onOpenChange={(isOpen) => !isOpen && setEditingItem(null)}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Editar {editingItem?.type === 'account' ? 'Cuenta' : 'Categoría'}</DialogTitle>
+                <DialogTitle>{editingItem?.type === 'account' ? t('editAccountTitle') : t('editCategoryTitle')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                    <Label>Nombre</Label>
+                    <Label>{t('nameLabel')}</Label>
                     <Input value={editingItem?.name} onChange={e => setEditingItem(prev => prev ? {...prev, name: e.target.value} : null)} />
                 </div>
                 <div className="space-y-2">
-                    <Label>Icono</Label>
+                    <Label>{t('icon')}</Label>
                     <Select value={editingItem?.icon} onValueChange={val => setEditingItem(prev => prev ? {...prev, icon: val} : null)}>
                         <SelectTrigger>
                             <SelectValue />
@@ -332,8 +333,8 @@ export function SettingsDialog() {
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" onClick={() => setEditingItem(null)}>Cancelar</Button>
-                <Button onClick={handleSaveEdit}>Guardar</Button>
+                <Button variant="outline" onClick={() => setEditingItem(null)}>{t('cancelButton')}</Button>
+                <Button onClick={handleSaveEdit}>{t('saveButton')}</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
