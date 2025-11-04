@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useUser, useFirestore, useMemoFirebase, errorEmitter } from '@/firebase';
+import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import type { User, Category, SourceAccount, WithId } from '@/types';
 import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
@@ -41,16 +41,17 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
   const [accounts, setAccounts] = useState<WithId<SourceAccount>[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  
-  const userDocRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [user, firestore]);
-  const categoriesColRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'categories') : null, [user, firestore]);
-  const accountsColRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'sourceAccounts') : null, [user, firestore]);
 
   useEffect(() => {
     if (!user) {
       setIsDataLoading(false);
       return;
     }
+    
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const categoriesColRef = collection(firestore, 'users', user.uid, 'categories');
+    const accountsColRef = collection(firestore, 'users', user.uid, 'sourceAccounts');
+
     const unsubscribes = [
       onSnapshot(userDocRef!, (docSnap) => {
         if (docSnap.exists()) {
@@ -60,46 +61,47 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         }
       }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef!.path, operation: 'get' }))),
 
-      onSnapshot(categoriesColRef!, (snapshot) => {
+      onSnapshot(categoriesColRef, (snapshot) => {
           if (snapshot.empty) {
               const batch = writeBatch(firestore);
               TRANSACTION_CATEGORIES.forEach(cat => {
-                  const newCatRef = doc(categoriesColRef!);
+                  const newCatRef = doc(categoriesColRef);
                   batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
               });
               batch.commit().catch(e => console.error("Failed to create default categories", e));
           } else {
               setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<Category>[]);
           }
-      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef!.path, operation: 'list' }))),
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef.path, operation: 'list' }))),
 
-      onSnapshot(accountsColRef!, (snapshot) => {
+      onSnapshot(accountsColRef, (snapshot) => {
           if (snapshot.empty) {
               const batch = writeBatch(firestore);
               SOURCE_ACCOUNTS.forEach(acc => {
-                  const newAccRef = doc(accountsColRef!);
+                  const newAccRef = doc(accountsColRef);
                   batch.set(newAccRef, {name: acc.label, icon: acc.icon});
               });
               batch.commit().catch(e => console.error("Failed to create default accounts", e));
           } else {
               setAccounts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<SourceAccount>[]);
           }
-      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef!.path, operation: 'list' })))
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef.path, operation: 'list' })))
     ];
 
     Promise.all([
-      getDoc(userDocRef!),
-      getDoc(categoriesColRef!).then(snap => !snap.empty),
-      getDoc(accountsColRef!).then(snap => !snap.empty)
+      getDoc(userDocRef),
+      getDoc(collection(firestore, 'users', user.uid, 'categories')).then(snap => !snap.empty),
+      getDoc(collection(firestore, 'users', user.uid, 'sourceAccounts')).then(snap => !snap.empty)
     ]).finally(() => setIsDataLoading(false));
 
     return () => unsubscribes.forEach(unsub => unsub());
 
-  }, [user, firestore, userDocRef, categoriesColRef, accountsColRef]);
+  }, [user, firestore]);
 
   const setCurrency = async (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
-    if (userDocRef) {
+    if (user) {
+      const userDocRef = doc(firestore, 'users', user.uid);
       const data = { currency: newCurrency };
       setDoc(userDocRef, data, { merge: true })
         .catch((error) => {
@@ -110,7 +112,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   
   const setLocale = async (newLocale: string) => {
     setLocaleState(newLocale);
-    if (userDocRef) {
+    if (user) {
+      const userDocRef = doc(firestore, 'users', user.uid);
       const data = { locale: newLocale };
       setDoc(userDocRef, data, { merge: true })
         .catch((error) => {
@@ -124,7 +127,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const addCategory = async (category: Category) => {
-    if (!categoriesColRef) return;
+    if (!user) return;
+    const categoriesColRef = collection(firestore, 'users', user.uid, 'categories');
     await addDoc(categoriesColRef, category).catch(handleError('addCategory'));
   }
   const updateCategory = async (id: string, category: Partial<Category>) => {
@@ -139,7 +143,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const addAccount = async (account: SourceAccount) => {
-    if (!accountsColRef) return;
+    if (!user) return;
+    const accountsColRef = collection(firestore, 'users', user.uid, 'sourceAccounts');
     await addDoc(accountsColRef, account).catch(handleError('addAccount'));
   }
   const updateAccount = async (id: string, account: Partial<SourceAccount>) => {
