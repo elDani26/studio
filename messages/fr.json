@@ -74,7 +74,9 @@
       "placeholder": "Filtrer par date",
       "singleTab": "Unique",
       "rangeTab": "Plage",
-      "clearButton": "Effacer"
+      "clearButton": "Effacer",
+      "startDate": "Date de début",
+      "endDate": "Date de fin"
     },
     "all": "Tous",
     "income": "Revenu",
@@ -179,5 +181,3 @@
     "invalidDate": "Date invalide"
   }
 }
-
-    

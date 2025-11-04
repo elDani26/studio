@@ -74,7 +74,9 @@
       "placeholder": "Filtra per data",
       "singleTab": "Singolo",
       "rangeTab": "Intervallo",
-      "clearButton": "Pulisci"
+      "clearButton": "Pulisci",
+      "startDate": "Data d'inizio",
+      "endDate": "Data di fine"
     },
     "all": "Tutti",
     "income": "Entrata",
@@ -179,5 +181,3 @@
     "invalidDate": "Data non valida"
   }
 }
-
-    

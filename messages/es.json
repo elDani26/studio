@@ -74,7 +74,9 @@
       "placeholder": "Filtrar por fecha",
       "singleTab": "Fecha",
       "rangeTab": "Rango",
-      "clearButton": "Limpiar"
+      "clearButton": "Limpiar",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin"
     },
     "all": "Todos",
     "income": "Ingreso",
@@ -179,5 +181,3 @@
     "invalidDate": "Fecha inválida"
   }
 }
-
-    

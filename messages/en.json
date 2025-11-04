@@ -74,7 +74,9 @@
       "placeholder": "Filter by date",
       "singleTab": "Single",
       "rangeTab": "Range",
-      "clearButton": "Clear"
+      "clearButton": "Clear",
+      "startDate": "Start date",
+      "endDate": "End date"
     },
     "all": "All",
     "income": "Income",
@@ -179,5 +181,3 @@
     "invalidDate": "Invalid date"
   }
 }
-
-    

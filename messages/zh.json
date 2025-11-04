@@ -74,7 +74,9 @@
       "placeholder": "按日期筛选",
       "singleTab": "单个",
       "rangeTab": "范围",
-      "clearButton": "清除"
+      "clearButton": "清除",
+      "startDate": "开始日期",
+      "endDate": "结束日期"
     },
     "all": "全部",
     "income": "收入",
@@ -179,5 +181,3 @@
     "invalidDate": "无效日期"
   }
 }
-
-    

@@ -74,7 +74,9 @@
       "placeholder": "Nach Datum filtern",
       "singleTab": "Einzel",
       "rangeTab": "Bereich",
-      "clearButton": "Löschen"
+      "clearButton": "Löschen",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum"
     },
     "all": "Alle",
     "income": "Einnahme",
@@ -179,5 +181,3 @@
     "invalidDate": "Ungültiges Datum"
   }
 }
-
-    

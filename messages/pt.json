@@ -74,7 +74,9 @@
       "placeholder": "Filtrar por data",
       "singleTab": "Único",
       "rangeTab": "Intervalo",
-      "clearButton": "Limpar"
+      "clearButton": "Limpar",
+      "startDate": "Data de início",
+      "endDate": "Data de término"
     },
     "all": "Todos",
     "income": "Renda",
@@ -179,5 +181,3 @@
     "invalidDate": "Data inválida"
   }
 }
-
-    
