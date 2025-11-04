@@ -43,23 +43,24 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !firestore) {
       setIsDataLoading(false);
       return;
     }
     
+    setIsDataLoading(true);
     const userDocRef = doc(firestore, 'users', user.uid);
     const categoriesColRef = collection(firestore, 'users', user.uid, 'categories');
     const accountsColRef = collection(firestore, 'users', user.uid, 'sourceAccounts');
 
     const unsubscribes = [
-      onSnapshot(userDocRef!, (docSnap) => {
+      onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           if (userData.currency) setCurrencyState(userData.currency as Currency);
           if (userData.locale) setLocaleState(userData.locale);
         }
-      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef!.path, operation: 'get' }))),
+      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'get' }))),
 
       onSnapshot(categoriesColRef, (snapshot) => {
           if (snapshot.empty) {
@@ -72,7 +73,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           } else {
               setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<Category>[]);
           }
-      }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef.path, operation: 'list' }))),
+          setIsDataLoading(false);
+      }, (error) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: categoriesColRef.path, operation: 'list' }));
+        setIsDataLoading(false);
+      }),
 
       onSnapshot(accountsColRef, (snapshot) => {
           if (snapshot.empty) {
@@ -88,19 +93,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef.path, operation: 'list' })))
     ];
 
-    Promise.all([
-      getDoc(userDocRef),
-      getDoc(collection(firestore, 'users', user.uid, 'categories')).then(snap => !snap.empty),
-      getDoc(collection(firestore, 'users', user.uid, 'sourceAccounts')).then(snap => !snap.empty)
-    ]).finally(() => setIsDataLoading(false));
-
     return () => unsubscribes.forEach(unsub => unsub());
 
   }, [user, firestore]);
 
   const setCurrency = async (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
-    if (user) {
+    if (user && firestore) {
       const userDocRef = doc(firestore, 'users', user.uid);
       const data = { currency: newCurrency };
       setDoc(userDocRef, data, { merge: true })
@@ -112,7 +111,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   
   const setLocale = async (newLocale: string) => {
     setLocaleState(newLocale);
-    if (user) {
+    if (user && firestore) {
       const userDocRef = doc(firestore, 'users', user.uid);
       const data = { locale: newLocale };
       setDoc(userDocRef, data, { merge: true })
@@ -127,33 +126,33 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const addCategory = async (category: Category) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const categoriesColRef = collection(firestore, 'users', user.uid, 'categories');
     await addDoc(categoriesColRef, category).catch(handleError('addCategory'));
   }
   const updateCategory = async (id: string, category: Partial<Category>) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const docRef = doc(firestore, 'users', user.uid, 'categories', id);
     await updateDoc(docRef, category).catch(handleError('updateCategory'));
   }
   const deleteCategory = async (id: string) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const docRef = doc(firestore, 'users', user.uid, 'categories', id);
     await deleteDoc(docRef).catch(handleError('deleteCategory'));
   }
 
   const addAccount = async (account: SourceAccount) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const accountsColRef = collection(firestore, 'users', user.uid, 'sourceAccounts');
     await addDoc(accountsColRef, account).catch(handleError('addAccount'));
   }
   const updateAccount = async (id: string, account: Partial<SourceAccount>) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const docRef = doc(firestore, 'users', user.uid, 'sourceAccounts', id);
     await updateDoc(docRef, account).catch(handleError('updateAccount'));
   }
   const deleteAccount = async (id: string) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const docRef = doc(firestore, 'users', user.uid, 'sourceAccounts', id);
     await deleteDoc(docRef).catch(handleError('deleteAccount'));
   }
