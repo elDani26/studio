@@ -12,6 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeTransactionsInputSchema = z.object({
+  locale: z.string().describe('The locale to use for the response language (e.g., "en", "es", "fr").'),
   transactions: z.array(
     z.object({
       type: z.enum(['income', 'expense']),
@@ -38,7 +39,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeTransactionsPrompt',
   input: {schema: SummarizeTransactionsInputSchema},
   output: {schema: SummarizeTransactionsOutputSchema},
-  prompt: `You are a personal finance expert. Please summarize the following transactions for the user, providing insights into their spending habits, including the percentage of income allocated to each category. The response must be in Spanish.
+  prompt: `You are a personal finance expert. Please summarize the following transactions for the user, providing insights into their spending habits, including the percentage of income allocated to each category. The response must be in the language corresponding to this locale: {{locale}}.
 
 Transactions:
 {{#each transactions}}

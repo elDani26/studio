@@ -8,7 +8,7 @@ import { summarizeTransactions, type SummarizeTransactionsInput } from '@/ai/flo
 import { Loader2, Wand2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSettings } from '@/context/settings-context';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface AiSummaryProps {
   transactions: Transaction[];
@@ -21,6 +21,7 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
   const { categories, accounts } = useSettings();
   const t = useTranslations('AiSummary');
   const tMisc = useTranslations('misc');
+  const locale = useLocale();
 
   const handleGenerateSummary = async () => {
     if (initialTransactions.length === 0) {
@@ -54,7 +55,10 @@ export function AiSummary({ transactions: initialTransactions }: AiSummaryProps)
         };
       }) as SummarizeTransactionsInput['transactions'];
 
-      const result = await summarizeTransactions({ transactions: serializableTransactions });
+      const result = await summarizeTransactions({ 
+        locale: locale,
+        transactions: serializableTransactions 
+      });
       setSummary(result.summary);
     } catch (e) {
       setError(t('error'));
