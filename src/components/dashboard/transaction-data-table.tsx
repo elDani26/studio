@@ -59,6 +59,7 @@ export function TransactionDataTable({ transactions, loading }: TransactionDataT
   }, [categories, type]);
 
   useEffect(() => {
+    // Reset category filter when type changes and the selected category is no longer valid
     if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
       setCategoryFilter('all');
     }
