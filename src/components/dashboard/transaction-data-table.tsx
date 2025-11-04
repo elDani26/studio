@@ -38,21 +38,11 @@ import { startOfDay, endOfDay } from 'date-fns';
 interface TransactionDataTableProps {
   transactions: Transaction[];
   loading: boolean;
-  dateFrom: Date | undefined;
-  dateTo: Date | undefined;
-  onDateFromChange: (date: Date | undefined) => void;
-  onDateToChange: (date: Date | undefined) => void;
-  onClearDates: () => void;
 }
 
 export function TransactionDataTable({ 
   transactions, 
   loading, 
-  dateFrom,
-  dateTo,
-  onDateFromChange,
-  onDateToChange,
-  onClearDates
 }: TransactionDataTableProps) {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -65,7 +55,8 @@ export function TransactionDataTable({
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
-
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
@@ -90,7 +81,6 @@ export function TransactionDataTable({
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
-      // Date filter logic (now driven by props)
       let dateFilterPassed = true;
       if (dateFrom) {
         let tDate;
@@ -173,7 +163,11 @@ export function TransactionDataTable({
   };
 
   const columns = getColumns(handleEdit, handleDelete);
-
+  
+  const clearDates = () => {
+    setDateFrom(undefined);
+    setDateTo(undefined);
+  };
 
   return (
     <>
@@ -215,7 +209,6 @@ export function TransactionDataTable({
                       {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              {/* Date Filter UI restored here */}
               <div className="flex flex-wrap items-center gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -234,7 +227,7 @@ export function TransactionDataTable({
                     <Calendar
                       mode="single"
                       selected={dateFrom}
-                      onSelect={onDateFromChange}
+                      onSelect={setDateFrom}
                       initialFocus
                       locale={dateFnsLocale}
                     />
@@ -257,13 +250,13 @@ export function TransactionDataTable({
                     <Calendar
                       mode="single"
                       selected={dateTo}
-                      onSelect={onDateToChange}
+                      onSelect={setDateTo}
                       initialFocus
                       locale={dateFnsLocale}
                     />
                   </PopoverContent>
                 </Popover>
-                {(dateFrom || dateTo) && <Button variant="ghost" onClick={onClearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
+                {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
               </div>
           </div>
         </CardHeader>

@@ -15,9 +15,6 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>();
-  const [dateTo, setDateTo] = useState<Date | undefined>();
-
   const transactionsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(collection(firestore, 'users', user.uid, 'transactions'), orderBy('date', 'desc'));
@@ -44,35 +41,12 @@ export default function DashboardPage() {
 
     return () => unsubscribe();
   }, [transactionsQuery]);
-  
-  const filteredTransactionsByDate = useMemo(() => {
-    if (!dateFrom) {
-      return transactions;
-    }
-    return transactions.filter(t => {
-      let tDate;
-      if (t.date && typeof (t.date as any).toDate === 'function') {
-        tDate = (t.date as any).toDate();
-      } else {
-        tDate = new Date(t.date as any);
-      }
-      
-      const fromDate = startOfDay(dateFrom);
-      const toDate = dateTo ? endOfDay(dateTo) : endOfDay(dateFrom);
-      return tDate >= fromDate && tDate <= toDate;
-    });
-  }, [transactions, dateFrom, dateTo]);
-
-  const clearDates = () => {
-    setDateFrom(undefined);
-    setDateTo(undefined);
-  };
 
   return (
     <div className="p-4 md:p-8 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <StatCards transactions={filteredTransactionsByDate} />
+          <StatCards transactions={transactions} />
         </div>
         <div className="lg:col-span-1">
           <AiSummary transactions={transactions} />
@@ -81,11 +55,6 @@ export default function DashboardPage() {
       <TransactionDataTable 
         transactions={transactions} 
         loading={loading}
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        onDateFromChange={setDateFrom}
-        onDateToChange={setDateTo}
-        onClearDates={clearDates}
       />
     </div>
   );
