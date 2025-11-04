@@ -15,17 +15,14 @@ import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { locales } from '@/i18n';
 import { usePathname, useRouter } from 'next/navigation';
-import { useSettings } from '@/context/settings-context';
 
 export function DashboardHeader() {
   const t = useTranslations('DashboardHeader');
   const currentLocale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const { setLocale } = useSettings();
 
   const handleLocaleChange = (newLocale: string) => {
-    setLocale(newLocale);
     const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
     router.replace(newPath);
   };

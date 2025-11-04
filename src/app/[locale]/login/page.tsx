@@ -82,7 +82,7 @@ export default function LoginPage() {
         id: newUser.uid,
         email: newUser.email,
         currency: 'EUR',
-        locale: locale,
+        locale: 'es',
       };
       const userDocRef = doc(firestore, 'users', newUser.uid);
       setDoc(userDocRef, userData)

@@ -15,8 +15,6 @@ type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 interface SettingsContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
-  locale: string;
-  setLocale: (locale: string) => void;
   isDataLoading: boolean;
   categories: WithId<Category>[];
   accounts: WithId<SourceAccount>[];
@@ -37,7 +35,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const t = useTranslations('Toasts');
   
   const [currency, setCurrencyState] = useState<Currency>('EUR');
-  const [locale, setLocaleState] = useState('es');
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
   const [accounts, setAccounts] = useState<WithId<SourceAccount>[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -58,7 +55,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           if (userData.currency) setCurrencyState(userData.currency as Currency);
-          if (userData.locale) setLocaleState(userData.locale);
+        } else {
+            // First time user, create their document
+            const initialUserData = { id: user.uid, email: user.email, currency: 'EUR', locale: 'es' };
+            setDoc(userDocRef, initialUserData)
+                .catch(e => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'create', requestResourceData: initialUserData })));
         }
       }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'get' }))),
 
@@ -108,18 +109,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   };
-  
-  const setLocale = async (newLocale: string) => {
-    setLocaleState(newLocale);
-    if (user && firestore) {
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const data = { locale: newLocale };
-      setDoc(userDocRef, data, { merge: true })
-        .catch((error) => {
-            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: data }));
-        });
-    }
-  };
 
   const handleError = (operation: string) => (error: any) => {
     toast({ variant: 'destructive', title: t('operationError'), description: t('operationErrorDescription') });
@@ -162,8 +151,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     <SettingsContext.Provider value={{ 
         currency, 
         setCurrency, 
-        locale,
-        setLocale,
         isDataLoading,
         categories, 
         accounts,

@@ -28,7 +28,6 @@ export type User = {
     firstName?: string;
     lastName?: string;
     currency?: string;
-    locale?: string;
 };
 
 export interface Category {
