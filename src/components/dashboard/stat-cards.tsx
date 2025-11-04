@@ -29,7 +29,7 @@ export function StatCards({ transactions: initialTransactions }: StatCardsProps)
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [filteredChartTransactions, setFilteredChartTransactions] = useState<Transaction[]>(initialTransactions);
+  const [filteredChartTransactions, setFilteredChartTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
     const income = initialTransactions
