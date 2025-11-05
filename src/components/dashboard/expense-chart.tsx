@@ -17,11 +17,10 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
   const [chartData, setChartData] = useState<any[]>([]);
   const { currency, categories } = useSettings();
   const t = useTranslations('ExpenseChart');
-  const transferCategory = categories.find(c => c.name.toLowerCase() === 'transfer' && c.type === 'expense');
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => 
-      t.type === 'expense' && t.category !== transferCategory?.id
+      t.type === 'expense' && !t.transferId
     );
 
     const expenseByCategory = expenses.reduce((acc, transaction) => {
@@ -45,7 +44,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     .sort((a, b) => b.value - a.value);
 
     setChartData(data);
-  }, [initialTransactions, categories, transferCategory]);
+  }, [initialTransactions, categories]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {

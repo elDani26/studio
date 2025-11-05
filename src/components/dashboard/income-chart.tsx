@@ -17,11 +17,10 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
   const [chartData, setChartData] = useState<any[]>([]);
   const { currency, categories } = useSettings();
   const t = useTranslations('IncomeChart');
-  const transferCategory = categories.find(c => c.name.toLowerCase() === 'transfer' && c.type === 'income');
 
   useEffect(() => {
     const incomes = initialTransactions.filter(t => 
-      t.type === 'income' && t.category !== transferCategory?.id
+      t.type === 'income' && !t.transferId
     );
     
     const incomeByCategory = incomes.reduce((acc, transaction) => {
@@ -44,7 +43,7 @@ export function IncomeChart({ transactions: initialTransactions }: IncomeChartPr
     .sort((a, b) => b.value - a.value);
 
     setChartData(data);
-  }, [initialTransactions, categories, transferCategory]);
+  }, [initialTransactions, categories]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
