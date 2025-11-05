@@ -11,6 +11,7 @@ export type Transaction = {
   date: Timestamp;
   description?: string;
   account: string; // This will now be the ID of the sourceAccount document
+  transferId?: string; // ID to link two transactions as a transfer
 };
 
 export type TransactionFormData = {

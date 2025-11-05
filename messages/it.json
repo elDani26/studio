@@ -117,6 +117,21 @@
     "successToast": "La tua transazione è stata aggiunta!",
     "errorToast": "Impossibile aggiungere la transazione. Per favore, riprova."
   },
+  "AddTransferDialog": {
+    "title": "Effettua trasferimento",
+    "description": "Sposta denaro tra i tuoi conti.",
+    "fromAccount": "Da Conto",
+    "toAccount": "A Conto",
+    "amount": "Importo",
+    "date": "Data del trasferimento",
+    "pickDate": "Scegli una data",
+    "optionalDescription": "Descrizione (opzionale)",
+    "descriptionPlaceholder": "Es: Risparmio mensile",
+    "selectAccount": "Seleziona un conto",
+    "transferButton": "Effettua trasferimento",
+    "successToast": "Il tuo trasferimento è stato registrato!",
+    "errorToast": "Impossibile registrare il trasferimento. Per favore, riprova."
+  },
   "EditTransactionDialog": {
     "title": "Modifica transazione",
     "description": "Aggiorna i dettagli della tua registrazione finanziaria.",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "Categoria sconosciuta",
     "unknownAccount": "Conto sconosciuto",
-    "invalidDate": "Data non valida"
+    "invalidDate": "Data non valida",
+    "transfer": "Trasferimento",
+    "transferTo": "Trasferimento a",
+    "transferFrom": "Trasferimento da"
   }
 }

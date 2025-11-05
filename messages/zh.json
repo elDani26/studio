@@ -117,6 +117,21 @@
     "successToast": "您的交易已添加！",
     "errorToast": "无法添加交易。请重试。"
   },
+  "AddTransferDialog": {
+    "title": "进行转账",
+    "description": "在您的账户之间转移资金。",
+    "fromAccount": "从账户",
+    "toAccount": "至账户",
+    "amount": "金额",
+    "date": "转账日期",
+    "pickDate": "选择一个日期",
+    "optionalDescription": "描述（可选）",
+    "descriptionPlaceholder": "例如：每月储蓄",
+    "selectAccount": "选择一个账户",
+    "transferButton": "进行转账",
+    "successToast": "您的转账已记录！",
+    "errorToast": "无法记录转账。请重试。"
+  },
   "EditTransactionDialog": {
     "title": "编辑交易",
     "description": "更新您的财务记录详情。",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "未知类别",
     "unknownAccount": "未知账户",
-    "invalidDate": "无效日期"
+    "invalidDate": "无效日期",
+    "transfer": "转账",
+    "transferTo": "转账至",
+    "transferFrom": "从...转账"
   }
 }

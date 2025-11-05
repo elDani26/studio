@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { collection, writeBatch, Timestamp, doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,109 +28,115 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { ICONS } from '@/lib/constants';
-import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
+import { v4 as uuidv4 } from 'uuid';
 
-const transactionSchema = z.object({
-  type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
+const transferSchema = z.object({
+  fromAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de origen.' }),
+  toAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de destino.' }),
   amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-  category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
   date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
   description: z.string().optional(),
-  account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
+}).refine(data => data.fromAccount !== data.toAccount, {
+  message: 'La cuenta de origen y destino no pueden ser la misma.',
+  path: ['toAccount'],
 });
 
-export function AddTransactionDialog() {
+export function AddTransferDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories, accounts } = useSettings();
-  const t = useTranslations('AddTransactionDialog');
+  const { accounts } = useSettings();
+  const t = useTranslations('AddTransferDialog');
+  const tMisc = useTranslations('misc');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
-  const form = useForm<z.infer<typeof transactionSchema>>({
-    resolver: zodResolver(transactionSchema),
+  const form = useForm<z.infer<typeof transferSchema>>({
+    resolver: zodResolver(transferSchema),
     defaultValues: {
-      type: 'expense',
+      fromAccount: '',
+      toAccount: '',
       amount: 0,
-      category: '',
       date: new Date(),
       description: '',
-      account: '',
     },
   });
-  
-  const transactionType = form.watch('type');
 
-  const filteredCategories = useMemo(() => {
-    // Exclude 'transfer' category from this dialog
-    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
-  }, [categories, transactionType]);
-
-
-  useEffect(() => {
-    const currentCategory = form.getValues('category');
-    if (currentCategory && !filteredCategories.some(c => c.id === currentCategory)) {
-        form.setValue('category', '');
-    }
-  }, [transactionType, form, filteredCategories]);
-
-  const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
+  const onSubmit = async (values: z.infer<typeof transferSchema>) => {
     if (!user) return;
     setLoading(true);
 
-    const transactionData = {
-        ...values,
-        userId: user.uid,
-        date: Timestamp.fromDate(values.date),
-    };
-
-    const collectionRef = collection(firestore, 'users', user.uid, 'transactions');
+    const transferId = uuidv4();
+    const fromAccountName = accounts.find(a => a.id === values.fromAccount)?.name;
+    const toAccountName = accounts.find(a => a.id === values.toAccount)?.name;
+    const batch = writeBatch(firestore);
     
-    addDoc(collectionRef, transactionData)
-      .then(() => {
+    const expenseTransactionRef = doc(collection(firestore, 'users', user.uid, 'transactions'));
+    const expenseTransaction = {
+      userId: user.uid,
+      type: 'expense',
+      category: 'transfer',
+      account: values.fromAccount,
+      amount: values.amount,
+      date: Timestamp.fromDate(values.date),
+      description: `${values.description || ''} (${tMisc('transferTo')} ${toAccountName})`.trim(),
+      transferId: transferId,
+    };
+    batch.set(expenseTransactionRef, expenseTransaction);
+
+    const incomeTransactionRef = doc(collection(firestore, 'users', user.uid, 'transactions'));
+    const incomeTransaction = {
+        userId: user.uid,
+        type: 'income',
+        category: 'transfer',
+        account: values.toAccount,
+        amount: values.amount,
+        date: Timestamp.fromDate(values.date),
+        description: `${values.description || ''} (${tMisc('transferFrom')} ${fromAccountName})`.trim(),
+        transferId: transferId,
+    };
+    batch.set(incomeTransactionRef, incomeTransaction);
+
+    try {
+        await batch.commit();
         toast({
           title: 'Success!',
           description: t('successToast'),
         });
         setOpen(false);
         form.reset();
-      })
-      .catch((error) => {
-        const permissionError = new FirestorePermissionError({
-            path: collectionRef.path,
+    } catch (error) {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: `users/${user.uid}/transactions`,
             operation: 'create',
-            requestResourceData: transactionData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+            requestResourceData: [expenseTransaction, incomeTransaction]
+        }));
         toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: t('errorToast'),
+            variant: 'destructive',
+            title: 'Error',
+            description: t('errorToast'),
         });
-      })
-      .finally(() => {
+    } finally {
         setLoading(false);
-      });
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
+        <Button variant="outline">
+            <Repeat className="mr-2 h-4 w-4" />
             {t('title')}
         </Button>
       </DialogTrigger>
@@ -143,32 +149,64 @@ export function AddTransactionDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
             <FormField
               control={form.control}
-              name="type"
+              name="fromAccount"
               render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>{t('transactionType')}</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex space-x-4"
-                    >
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="income" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{t('income')}</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="expense" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{t('expense')}</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
+                <FormItem>
+                  <FormLabel>{t('fromAccount')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('selectAccount')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accounts.map(acc => {
+                        const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                        return (
+                          <SelectItem key={acc.id} value={acc.id}>
+                           <div className="flex items-center">
+                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {acc.name}
+                          </div>
+                        </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="toAccount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('toAccount')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('selectAccount')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accounts.map(acc => {
+                        const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                        return (
+                          <SelectItem key={acc.id} value={acc.id}>
+                           <div className="flex items-center">
+                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {acc.name}
+                          </div>
+                        </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -183,37 +221,6 @@ export function AddTransactionDialog() {
                   <FormControl>
                     <Input type="number" placeholder="0.00" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('category')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectCategory')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredCategories.map(cat => {
-                        const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
-                        return (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            <div className="flex items-center">
-                              <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {cat.name}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -270,41 +277,10 @@ export function AddTransactionDialog() {
               )}
             />
 
-             <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('account')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectAccount')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts.map(acc => {
-                        const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
-                        return (
-                          <SelectItem key={acc.id} value={acc.id}>
-                           <div className="flex items-center">
-                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {acc.name}
-                          </div>
-                        </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <DialogFooter>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t('addButton')}
+                {t('transferButton')}
               </Button>
             </DialogFooter>
           </form>

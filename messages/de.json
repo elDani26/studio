@@ -117,6 +117,21 @@
     "successToast": "Ihre Transaktion wurde hinzugefügt!",
     "errorToast": "Transaktion konnte nicht hinzugefügt werden. Bitte versuchen Sie es erneut."
   },
+    "AddTransferDialog": {
+    "title": "Überweisung tätigen",
+    "description": "Geld zwischen Ihren Konten verschieben.",
+    "fromAccount": "Von Konto",
+    "toAccount": "Auf Konto",
+    "amount": "Betrag",
+    "date": "Überweisungsdatum",
+    "pickDate": "Wählen Sie ein Datum",
+    "optionalDescription": "Beschreibung (Optional)",
+    "descriptionPlaceholder": "z.B. Monatliche Ersparnisse",
+    "selectAccount": "Wählen Sie ein Konto",
+    "transferButton": "Überweisung tätigen",
+    "successToast": "Ihre Überweisung wurde erfasst!",
+    "errorToast": "Überweisung konnte nicht erfasst werden. Bitte versuchen Sie es erneut."
+  },
   "EditTransactionDialog": {
     "title": "Transaktion bearbeiten",
     "description": "Aktualisieren Sie die Details Ihres Finanzdatensatzes.",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "Unbekannte Kategorie",
     "unknownAccount": "Unbekanntes Konto",
-    "invalidDate": "Ungültiges Datum"
+    "invalidDate": "Ungültiges Datum",
+    "transfer": "Überweisung",
+    "transferTo": "Überweisung an",
+    "transferFrom": "Überweisung von"
   }
 }

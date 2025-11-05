@@ -39,6 +39,10 @@
         "account": {
           "type": "string",
           "description": "The account used for the transaction."
+        },
+        "transferId": {
+            "type": "string",
+            "description": "A unique ID to group two transactions (an income and an expense) as a single transfer of funds between two of the user's accounts."
         }
       },
       "required": [

@@ -117,6 +117,21 @@
     "successToast": "Your transaction has been added!",
     "errorToast": "Could not add transaction. Please try again."
   },
+  "AddTransferDialog": {
+    "title": "Make Transfer",
+    "description": "Move money between your accounts.",
+    "fromAccount": "From Account",
+    "toAccount": "To Account",
+    "amount": "Amount",
+    "date": "Transfer Date",
+    "pickDate": "Pick a date",
+    "optionalDescription": "Description (Optional)",
+    "descriptionPlaceholder": "e.g., Monthly savings",
+    "selectAccount": "Select an account",
+    "transferButton": "Make Transfer",
+    "successToast": "Your transfer has been recorded!",
+    "errorToast": "Could not record transfer. Please try again."
+  },
   "EditTransactionDialog": {
     "title": "Edit Transaction",
     "description": "Update the details of your financial record.",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "Unknown category",
     "unknownAccount": "Unknown account",
-    "invalidDate": "Invalid date"
+    "invalidDate": "Invalid date",
+    "transfer": "Transfer",
+    "transferTo": "Transfer to",
+    "transferFrom": "Transfer from"
   }
 }

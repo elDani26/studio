@@ -117,6 +117,21 @@
     "successToast": "Votre transaction a été ajoutée !",
     "errorToast": "Impossible d'ajouter la transaction. Veuillez réessayer."
   },
+  "AddTransferDialog": {
+    "title": "Effectuer un virement",
+    "description": "Déplacez de l'argent entre vos comptes.",
+    "fromAccount": "Du compte",
+    "toAccount": "Au compte",
+    "amount": "Montant",
+    "date": "Date du virement",
+    "pickDate": "Choisir une date",
+    "optionalDescription": "Description (facultatif)",
+    "descriptionPlaceholder": "Ex: Épargne mensuelle",
+    "selectAccount": "Sélectionner un compte",
+    "transferButton": "Effectuer le virement",
+    "successToast": "Votre virement a été enregistré !",
+    "errorToast": "Impossible d'enregistrer le virement. Veuillez réessayer."
+  },
   "EditTransactionDialog": {
     "title": "Modifier la transaction",
     "description": "Mettez à jour les détails de votre enregistrement financier.",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "Catégorie inconnue",
     "unknownAccount": "Compte inconnu",
-    "invalidDate": "Date invalide"
+    "invalidDate": "Date invalide",
+    "transfer": "Virement",
+    "transferTo": "Virement à",
+    "transferFrom": "Virement de"
   }
 }

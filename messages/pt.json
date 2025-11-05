@@ -117,6 +117,21 @@
     "successToast": "Sua transação foi adicionada!",
     "errorToast": "Não foi possível adicionar a transação. Por favor, tente novamente."
   },
+    "AddTransferDialog": {
+    "title": "Realizar Transferência",
+    "description": "Mova dinheiro entre suas contas.",
+    "fromAccount": "Da Conta",
+    "toAccount": "Para a Conta",
+    "amount": "Valor",
+    "date": "Data da Transferência",
+    "pickDate": "Escolha uma data",
+    "optionalDescription": "Descrição (opcional)",
+    "descriptionPlaceholder": "Ex: Poupança mensal",
+    "selectAccount": "Selecione uma conta",
+    "transferButton": "Realizar Transferência",
+    "successToast": "Sua transferência foi registrada!",
+    "errorToast": "Não foi possível registrar a transferência. Por favor, tente novamente."
+  },
   "EditTransactionDialog": {
     "title": "Editar transação",
     "description": "Atualize os detalhes de seu registro financeiro.",
@@ -178,6 +193,9 @@
   "misc": {
     "unknownCategory": "Categoria desconhecida",
     "unknownAccount": "Conta desconhecida",
-    "invalidDate": "Data inválida"
+    "invalidDate": "Data inválida",
+    "transfer": "Transferência",
+    "transferTo": "Transferência para",
+    "transferFrom": "Transferência de"
   }
 }

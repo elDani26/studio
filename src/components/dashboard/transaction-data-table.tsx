@@ -7,6 +7,7 @@ import { getColumns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AddTransactionDialog } from './add-transaction-dialog';
+import { AddTransferDialog } from './add-transfer-dialog';
 import { EditTransactionDialog } from './edit-transaction-dialog';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -178,7 +179,10 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-            <AddTransactionDialog />
+             <div className="flex gap-2">
+                <AddTransferDialog />
+                <AddTransactionDialog />
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4">
               <Select value={type} onValueChange={setType}>

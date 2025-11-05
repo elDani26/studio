@@ -3,7 +3,7 @@
 import type { Transaction } from '@/types';
 import { ICONS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSettings } from '@/context/settings-context';
 import React from 'react';
@@ -18,8 +18,36 @@ interface Column<T> {
 }
 
 const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
-  const { categories } = useSettings();
+  const { categories, accounts } = useSettings();
   const t = useTranslations('TransactionTableColumns');
+  const tMisc = useTranslations('misc');
+
+  if (transaction.transferId) {
+    const isExpense = transaction.type === 'expense';
+    const otherAccount = isExpense 
+      ? accounts.find(a => transaction.description?.includes(a.name))
+      : accounts.find(a => transaction.description?.includes(a.name));
+    
+    let description;
+    if (isExpense) {
+        description = `${tMisc('transferTo')} ${otherAccount?.name || ''}`;
+    } else {
+        description = `${tMisc('transferFrom')} ${otherAccount?.name || ''}`;
+    }
+
+    return (
+      <div className="flex items-center gap-3">
+        <div className="rounded-full p-2 bg-muted text-muted-foreground">
+          <Repeat className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="font-medium">{tMisc('transfer')}</div>
+          <div className="text-sm text-muted-foreground">{description}</div>
+        </div>
+      </div>
+    );
+  }
+
   const categoryInfo = categories.find(c => c.id === transaction.category);
   const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
   const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
