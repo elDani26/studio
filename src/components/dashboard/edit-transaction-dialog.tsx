@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, Timestamp, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -110,43 +110,63 @@ export function EditTransactionDialog({
     }
   }, [transactionType, filteredCategories, form, transaction]);
 
+  const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
+
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user || !transaction) return;
     setLoading(true);
 
-    const transactionRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
+    try {
+        const batch = writeBatch(firestore);
 
-    const transactionData = {
-        ...values,
-        date: Timestamp.fromDate(values.date),
-    };
+        // Update the primary transaction
+        const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
+        const updatedData = {
+            ...values,
+            date: Timestamp.fromDate(values.date),
+        };
+        batch.update(mainDocRef, updatedData);
 
-    updateDoc(transactionRef, transactionData)
-        .then(() => {
-            toast({
-              title: 'Success!',
-              description: t('successToast'),
+        // If it's a transfer, find and update the linked transaction
+        if (transaction.transferId) {
+            const q = query(
+                collection(firestore, 'users', user.uid, 'transactions'),
+                where('transferId', '==', transaction.transferId)
+            );
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                if (doc.id !== transaction.id) {
+                    batch.update(doc.ref, { 
+                      amount: values.amount,
+                      date: Timestamp.fromDate(values.date)
+                    });
+                }
             });
-            onTransactionUpdated();
-            onOpenChange(false);
-        })
-        .catch((error) => {
-            const permissionError = new FirestorePermissionError({
-                path: transactionRef.path,
-                operation: 'update',
-                requestResourceData: transactionData,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            toast({
-              variant: 'destructive',
-              title: 'Error',
-              description: t('errorToast'),
-            });
-        })
-        .finally(() => {
-            setLoading(false);
+        }
+        
+        await batch.commit();
+        
+        toast({
+            title: 'Success!',
+            description: t('successToast'),
         });
+        onTransactionUpdated();
+        onOpenChange(false);
+
+    } catch (error) {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: `users/${user.uid}/transactions`,
+            operation: 'update',
+        }));
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: t('errorToast'),
+        });
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -171,6 +191,7 @@ export function EditTransactionDialog({
                       onValueChange={field.onChange}
                       value={field.value}
                       className="flex space-x-4"
+                      disabled={isTransfer}
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
@@ -211,7 +232,7 @@ export function EditTransactionDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tAdd('category')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={tAdd('selectCategory')} />
@@ -280,7 +301,7 @@ export function EditTransactionDialog({
                 <FormItem>
                   <FormLabel>{tAdd('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} />
+                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} disabled={isTransfer} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -293,7 +314,7 @@ export function EditTransactionDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tAdd('account')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={tAdd('selectAccount')} />

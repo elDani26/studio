@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '../ui/skeleton';
 import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X } from 'lucide-react';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, writeBatch, collection, query, where, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -66,7 +66,7 @@ export function TransactionDataTable({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
 
   const filteredCategories = useMemo(() => {
     if (type === 'all' || type === 'transfer') {
@@ -137,37 +137,56 @@ export function TransactionDataTable({
     setIsEditDialogOpen(true);
   };
   
-  const handleDelete = (transactionId: string) => {
-    setTransactionToDelete(transactionId);
+  const handleDelete = (transaction: Transaction) => {
+    setTransactionToDelete(transaction);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     if (!user || !transactionToDelete) return;
-    const docRef = doc(firestore, 'users', user.uid, 'transactions', transactionToDelete);
-    deleteDoc(docRef)
-      .then(() => {
+
+    try {
+        const batch = writeBatch(firestore);
+
+        // Delete the primary transaction
+        const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transactionToDelete.id);
+        batch.delete(mainDocRef);
+
+        // If it's a transfer, find and delete the linked transaction
+        if (transactionToDelete.transferId) {
+            const q = query(
+                collection(firestore, 'users', user.uid, 'transactions'),
+                where('transferId', '==', transactionToDelete.transferId)
+            );
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                if (doc.id !== transactionToDelete.id) {
+                    batch.delete(doc.ref);
+                }
+            });
+        }
+        
+        await batch.commit();
+
         toast({
-          title: 'Success!',
-          description: tToasts('transactionDeletedSuccess'),
+            title: 'Success!',
+            description: tToasts('transactionDeletedSuccess'),
         });
-      })
-      .catch((error) => {
-        const permissionError = new FirestorePermissionError({
-            path: docRef.path,
+
+    } catch (error) {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: `users/${user.uid}/transactions`,
             operation: 'delete',
-        });
-        errorEmitter.emit('permission-error', permissionError);
+        }));
         toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: tToasts('transactionDeletedError'),
+            variant: 'destructive',
+            title: 'Error',
+            description: tToasts('transactionDeletedError'),
         });
-      })
-      .finally(() => {
+    } finally {
         setIsDeleteDialogOpen(false);
         setTransactionToDelete(null);
-      });
+    }
   };
   
   const formatCurrency = (amount: number) => {
@@ -348,10 +367,10 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.transferId}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
                               <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction)}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                       </TableCell>

@@ -22,18 +22,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const t = useTranslations('TransactionTableColumns');
   const tMisc = useTranslations('misc');
 
-  if (transaction.category === 'transfer') {
-    const isExpense = transaction.type === 'expense';
-    
-    let description;
-    if (isExpense) {
-        const toAccountName = accounts.find(a => transaction.description?.includes(a.name))?.name || '';
-        description = `${tMisc('transferTo')} ${toAccountName}`;
-    } else {
-        const fromAccountName = accounts.find(a => transaction.description?.includes(a.name))?.name || '';
-        description = `${tMisc('transferFrom')} ${fromAccountName}`;
-    }
-
+  if (transaction.transferId) {
     return (
       <div className="flex items-center gap-3">
         <div className="rounded-full p-2 bg-muted text-muted-foreground">
@@ -104,7 +93,7 @@ const AccountCell = ({ accountId }: { accountId?: string }) => {
 
 export const getColumns = (
     onEdit: (transaction: Transaction) => void,
-    onDelete: (transactionId: string) => void
+    onDelete: (transaction: Transaction) => void
   ): Column<Transaction>[] => {
     const t = useTranslations('TransactionTableColumns');
     return [
