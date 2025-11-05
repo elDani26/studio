@@ -22,17 +22,16 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   const t = useTranslations('TransactionTableColumns');
   const tMisc = useTranslations('misc');
 
-  if (transaction.transferId) {
+  if (transaction.category === 'transfer') {
     const isExpense = transaction.type === 'expense';
-    const otherAccount = isExpense 
-      ? accounts.find(a => transaction.description?.includes(a.name))
-      : accounts.find(a => transaction.description?.includes(a.name));
     
     let description;
     if (isExpense) {
-        description = `${tMisc('transferTo')} ${otherAccount?.name || ''}`;
+        const toAccountName = accounts.find(a => transaction.description?.includes(a.name))?.name || '';
+        description = `${tMisc('transferTo')} ${toAccountName}`;
     } else {
-        description = `${tMisc('transferFrom')} ${otherAccount?.name || ''}`;
+        const fromAccountName = accounts.find(a => transaction.description?.includes(a.name))?.name || '';
+        description = `${tMisc('transferFrom')} ${fromAccountName}`;
     }
 
     return (
@@ -42,16 +41,15 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
         </div>
         <div>
           <div className="font-medium">{tMisc('transfer')}</div>
-          <div className="text-sm text-muted-foreground">{description}</div>
+          <div className="text-sm text-muted-foreground">{transaction.description}</div>
         </div>
       </div>
     );
   }
 
   const categoryInfo = categories.find(c => c.id === transaction.category);
-  const Icon = transaction.type === 'income' ? ArrowUp : ArrowDown;
-  const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
   const CategoryIcon = categoryInfo ? (ICONS[categoryInfo.icon] || ICONS.MoreHorizontal) : ICONS.MoreHorizontal;
+  const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
   
   return (
     <div className="flex items-center gap-3">
@@ -59,7 +57,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
         <CategoryIcon className="h-5 w-5" />
       </div>
       <div>
-        <div className="font-medium">{categoryInfo?.name || transaction.category}</div>
+        <div className="font-medium">{categoryInfo?.name || tMisc('unknownCategory')}</div>
         <div className="text-sm text-muted-foreground">{transaction.description || t('noDescription')}</div>
       </div>
     </div>
@@ -100,7 +98,7 @@ const AccountCell = ({ accountId }: { accountId?: string }) => {
     const { accounts } = useSettings();
     const t = useTranslations('misc');
     const accountInfo = accounts.find(a => a.id === accountId);
-    return <div className="text-muted-foreground">{accountInfo?.name || accountId || t('unknownAccount')}</div>
+    return <div className="text-muted-foreground">{accountInfo?.name || t('unknownAccount')}</div>
 }
 
 

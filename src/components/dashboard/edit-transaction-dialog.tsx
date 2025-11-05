@@ -78,7 +78,8 @@ export function EditTransactionDialog({
   const transactionType = form.watch('type');
 
   const filteredCategories = useMemo(() => {
-    return categories.filter(c => c.type === transactionType);
+    // Exclude 'transfer' category from this dialog
+    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
   }, [categories, transactionType]);
 
 
@@ -93,6 +94,7 @@ export function EditTransactionDialog({
       form.reset({
         ...transaction,
         date,
+        description: transaction.description || '',
       });
     }
   }, [transaction, isOpen, form]);
@@ -278,7 +280,7 @@ export function EditTransactionDialog({
                 <FormItem>
                   <FormLabel>{tAdd('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={tAdd('descriptionPlaceholder')} value={field.value ?? ''} />
+                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -179,7 +179,7 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-             <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <AddTransferDialog />
                 <AddTransactionDialog />
             </div>
@@ -331,7 +331,7 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.transferId}>
                               <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction.id)}>
