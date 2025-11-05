@@ -71,14 +71,23 @@ export function EditTransactionDialog({
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
+  const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
+
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      type: 'expense',
+      amount: 0,
+      category: '',
+      date: new Date(),
+      description: '',
+      account: ''
+    }
   });
 
   const transactionType = form.watch('type');
 
   const filteredCategories = useMemo(() => {
-    // Exclude 'transfer' category from this dialog
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
   }, [categories, transactionType]);
 
@@ -100,7 +109,7 @@ export function EditTransactionDialog({
   }, [transaction, isOpen, form]);
 
   useEffect(() => {
-    if (transaction) {
+    if (transaction && !isTransfer) {
       const currentCategoryValue = form.getValues('category');
       const isCategoryStillValid = filteredCategories.some(c => c.id === currentCategoryValue);
 
@@ -108,9 +117,7 @@ export function EditTransactionDialog({
           form.setValue('category', '');
       }
     }
-  }, [transactionType, filteredCategories, form, transaction]);
-
-  const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
+  }, [transactionType, filteredCategories, form, transaction, isTransfer]);
 
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
@@ -119,16 +126,20 @@ export function EditTransactionDialog({
 
     try {
         const batch = writeBatch(firestore);
+        
+        const updates: { amount: number; date: Timestamp } = {
+            amount: values.amount,
+            date: Timestamp.fromDate(values.date),
+        };
+
+        // If it's not a transfer, update all fields
+        const finalUpdates = isTransfer ? updates : { ...values, date: Timestamp.fromDate(values.date) };
 
         // Update the primary transaction
         const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-        const updatedData = {
-            ...values,
-            date: Timestamp.fromDate(values.date),
-        };
-        batch.update(mainDocRef, updatedData);
+        batch.update(mainDocRef, finalUpdates);
 
-        // If it's a transfer, find and update the linked transaction
+        // If it's a transfer, find and update the linked transaction with only amount and date
         if (transaction.transferId) {
             const q = query(
                 collection(firestore, 'users', user.uid, 'transactions'),
@@ -137,10 +148,7 @@ export function EditTransactionDialog({
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
                 if (doc.id !== transaction.id) {
-                    batch.update(doc.ref, { 
-                      amount: values.amount,
-                      date: Timestamp.fromDate(values.date)
-                    });
+                    batch.update(doc.ref, updates);
                 }
             });
         }
@@ -301,7 +309,7 @@ export function EditTransactionDialog({
                 <FormItem>
                   <FormLabel>{tAdd('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} disabled={isTransfer} />
+                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} value={field.value ?? ''} disabled={isTransfer} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
