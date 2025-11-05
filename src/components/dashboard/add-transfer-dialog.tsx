@@ -135,7 +135,7 @@ export function AddTransferDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="w-full sm:w-auto">
             <Repeat className="mr-2 h-4 w-4" />
             {t('title')}
         </Button>
@@ -270,7 +270,7 @@ export function AddTransferDialog() {
                 <FormItem>
                   <FormLabel>{t('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('descriptionPlaceholder')} {...field} />
+                    <Input placeholder={t('descriptionPlaceholder')} {...field} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

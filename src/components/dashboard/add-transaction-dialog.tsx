@@ -33,7 +33,6 @@ import { cn } from '@/lib/utils';
 import { ICONS } from '@/lib/constants';
 import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
@@ -75,7 +74,6 @@ export function AddTransactionDialog() {
   const transactionType = form.watch('type');
 
   const filteredCategories = useMemo(() => {
-    // Exclude 'transfer' category from this dialog
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
   }, [categories, transactionType]);
 
@@ -129,7 +127,7 @@ export function AddTransactionDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('title')}
         </Button>
@@ -263,7 +261,7 @@ export function AddTransactionDialog() {
                 <FormItem>
                   <FormLabel>{t('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('descriptionPlaceholder')} {...field} />
+                    <Input placeholder={t('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

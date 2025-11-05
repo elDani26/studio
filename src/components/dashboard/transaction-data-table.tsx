@@ -53,6 +53,7 @@ export function TransactionDataTable({
   const tDatePicker = useTranslations('TransactionDataTable.datePicker');
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
+  const tMisc = useTranslations('misc');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
@@ -68,7 +69,7 @@ export function TransactionDataTable({
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
   const filteredCategories = useMemo(() => {
-    if (type === 'all') {
+    if (type === 'all' || type === 'transfer') {
       return categories;
     }
     return categories.filter(c => c.type === type);
@@ -96,13 +97,26 @@ export function TransactionDataTable({
       }
 
       const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
-      const typeFilter = type === 'all' || t.type === type;
+      
+      let typeFilterPassed = true;
+      if (type === 'all') {
+        typeFilterPassed = true;
+      } else if (type === 'transfer') {
+        typeFilterPassed = !!t.transferId;
+      } else {
+        typeFilterPassed = t.type === type && !t.transferId;
+      }
+
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
-      return dateFilterPassed && categoryFilterPassed && typeFilter && accountFilterPassed;
+      return dateFilterPassed && categoryFilterPassed && typeFilterPassed && accountFilterPassed;
     });
   }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter]);
 
   const filteredTotals = useMemo(() => {
+    if (type === 'transfer') {
+      return { income: 0, expenses: 0, balance: 0 };
+    }
+
     const income = filteredTransactions
       .filter(t => t.type === 'income')
       .reduce((acc, t) => acc + t.amount, 0);
@@ -116,7 +130,7 @@ export function TransactionDataTable({
       expenses,
       balance: income - expenses,
     };
-  }, [filteredTransactions]);
+  }, [filteredTransactions, type]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -193,15 +207,16 @@ export function TransactionDataTable({
                       <SelectItem value="all">{t('all')}</SelectItem>
                       <SelectItem value="income">{t('income')}</SelectItem>
                       <SelectItem value="expense">{t('expense')}</SelectItem>
+                      <SelectItem value="transfer">{tMisc('transfer')}</SelectItem>
                   </SelectContent>
               </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter} disabled={type === 'transfer'}>
                   <SelectTrigger className="w-full sm:w-auto">
                       <SelectValue placeholder={t('filterCategory')} />
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">{t('all')}</SelectItem>
-                      {filteredCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      {filteredCategories.filter(c => c.name.toLowerCase() !== 'transfer').map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={accountFilter} onValueChange={setAccountFilter}>
@@ -265,37 +280,39 @@ export function TransactionDataTable({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3 mb-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
-                <ArrowUp className="h-4 w-4 text-green-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
-                <ArrowDown className="h-4 w-4 text-red-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
-                <Scale className="h-4 w-4 text-blue-500" />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
-                  {formatCurrency(filteredTotals.balance)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {type !== 'transfer' && (
+            <div className="grid gap-4 md:grid-cols-3 mb-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
+                  <ArrowUp className="h-4 w-4 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
+                  <ArrowDown className="h-4 w-4 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
+                  <Scale className="h-4 w-4 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
+                    {formatCurrency(filteredTotals.balance)}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <div className="rounded-md border">
             <Table>
