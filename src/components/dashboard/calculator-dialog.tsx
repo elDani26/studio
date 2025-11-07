@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Draggable from 'react-draggable';
 import { Button } from '@/components/ui/button';
 import { Calculator, GripVertical, X, Grip } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -20,11 +19,11 @@ export function CalculatorDialog() {
   const [result, setResult] = useState<string | null>(null);
   const t = useTranslations('CalculatorDialog');
   const displayRef = useRef<HTMLDivElement>(null);
-  const nodeRef = useRef(null);
   const { locale } = useTranslations();
 
+  const [position, setPosition] = useState({ x: window.innerWidth / 4, y: window.innerHeight / 4 });
   const [size, setSize] = useState({ width: 340, height: 500 });
-  const resizeRef = useRef({ isResizing: false, startX: 0, startY: 0, startWidth: 0, startHeight: 0 });
+  const dragInfo = useRef({ isDragging: false, isResizing: false, startX: 0, startY: 0, startWidth: 0, startHeight: 0, startLeft: 0, startTop: 0 });
 
   const getClientCoords = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
     if ('touches' in e && e.touches.length > 0) {
@@ -33,40 +32,63 @@ export function CalculatorDialog() {
     return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY };
   };
 
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    const { clientX, clientY } = getClientCoords(e);
+    dragInfo.current = {
+      ...dragInfo.current,
+      isDragging: true,
+      startX: clientX,
+      startY: clientY,
+      startLeft: position.x,
+      startTop: position.y,
+    };
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleEnd);
+  };
+  
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     const { clientX, clientY } = getClientCoords(e);
-    resizeRef.current = {
+    dragInfo.current = {
+      ...dragInfo.current,
       isResizing: true,
       startX: clientX,
       startY: clientY,
       startWidth: size.width,
       startHeight: size.height,
     };
-    window.addEventListener('mousemove', handleResizeMove);
-    window.addEventListener('mouseup', handleResizeEnd);
-    window.addEventListener('touchmove', handleResizeMove);
-    window.addEventListener('touchend', handleResizeEnd);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleEnd);
   };
 
-  const handleResizeMove = (e: MouseEvent | TouchEvent) => {
-    if (!resizeRef.current.isResizing) return;
+  const handleMove = (e: MouseEvent | TouchEvent) => {
     const { clientX, clientY } = getClientCoords(e);
-    const dx = clientX - resizeRef.current.startX;
-    const dy = clientY - resizeRef.current.startY;
-    setSize({
-      width: Math.max(300, resizeRef.current.startWidth + dx),
-      height: Math.max(420, resizeRef.current.startHeight + dy),
-    });
+    const dx = clientX - dragInfo.current.startX;
+    const dy = clientY - dragInfo.current.startY;
+
+    if (dragInfo.current.isResizing) {
+      setSize({
+        width: Math.max(300, dragInfo.current.startWidth + dx),
+        height: Math.max(420, dragInfo.current.startHeight + dy),
+      });
+    } else if (dragInfo.current.isDragging) {
+      setPosition({
+        x: dragInfo.current.startLeft + dx,
+        y: dragInfo.current.startTop + dy,
+      });
+    }
   };
 
-  const handleResizeEnd = () => {
-    resizeRef.current.isResizing = false;
-    window.removeEventListener('mousemove', handleResizeMove);
-    window.removeEventListener('mouseup', handleResizeEnd);
-    window.removeEventListener('touchmove', handleResizeMove);
-    window.removeEventListener('touchend', handleResizeEnd);
+  const handleEnd = () => {
+    dragInfo.current = { ...dragInfo.current, isDragging: false, isResizing: false };
+    window.removeEventListener('mousemove', handleMove);
+    window.removeEventListener('mouseup', handleEnd);
+    window.removeEventListener('touchmove', handleMove);
+    window.removeEventListener('touchend', handleEnd);
   };
 
   const handleClose = (e: React.MouseEvent | React.TouchEvent) => {
@@ -219,48 +241,55 @@ export function CalculatorDialog() {
       </Button>
 
       {isOpen && (
-         <Draggable nodeRef={nodeRef} handle=".handle" bounds="parent">
+         <div
+            style={{
+                position: 'fixed',
+                left: `${position.x}px`,
+                top: `${position.y}px`,
+                width: `${size.width}px`,
+                height: `${size.height}px`,
+            }}
+            className="z-50 bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
+          >
             <div 
-              ref={nodeRef}
-              style={{ width: `${size.width}px`, height: `${size.height}px` }}
-              className="fixed top-1/4 left-1/4 z-50 bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
+                className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between"
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
             >
-              <div className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="h-5 w-5 text-gray-400" />
-                  <p className="text-base text-gray-600">{t('calculatorTitle')}</p>
-                </div>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClose} onTouchEnd={handleClose}>
-                    <X className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center gap-2">
+                <GripVertical className="h-5 w-5 text-gray-400" />
+                <p className="text-base text-gray-600">{t('calculatorTitle')}</p>
               </div>
-              <div onKeyDown={handleKeyDown} tabIndex={0} className="p-4 flex flex-col flex-grow outline-none">
-                <div 
-                  ref={displayRef} 
-                  className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
-                  {getDisplayValue()}
-                </div>
-                <div className="grid grid-cols-4 grid-rows-5 gap-3 mt-4 flex-grow">
-                  {buttons.map((btn) => (
-                    <Button
-                      key={btn.label}
-                      onClick={() => btn.action()}
-                      className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
-                    >
-                      {btn.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClose} onTouchEnd={handleClose}>
+                  <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div onKeyDown={handleKeyDown} tabIndex={0} className="p-4 flex flex-col flex-grow outline-none">
               <div 
-                className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500 touch-none"
-                onMouseDown={handleResizeStart}
-                onTouchStart={handleResizeStart}
-              >
-                  <Grip className="h-4 w-4 rotate-45" />
+                ref={displayRef} 
+                className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
+                {getDisplayValue()}
+              </div>
+              <div className="grid grid-cols-4 grid-rows-5 gap-3 mt-4 flex-grow">
+                {buttons.map((btn) => (
+                  <Button
+                    key={btn.label}
+                    onClick={() => btn.action()}
+                    className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
+                  >
+                    {btn.label}
+                  </Button>
+                ))}
               </div>
             </div>
-         </Draggable>
+            <div 
+              className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500 touch-none"
+              onMouseDown={handleResizeStart}
+              onTouchStart={handleResizeStart}
+            >
+                <Grip className="h-4 w-4 rotate-45" />
+            </div>
+          </div>
       )}
     </>
   );
