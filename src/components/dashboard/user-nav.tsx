@@ -25,8 +25,8 @@ export function UserNav() {
 
   return (
     <Button variant="ghost" size="sm" onClick={logout}>
-      <LogOut className="mr-2 h-4 w-4" />
-      {t('logout')}
+      <LogOut className="h-4 w-4 sm:mr-2" />
+      <span className="hidden sm:inline">{t('logout')}</span>
     </Button>
   );
 }
