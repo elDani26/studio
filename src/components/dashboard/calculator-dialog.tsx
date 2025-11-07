@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
 import { Button } from '@/components/ui/button';
-import { Calculator, GripVertical, X } from 'lucide-react';
+import { Calculator, GripVertical, X, Grip } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 
 const buttonClasses = {
@@ -22,6 +22,44 @@ export function CalculatorDialog() {
   const displayRef = useRef<HTMLDivElement>(null);
   const nodeRef = useRef(null);
   const locale = useLocale();
+
+  const [size, setSize] = useState({ width: 340, height: 500 });
+  const [isResizing, setIsResizing] = useState(false);
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Crucial to prevent drag from firing
+    setIsResizing(true);
+  };
+
+  const handleResizeMouseUp = () => {
+    setIsResizing(false);
+  };
+
+  const handleResizeMouseMove = (e: MouseEvent) => {
+    if (isResizing) {
+      setSize(prevSize => ({
+        width: Math.max(300, prevSize.width + e.movementX),
+        height: Math.max(420, prevSize.height + e.movementY),
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleResizeMouseMove);
+      window.addEventListener('mouseup', handleResizeMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleResizeMouseMove);
+      window.removeEventListener('mouseup', handleResizeMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleResizeMouseMove);
+      window.removeEventListener('mouseup', handleResizeMouseUp);
+    };
+  }, [isResizing]);
+
 
   const formatNumber = (numStr: string) => {
     if (isNaN(parseFloat(numStr)) || numStr.endsWith('.')) return numStr;
@@ -170,9 +208,9 @@ export function CalculatorDialog() {
       {isOpen && (
          <Draggable nodeRef={nodeRef} handle=".handle">
             <div 
-              ref={nodeRef} 
-              onKeyDown={handleKeyDown}
-              className="fixed top-1/4 left-1/4 z-50 sm:max-w-sm w-full bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
+              ref={nodeRef}
+              style={{ width: `${size.width}px`, height: `${size.height}px` }}
+              className="fixed top-1/4 left-1/4 z-50 bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
             >
               <div className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -183,23 +221,29 @@ export function CalculatorDialog() {
                     <X className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="p-4">
+              <div onKeyDown={handleKeyDown} className="p-4 flex flex-col flex-grow">
                 <div 
                   ref={displayRef} 
                   className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
                   {getDisplayValue()}
                 </div>
-                <div className="grid grid-cols-4 gap-3 mt-4">
+                <div className="grid grid-cols-4 grid-rows-5 gap-3 mt-4 flex-grow">
                   {buttons.map((btn) => (
                     <Button
                       key={btn.label}
                       onClick={btn.action}
-                      className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
+                      className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
                     >
                       {btn.label}
                     </Button>
                   ))}
                 </div>
+              </div>
+              <div 
+                className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500"
+                onMouseDown={handleResizeMouseDown}
+              >
+                  <Grip className="h-4 w-4 rotate-45" />
               </div>
             </div>
          </Draggable>
