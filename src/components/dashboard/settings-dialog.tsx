@@ -125,7 +125,7 @@ export function SettingsDialog() {
           <span className="sr-only">{t('title')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md md:max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
@@ -140,7 +140,7 @@ export function SettingsDialog() {
             <TabsTrigger value="categories">{t('categoriesTab')}</TabsTrigger>
           </TabsList>
 
-          <div className="flex-grow overflow-y-auto mt-4 pr-4">
+          <div className="flex-grow overflow-y-auto mt-4 pr-2 -mr-4">
               <TabsContent value="general">
                 <div className="space-y-6 py-4">
                   <div>
@@ -186,7 +186,7 @@ export function SettingsDialog() {
                                 <Input placeholder={t('newAccountPlaceholder')} value={newAccountName} onChange={e => setNewAccountName(e.target.value)} />
                                 <div className="flex gap-2">
                                   <Select value={newAccountType} onValueChange={(v) => setNewAccountType(v as any)}>
-                                    <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                                    <SelectTrigger className="w-full sm:w-[120px]"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="debit">{tMisc('debit')}</SelectItem>
                                       <SelectItem value="credit">{tMisc('credit')}</SelectItem>
@@ -252,7 +252,7 @@ export function SettingsDialog() {
                                 <Input placeholder={t('newCategoryPlaceholder')} value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
                                 <div className="flex gap-2">
                                   <Select value={newCategoryType} onValueChange={(v) => setNewCategoryType(v as any)}>
-                                      <SelectTrigger className="w-[120px]">
+                                      <SelectTrigger className="w-full sm:w-[120px]">
                                           <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
@@ -308,7 +308,7 @@ export function SettingsDialog() {
           </div>
         </Tabs>
         
-        <DialogFooter className="pt-4 border-t flex-shrink-0">
+        <DialogFooter className="pt-4 mt-auto border-t flex-shrink-0">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {t('closeButton')}
           </Button>
@@ -320,7 +320,7 @@ export function SettingsDialog() {
 
     {/* Edit Dialog */}
     <Dialog open={!!editingItem} onOpenChange={(isOpen) => !isOpen && setEditingItem(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-sm">
             <DialogHeader>
                 <DialogTitle>{editingItem?.type === 'account' ? t('editAccountTitle') : t('editCategoryTitle')}</DialogTitle>
             </DialogHeader>

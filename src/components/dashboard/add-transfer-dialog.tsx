@@ -173,7 +173,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
             {t('title')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>

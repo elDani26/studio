@@ -181,16 +181,17 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t('title')}
+            {t('addButton')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
             {t('description')}
           </DialogDescription>
         </DialogHeader>
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -356,7 +357,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="pt-4 sticky bottom-0 bg-background">
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t('addButton')}
@@ -364,6 +365,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
             </DialogFooter>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -260,7 +260,7 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start">
                 <PayCreditCardDialog transactions={transactions} />
                 <AddTransferDialog transactions={transactions} />
                 <AddTransactionDialog transactions={transactions} />
@@ -303,48 +303,38 @@ export function TransactionDataTable({
                     <Button
                       variant={'outline'}
                       className={cn(
-                        'w-full sm:w-auto justify-start text-left font-normal',
-                        !dateFrom && 'text-muted-foreground'
+                        'w-full sm:w-[240px] justify-start text-left font-normal',
+                        !dateFrom && !dateTo && 'text-muted-foreground'
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFrom ? format(dateFrom, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
+                      {dateFrom && dateTo ? (
+                        <>
+                          {format(dateFrom, 'LLL dd, y')} - {format(dateTo, 'LLL dd, y')}
+                        </>
+                      ) : dateFrom ? (
+                        format(dateFrom, 'LLL dd, y')
+                      ) : (
+                        <span>{tDatePicker('placeholder')}</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      mode="single"
-                      selected={dateFrom}
-                      onSelect={setDateFrom}
                       initialFocus
+                      mode="range"
+                      defaultMonth={dateFrom}
+                      selected={{ from: dateFrom, to: dateTo }}
+                      onSelect={(range) => {
+                        setDateFrom(range?.from);
+                        setDateTo(range?.to);
+                      }}
+                      numberOfMonths={2}
                       locale={dateFnsLocale}
                     />
                   </PopoverContent>
                 </Popover>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-full sm:w-auto justify-start text-left font-normal',
-                        !dateTo && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateTo ? format(dateTo, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={dateTo}
-                      onSelect={setDateTo}
-                      initialFocus
-                      locale={dateFnsLocale}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
+                {(dateFrom || dateTo) && <Button variant="ghost" size="icon" onClick={clearDates}><X className="h-4 w-4"/></Button>}
               </div>
           </div>
         </CardHeader>
