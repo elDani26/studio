@@ -77,6 +77,9 @@ export default function LoginPage() {
           const newAccRef = doc(collection(firestore, 'users', userId, 'sourceAccounts'));
           batch.set(newAccRef, {name: acc.label, icon: acc.icon, type: acc.type as 'debit' | 'credit'});
       });
+      
+      const userDocRef = doc(firestore, 'users', userId);
+      batch.set(userDocRef, { email: TEST_USER_EMAIL, id: userId, currency: 'EUR' }, { merge: true });
 
       await batch.commit();
 
@@ -91,7 +94,19 @@ export default function LoginPage() {
     setError(null);
     try {
       if (!auth) throw new Error('Firebase Auth not available');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      let userCredential;
+
+      try {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      } catch (signInError: any) {
+        // If login fails because the test user doesn't exist, create it.
+        if (signInError.code === 'auth/user-not-found' && email === TEST_USER_EMAIL && password === TEST_USER_PASS) {
+          userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          // For any other error, re-throw to be caught by the outer catch block.
+          throw signInError;
+        }
+      }
 
       // If it's the test user, reset their data before navigating
       if (userCredential.user && userCredential.user.email === TEST_USER_EMAIL) {
@@ -132,18 +147,14 @@ export default function LoginPage() {
     try {
       if (!auth) throw new Error('Firebase Auth not available');
       
-      // If the user tries to sign up with the test email, use the predefined secure password.
-      const isTestUserSignUp = email === TEST_USER_EMAIL;
-      const signUpPassword = isTestUserSignUp ? TEST_USER_PASS : password;
-      
-      // Ensure the entered password matches the required password for the test account.
-      if (isTestUserSignUp && password !== TEST_USER_PASS) {
+      // If the user tries to sign up with the test email, ensure they use the correct password.
+      if (email === TEST_USER_EMAIL && password !== TEST_USER_PASS) {
         setError(t('passwordMismatchError'));
         setLoading(false);
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, signUpPassword);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = userCredential.user;
 
       const userData = {
@@ -152,29 +163,31 @@ export default function LoginPage() {
         currency: 'EUR',
       };
       const userDocRef = doc(firestore, 'users', newUser.uid);
-      setDoc(userDocRef, userData)
-        .then(() => {
-          toast({
-            title: tToast('signupSuccessTitle'),
-            description: tToast('signupSuccessDescription'),
-          });
-          setActiveTab('login');
-          clearForm();
-        })
-        .catch((error) => {
-            const permissionError = new FirestorePermissionError({
-                path: userDocRef.path,
-                operation: 'create',
-                requestResourceData: userData,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            setError(t('userProfileError'));
-        });
+      
+      await setDoc(userDocRef, userData);
+
+      // If the test user is being created, reset their data immediately.
+      if (email === TEST_USER_EMAIL) {
+        await resetTestAccountData(newUser.uid);
+      }
+      
+      toast({
+        title: tToast('signupSuccessTitle'),
+        description: tToast('signupSuccessDescription'),
+      });
+      setActiveTab('login');
+      clearForm();
+
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         setError(t('emailInUseError'));
       } else {
-        setError(t('signupError'));
+        const permissionError = new FirestorePermissionError({
+            path: `users/${(auth.currentUser?.uid || 'unknown')}`,
+            operation: 'create',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        setError(t('userProfileError'));
       }
     } finally {
       setLoading(false);
