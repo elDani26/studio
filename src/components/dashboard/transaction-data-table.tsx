@@ -15,7 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '../ui/skeleton';
-import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard } from 'lucide-react';
 import { doc, deleteDoc, writeBatch, collection, query, where, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -34,6 +34,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { format } from 'date-fns';
 import { getLocale } from '@/lib/utils';
 import { startOfDay, endOfDay } from 'date-fns';
+import { AddCreditCardTransactionDialog } from './add-credit-card-transaction-dialog';
+import { PayCreditCardDialog } from './pay-credit-card-dialog';
 
 
 interface TransactionDataTableProps {
@@ -67,6 +69,8 @@ export function TransactionDataTable({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+
+  const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
 
   const filteredCategories = useMemo(() => {
     if (type === 'all' || type === 'transfer') {
@@ -103,8 +107,10 @@ export function TransactionDataTable({
         typeFilterPassed = true;
       } else if (type === 'transfer') {
         typeFilterPassed = !!t.transferId;
+      } else if (type === 'credit-expense') {
+        typeFilterPassed = !!t.isCreditCardExpense;
       } else {
-        typeFilterPassed = t.type === type && !t.transferId;
+        typeFilterPassed = t.type === type && !t.transferId && !t.isCreditCardExpense;
       }
 
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
@@ -114,20 +120,25 @@ export function TransactionDataTable({
 
   const filteredTotals = useMemo(() => {
     if (type === 'transfer') {
-      return { income: 0, expenses: 0, balance: 0 };
+      return { income: 0, expenses: 0, creditCardDebt: 0, balance: 0 };
     }
 
     const income = filteredTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
     
     const expenses = filteredTransactions
-      .filter(t => t.type === 'expense')
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    const creditCardDebt = filteredTransactions
+      .filter(t => t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
 
     return {
       income,
       expenses,
+      creditCardDebt,
       balance: income - expenses,
     };
   }, [filteredTransactions, type]);
@@ -212,7 +223,9 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                <AddCreditCardTransactionDialog />
+                <PayCreditCardDialog transactions={transactions} />
                 <AddTransferDialog />
                 <AddTransactionDialog />
             </div>
@@ -226,10 +239,11 @@ export function TransactionDataTable({
                       <SelectItem value="all">{t('all')}</SelectItem>
                       <SelectItem value="income">{t('income')}</SelectItem>
                       <SelectItem value="expense">{t('expense')}</SelectItem>
+                      <SelectItem value="credit-expense">{tMisc('creditCardExpense')}</SelectItem>
                       <SelectItem value="transfer">{tMisc('transfer')}</SelectItem>
                   </SelectContent>
               </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter} disabled={type === 'transfer'}>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter} disabled={type === 'transfer' || type === 'credit-expense'}>
                   <SelectTrigger className="w-full sm:w-auto">
                       <SelectValue placeholder={t('filterCategory')} />
                   </SelectTrigger>
@@ -299,8 +313,8 @@ export function TransactionDataTable({
           </div>
         </CardHeader>
         <CardContent>
-          {type !== 'transfer' && (
-            <div className="grid gap-4 md:grid-cols-3 mb-6">
+          {(type !== 'transfer' && type !== 'credit-expense') && (
+            <div className="grid gap-4 md:grid-cols-4 mb-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
@@ -317,6 +331,15 @@ export function TransactionDataTable({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
+                </CardContent>
+              </Card>
+               <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{tMisc('creditCardDebt')}</CardTitle>
+                  <CreditCard className="h-4 w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-500">{formatCurrency(filteredTotals.creditCardDebt)}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -367,7 +390,7 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.paymentFor}>
                               <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction)}>

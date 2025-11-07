@@ -85,7 +85,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
               const batch = writeBatch(firestore);
               SOURCE_ACCOUNTS.forEach(acc => {
                   const newAccRef = doc(collection(firestore, 'users', user.uid, 'sourceAccounts'));
-                  batch.set(newAccRef, {name: acc.label, icon: acc.icon});
+                  batch.set(newAccRef, {name: acc.label, icon: acc.icon, type: acc.type as 'debit' | 'credit'});
               });
               batch.commit().catch(e => console.error("Failed to create default accounts", e));
           } else {

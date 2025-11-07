@@ -117,6 +117,31 @@
     "successToast": "¡Tu transacción ha sido agregada!",
     "errorToast": "No se pudo agregar la transacción. Inténtalo de nuevo."
   },
+  "AddCreditCardTransactionDialog": {
+    "title": "Nueva Transacción TC",
+    "description": "Registra un nuevo gasto hecho con tu tarjeta de crédito.",
+    "creditCardAccount": "Tarjeta de Crédito",
+    "selectCreditCard": "Selecciona una tarjeta",
+    "addButton": "Agregar Gasto",
+    "successToast": "¡Gasto con tarjeta de crédito registrado!",
+    "errorToast": "No se pudo registrar el gasto. Inténtalo de nuevo."
+  },
+  "PayCreditCardDialog": {
+    "title": "Pagar Tarjeta de Crédito",
+    "description": "Registra un pago a la deuda de tu tarjeta de crédito.",
+    "debtSummary": "Resumen de Deuda",
+    "totalDebt": "Deuda Total",
+    "toCreditCard": "Tarjeta a Pagar",
+    "selectCreditCard": "Selecciona la tarjeta",
+    "fromAccount": "Pagar Desde la Cuenta",
+    "selectDebitAccount": "Selecciona cuenta de débito",
+    "amountToPay": "Monto a Pagar",
+    "paymentDate": "Fecha de Pago",
+    "payButton": "Registrar Pago",
+    "successToast": "¡Pago registrado exitosamente!",
+    "errorToast": "No se pudo registrar el pago. Inténtalo de nuevo.",
+    "paymentFor": "Pago para"
+  },
   "AddTransferDialog": {
     "title": "Realizar Transferencia",
     "description": "Mueve dinero entre tus cuentas.",
@@ -196,7 +221,12 @@
     "invalidDate": "Fecha inválida",
     "transfer": "Transferencia",
     "transferTo": "Transferencia a",
-    "transferFrom": "Transferencia de"
+    "transferFrom": "Transferencia de",
+    "creditCardExpense": "Gasto con TC",
+    "creditCardPayment": "Pago de Tarjeta de Crédito",
+    "creditCardDebt": "Deuda Tarjeta Crédito",
+    "debit": "Débito",
+    "credit": "Crédito"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"

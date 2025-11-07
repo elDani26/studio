@@ -117,6 +117,31 @@
     "successToast": "您的交易已添加！",
     "errorToast": "无法添加交易。请重试。"
   },
+  "AddCreditCardTransactionDialog": {
+    "title": "新的信用卡交易",
+    "description": "记录一笔用信用卡进行的新消费。",
+    "creditCardAccount": "信用卡",
+    "selectCreditCard": "选择一张信用卡",
+    "addButton": "添加消费",
+    "successToast": "信用卡消费已记录！",
+    "errorToast": "无法记录消费。请重试。"
+  },
+  "PayCreditCardDialog": {
+    "title": "支付信用卡",
+    "description": "记录一笔用于偿还信用卡债务的付款。",
+    "debtSummary": "债务摘要",
+    "totalDebt": "总债务",
+    "toCreditCard": "要支付的信用卡",
+    "selectCreditCard": "选择信用卡",
+    "fromAccount": "从账户支付",
+    "selectDebitAccount": "选择借记账户",
+    "amountToPay": "支付金额",
+    "paymentDate": "支付日期",
+    "payButton": "记录付款",
+    "successToast": "付款已成功记录！",
+    "errorToast": "无法记录付款。请重试。",
+    "paymentFor": "支付给"
+  },
   "AddTransferDialog": {
     "title": "进行转账",
     "description": "在您的账户之间转移资金。",
@@ -196,7 +221,12 @@
     "invalidDate": "无效日期",
     "transfer": "转账",
     "transferTo": "转账至",
-    "transferFrom": "从...转账"
+    "transferFrom": "从...转账",
+    "creditCardExpense": "信用卡消费",
+    "creditCardPayment": "信用卡还款",
+    "creditCardDebt": "信用卡债务",
+    "debit": "借记",
+    "credit": "信用"
   },
   "CalculatorDialog": {
     "calculatorTitle": "计算器"

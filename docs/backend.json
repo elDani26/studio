@@ -43,6 +43,14 @@
         "transferId": {
             "type": "string",
             "description": "A unique ID to group two transactions (an income and an expense) as a single transfer of funds between two of the user's accounts."
+        },
+        "isCreditCardExpense": {
+          "type": "boolean",
+          "description": "True if this transaction is an expense made with a credit card."
+        },
+        "paymentFor": {
+          "type": "string",
+          "description": "If this transaction is a payment, this field holds the ID of the credit account being paid."
         }
       },
       "required": [
@@ -92,7 +100,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "SourceAccount",
       "type": "object",
-      "description": "Represents a source account for a transaction (e.g., bank account, cash).",
+      "description": "Represents a source account for a transaction (e.g., bank account, cash, credit card).",
       "properties": {
         "id": {
           "type": "string",
@@ -105,11 +113,17 @@
         "icon": {
           "type": "string",
           "description": "Lucide icon name for the account."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the account.",
+          "enum": ["debit", "credit"]
         }
       },
       "required": [
         "name",
-        "icon"
+        "icon",
+        "type"
       ]
     },
      "Category": {

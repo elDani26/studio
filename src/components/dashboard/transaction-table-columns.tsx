@@ -3,7 +3,7 @@
 import type { Transaction } from '@/types';
 import { ICONS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
-import { ArrowDown, ArrowUp, Repeat } from 'lucide-react';
+import { ArrowDown, ArrowUp, Repeat, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSettings } from '@/context/settings-context';
 import React from 'react';
@@ -35,10 +35,31 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
       </div>
     );
   }
+  
+  if (transaction.paymentFor) {
+    const creditAccount = accounts.find(a => a.id === transaction.paymentFor);
+    return (
+      <div className="flex items-center gap-3">
+        <div className="rounded-full p-2 bg-blue-100 text-blue-600">
+          <CreditCard className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="font-medium">{tMisc('creditCardPayment')}</div>
+          <div className="text-sm text-muted-foreground">{creditAccount?.name || ''}</div>
+        </div>
+      </div>
+    );
+  }
 
   const categoryInfo = categories.find(c => c.id === transaction.category);
   const CategoryIcon = categoryInfo ? (ICONS[categoryInfo.icon] || ICONS.MoreHorizontal) : ICONS.MoreHorizontal;
-  const iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+  
+  let iconColor = '';
+  if (transaction.isCreditCardExpense) {
+      iconColor = 'bg-orange-100 text-orange-600';
+  } else {
+      iconColor = transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+  }
   
   return (
     <div className="flex items-center gap-3">
@@ -53,11 +74,20 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
   );
 };
 
-const AmountCell = ({ type, amount }: { type: 'income' | 'expense'; amount: number }) => {
+const AmountCell = ({ type, amount, isCreditCardExpense }: { type: 'income' | 'expense'; amount: number, isCreditCardExpense?: boolean }) => {
   const { currency } = useSettings();
-  const isIncome = type === 'income';
-  const color = isIncome ? 'text-green-600' : 'text-red-600';
-  const sign = isIncome ? '+' : '-';
+  let color = '';
+  let sign = '';
+
+  if (isCreditCardExpense) {
+    color = 'text-orange-600';
+    sign = '-';
+  } else {
+    const isIncome = type === 'income';
+    color = isIncome ? 'text-green-600' : 'text-red-600';
+    sign = isIncome ? '+' : '-';
+  }
+
   const formattedAmount = new Intl.NumberFormat('es-ES', {
     style: 'currency',
     currency: currency,
@@ -118,7 +148,7 @@ export const getColumns = (
       {
         header: t('amount'),
         accessor: 'amount',
-        cell: (item) => <AmountCell type={item.type} amount={item.amount} />,
+        cell: (item) => <AmountCell type={item.type} amount={item.amount} isCreditCardExpense={item.isCreditCardExpense} />,
         className: 'text-right font-bold',
       },
     ];

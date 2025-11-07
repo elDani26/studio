@@ -25,7 +25,8 @@ export const TRANSACTION_CATEGORIES = [
 ];
 
 export const SOURCE_ACCOUNTS = [
-    { value: 'bank', label: 'Cuenta de Banco', icon: 'Landmark' },
-    { value: 'credit_card', label: 'Tarjeta de Crédito', icon: 'CreditCard' },
-    { value: 'cash', label: 'Efectivo', icon: 'Wallet' },
+    { value: 'bank', label: 'Cuenta de Banco', icon: 'Landmark', type: 'debit' },
+    { value: 'cash', label: 'Efectivo', icon: 'Wallet', type: 'debit' },
+    { value: 'credit_card_visa', label: 'Tarjeta de Crédito Visa', icon: 'CreditCard', type: 'credit' },
+    { value: 'credit_card_mastercard', label: 'Tarjeta de Crédito Mastercard', icon: 'CreditCard', type: 'credit' },
 ];

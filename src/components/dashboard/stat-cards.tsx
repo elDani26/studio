@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { ArrowDown, ArrowUp, Scale, Calendar as CalendarIcon, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Scale, Calendar as CalendarIcon, X, CreditCard } from 'lucide-react';
 import { ExpenseChart } from './expense-chart';
 import { IncomeChart } from './income-chart';
 import { useSettings } from '@/context/settings-context';
@@ -22,26 +22,38 @@ interface StatCardsProps {
 export function StatCards({ transactions }: StatCardsProps) {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [creditCardDebt, setCreditCardDebt] = useState(0);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const { currency } = useSettings();
   const t = useTranslations('StatCards');
+  const tMisc = useTranslations('misc');
   const tDatePicker = useTranslations('TransactionDataTable.datePicker');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
   useEffect(() => {
     const income = transactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
     
     const expenses = transactions
-      .filter(t => t.type === 'expense')
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    const debt = transactions
+      .filter(t => t.isCreditCardExpense)
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    // Los pagos de tarjeta de crédito (egresos que tienen `paymentFor`) reducen la deuda
+    const payments = transactions
+      .filter(t => t.type === 'expense' && !!t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);
 
     setTotalIncome(income);
     setTotalExpenses(expenses);
+    setCreditCardDebt(debt - payments);
   }, [transactions]);
   
   const balance = totalIncome - totalExpenses;
@@ -79,7 +91,7 @@ export function StatCards({ transactions }: StatCardsProps) {
 
   return (
     <div className="grid gap-8">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('totalIncome')}</CardTitle>
@@ -96,6 +108,15 @@ export function StatCards({ transactions }: StatCardsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-500">{formatCurrency(totalExpenses)}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{tMisc('creditCardDebt')}</CardTitle>
+            <CreditCard className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-500">{formatCurrency(creditCardDebt)}</div>
           </CardContent>
         </Card>
         <Card>

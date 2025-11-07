@@ -57,6 +57,7 @@ export function SettingsDialog() {
 
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountIcon, setNewAccountIcon] = useState('Landmark');
+  const [newAccountType, setNewAccountType] = useState<'debit' | 'credit'>('debit');
   
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryType, setNewCategoryType] = useState<'income' | 'expense'>('expense');
@@ -74,9 +75,10 @@ export function SettingsDialog() {
 
   const handleAddAccount = async () => {
     if (!newAccountName.trim()) return;
-    await addAccount({ name: newAccountName, icon: newAccountIcon });
+    await addAccount({ name: newAccountName, icon: newAccountIcon, type: newAccountType });
     setNewAccountName('');
     setNewAccountIcon('Landmark');
+    setNewAccountType('debit');
     toast({ title: t('accountAddedToast') });
   };
 
@@ -97,10 +99,12 @@ export function SettingsDialog() {
     if (!editingItem) return;
 
     if (editingItem.type === 'account') {
-        await updateAccount(editingItem.id, { name: editingItem.name, icon: editingItem.icon });
+        const originalAccount = accounts.find(a => a.id === editingItem.id);
+        if (originalAccount) {
+            await updateAccount(editingItem.id, { name: editingItem.name, icon: editingItem.icon, type: originalAccount.type });
+        }
         toast({ title: t('accountUpdatedToast') });
     } else {
-        // Here, we don't update the 'type' of the category as it's not editable in the modal
         const originalCategory = categories.find(c => c.id === editingItem.id);
         if (originalCategory) {
             await updateCategory(editingItem.id, { name: editingItem.name, icon: editingItem.icon, type: originalCategory.type });
@@ -180,6 +184,13 @@ export function SettingsDialog() {
                             <div className="flex flex-col sm:flex-row gap-2">
                                 <Input placeholder={t('newAccountPlaceholder')} value={newAccountName} onChange={e => setNewAccountName(e.target.value)} />
                                 <div className="flex gap-2">
+                                  <Select value={newAccountType} onValueChange={(v) => setNewAccountType(v as any)}>
+                                    <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="debit">{t('misc.debit')}</SelectItem>
+                                      <SelectItem value="credit">{t('misc.credit')}</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                   <Select value={newAccountIcon} onValueChange={setNewAccountIcon}>
                                       <SelectTrigger className="w-full sm:w-[180px]">
                                           <SelectValue placeholder={t('icon')} />
@@ -203,12 +214,16 @@ export function SettingsDialog() {
                     <div className="space-y-2">
                       {accounts.map(account => {
                           const Icon = ICONS[account.icon] || ICONS.MoreHorizontal;
+                          const typeColor = account.type === 'debit' ? 'text-blue-500' : 'text-orange-500';
                           return (
                               <Card key={account.id}>
                                   <CardContent className="p-3 flex items-center justify-between">
                                       <div className="flex items-center gap-3">
-                                          <Icon className="h-5 w-5 text-muted-foreground"/>
-                                          <p>{account.name}</p>
+                                          <Icon className={`h-5 w-5 ${typeColor}`}/>
+                                          <div>
+                                              <p>{account.name}</p>
+                                              <p className={`text-xs ${typeColor}`}>{account.type === 'debit' ? t('misc.debit') : t('misc.credit')}</p>
+                                          </div>
                                       </div>
                                       <div className="flex items-center gap-1">
                                           <Button variant="ghost" size="icon" onClick={() => handleStartEdit(account, 'account')}><Edit className="h-4 w-4"/></Button>

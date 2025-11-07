@@ -1,3 +1,5 @@
+'use client';
+
 import { type Timestamp } from 'firebase/firestore';
 
 export type WithId<T> = T & { id: string };
@@ -6,12 +8,14 @@ export type Transaction = {
   id: string;
   userId: string;
   type: 'income' | 'expense';
-  category: string; // This will now be the ID of the category document
+  category: string; 
   amount: number;
   date: Timestamp;
   description?: string;
-  account: string; // This will now be the ID of the sourceAccount document
-  transferId?: string; // ID to link two transactions as a transfer
+  account: string; 
+  transferId?: string; 
+  isCreditCardExpense?: boolean; // Nuevo campo
+  paymentFor?: string; // ID de la tarjeta de crédito que se está pagando
 };
 
 export type TransactionFormData = {
@@ -21,6 +25,7 @@ export type TransactionFormData = {
   date: Date;
   description?: string;
   account?: string;
+  isCreditCardExpense?: boolean;
 };
 
 export type User = {
@@ -40,4 +45,5 @@ export interface Category {
 export interface SourceAccount {
   name: string;
   icon: string;
+  type: 'debit' | 'credit';
 }

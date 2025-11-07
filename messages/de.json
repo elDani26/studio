@@ -117,7 +117,32 @@
     "successToast": "Ihre Transaktion wurde hinzugefügt!",
     "errorToast": "Transaktion konnte nicht hinzugefügt werden. Bitte versuchen Sie es erneut."
   },
-    "AddTransferDialog": {
+  "AddCreditCardTransactionDialog": {
+    "title": "Neue Kreditkartentransaktion",
+    "description": "Erfassen Sie eine neue Ausgabe, die mit Ihrer Kreditkarte getätigt wurde.",
+    "creditCardAccount": "Kreditkarte",
+    "selectCreditCard": "Wählen Sie eine Kreditkarte aus",
+    "addButton": "Ausgabe hinzufügen",
+    "successToast": "Kreditkartenausgabe erfasst!",
+    "errorToast": "Ausgabe konnte nicht erfasst werden. Bitte versuchen Sie es erneut."
+  },
+  "PayCreditCardDialog": {
+    "title": "Kreditkarte bezahlen",
+    "description": "Erfassen Sie eine Zahlung Ihrer Kreditkartenschulden.",
+    "debtSummary": "Schuldenübersicht",
+    "totalDebt": "Gesamtschulden",
+    "toCreditCard": "Zu zahlende Karte",
+    "selectCreditCard": "Kreditkarte auswählen",
+    "fromAccount": "Vom Konto bezahlen",
+    "selectDebitAccount": "Debitkonto auswählen",
+    "amountToPay": "Zu zahlender Betrag",
+    "paymentDate": "Zahlungsdatum",
+    "payButton": "Zahlung erfassen",
+    "successToast": "Zahlung erfolgreich erfasst!",
+    "errorToast": "Zahlung konnte nicht erfasst werden. Bitte versuchen Sie es erneut.",
+    "paymentFor": "Zahlung für"
+  },
+  "AddTransferDialog": {
     "title": "Überweisung tätigen",
     "description": "Geld zwischen Ihren Konten verschieben.",
     "fromAccount": "Von Konto",
@@ -196,7 +221,12 @@
     "invalidDate": "Ungültiges Datum",
     "transfer": "Überweisung",
     "transferTo": "Überweisung an",
-    "transferFrom": "Überweisung von"
+    "transferFrom": "Überweisung von",
+    "creditCardExpense": "Kreditkartenausgabe",
+    "creditCardPayment": "Kreditkartenzahlung",
+    "creditCardDebt": "Kreditkartenschulden",
+    "debit": "Lastschrift",
+    "credit": "Kredit"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Taschenrechner"

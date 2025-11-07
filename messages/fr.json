@@ -117,6 +117,31 @@
     "successToast": "Votre transaction a été ajoutée !",
     "errorToast": "Impossible d'ajouter la transaction. Veuillez réessayer."
   },
+   "AddCreditCardTransactionDialog": {
+    "title": "Nouvelle Transaction par Carte de Crédit",
+    "description": "Enregistrez une nouvelle dépense effectuée avec votre carte de crédit.",
+    "creditCardAccount": "Carte de Crédit",
+    "selectCreditCard": "Sélectionnez une carte de crédit",
+    "addButton": "Ajouter la Dépense",
+    "successToast": "Dépense par carte de crédit enregistrée !",
+    "errorToast": "Impossible d'enregistrer la dépense. Veuillez réessayer."
+  },
+  "PayCreditCardDialog": {
+    "title": "Payer la Carte de Crédit",
+    "description": "Enregistrez un paiement de votre dette de carte de crédit.",
+    "debtSummary": "Résumé de la Dette",
+    "totalDebt": "Dette Totale",
+    "toCreditCard": "Carte à Payer",
+    "selectCreditCard": "Sélectionnez la carte de crédit",
+    "fromAccount": "Payer Depuis le Compte",
+    "selectDebitAccount": "Sélectionnez un compte de débit",
+    "amountToPay": "Montant à Payer",
+    "paymentDate": "Date de Paiement",
+    "payButton": "Enregistrer le Paiement",
+    "successToast": "Paiement enregistré avec succès !",
+    "errorToast": "Impossible d'enregistrer le paiement. Veuillez réessayer.",
+    "paymentFor": "Paiement pour"
+  },
   "AddTransferDialog": {
     "title": "Effectuer un virement",
     "description": "Déplacez de l'argent entre vos comptes.",
@@ -196,7 +221,12 @@
     "invalidDate": "Date invalide",
     "transfer": "Virement",
     "transferTo": "Virement à",
-    "transferFrom": "Virement de"
+    "transferFrom": "Virement de",
+    "creditCardExpense": "Dépense par TC",
+    "creditCardPayment": "Paiement de Carte de Crédit",
+    "creditCardDebt": "Dette de Carte de Crédit",
+    "debit": "Débit",
+    "credit": "Crédit"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculatrice"

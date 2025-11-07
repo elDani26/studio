@@ -117,6 +117,31 @@
     "successToast": "Your transaction has been added!",
     "errorToast": "Could not add transaction. Please try again."
   },
+  "AddCreditCardTransactionDialog": {
+    "title": "New Credit Card Transaction",
+    "description": "Record a new expense made with your credit card.",
+    "creditCardAccount": "Credit Card",
+    "selectCreditCard": "Select a credit card",
+    "addButton": "Add Expense",
+    "successToast": "Credit card expense recorded!",
+    "errorToast": "Could not record the expense. Please try again."
+  },
+  "PayCreditCardDialog": {
+    "title": "Pay Credit Card",
+    "description": "Record a payment towards your credit card debt.",
+    "debtSummary": "Debt Summary",
+    "totalDebt": "Total Debt",
+    "toCreditCard": "Credit Card to Pay",
+    "selectCreditCard": "Select credit card",
+    "fromAccount": "Pay From Account",
+    "selectDebitAccount": "Select debit account",
+    "amountToPay": "Amount to Pay",
+    "paymentDate": "Payment Date",
+    "payButton": "Record Payment",
+    "successToast": "Payment recorded successfully!",
+    "errorToast": "Could not record payment. Please try again.",
+    "paymentFor": "Payment for"
+  },
   "AddTransferDialog": {
     "title": "Make Transfer",
     "description": "Move money between your accounts.",
@@ -196,7 +221,12 @@
     "invalidDate": "Invalid date",
     "transfer": "Transfer",
     "transferTo": "Transfer to",
-    "transferFrom": "Transfer from"
+    "transferFrom": "Transfer from",
+    "creditCardExpense": "Credit Card Expense",
+    "creditCardPayment": "Credit Card Payment",
+    "creditCardDebt": "Credit Card Debt",
+    "debit": "Debit",
+    "credit": "Credit"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculator"

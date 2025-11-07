@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
-import { doc, updateDoc, Timestamp, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -27,170 +28,99 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { ICONS } from '@/lib/constants';
-import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import type { Transaction } from '@/types';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
 
-const transactionSchema = z.object({
-  type: z.enum(['income', 'expense']),
-  amount: z.coerce.number().positive(),
-  category: z.string().min(1),
-  date: z.date(),
+const creditTransactionSchema = z.object({
+  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+  category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
+  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
   description: z.string().optional(),
-  account: z.string().min(1),
-  isCreditCardExpense: z.boolean().optional(),
+  account: z.string().min(1, { message: 'Por favor, selecciona una tarjeta de crédito.' }),
 });
 
-interface EditTransactionDialogProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  transaction: Transaction | null;
-  onTransactionUpdated: () => void;
-}
-
-export function EditTransactionDialog({
-  isOpen,
-  onOpenChange,
-  transaction,
-  onTransactionUpdated,
-}: EditTransactionDialogProps) {
+export function AddCreditCardTransactionDialog() {
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { categories, accounts } = useSettings();
-  const t = useTranslations('EditTransactionDialog');
+  const t = useTranslations('AddCreditCardTransactionDialog');
   const tAdd = useTranslations('AddTransactionDialog');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
-  const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
-  const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
+  const expenseCategories = useMemo(() => categories.filter(c => c.type === 'expense' && c.name.toLowerCase() !== 'transfer'), [categories]);
 
-  const form = useForm<z.infer<typeof transactionSchema>>({
-    resolver: zodResolver(transactionSchema),
+  const form = useForm<z.infer<typeof creditTransactionSchema>>({
+    resolver: zodResolver(creditTransactionSchema),
     defaultValues: {
-      type: 'expense',
       amount: 0,
       category: '',
       date: new Date(),
       description: '',
       account: '',
-      isCreditCardExpense: false,
-    }
+    },
   });
 
-  const transactionType = form.watch('type');
-  const isCreditCardExpense = form.watch('isCreditCardExpense');
-
-  const filteredCategories = useMemo(() => {
-    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
-  }, [categories, transactionType]);
-
-
-  useEffect(() => {
-    if (transaction) {
-      let date;
-      if (transaction.date && typeof (transaction.date as any).toDate === 'function') {
-        date = (transaction.date as any).toDate();
-      } else {
-        date = new Date(transaction.date as any);
-      }
-      form.reset({
-        ...transaction,
-        date,
-        description: transaction.description || '',
-      });
-    }
-  }, [transaction, isOpen, form]);
-
-  useEffect(() => {
-    if (transaction && !isTransfer) {
-      const currentCategoryValue = form.getValues('category');
-      const isCategoryStillValid = filteredCategories.some(c => c.id === currentCategoryValue);
-
-      if (!isCategoryStillValid) {
-          form.setValue('category', '');
-      }
-    }
-  }, [transactionType, filteredCategories, form, transaction, isTransfer]);
-
-  const availableAccounts = useMemo(() => {
-    return isCreditCardExpense ? creditAccounts : debitAccounts;
-  }, [isCreditCardExpense, creditAccounts, debitAccounts]);
-
-
-  const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
-    if (!user || !transaction) return;
+  const onSubmit = async (values: z.infer<typeof creditTransactionSchema>) => {
+    if (!user) return;
     setLoading(true);
 
-    try {
-        const batch = writeBatch(firestore);
-        
-        const updates: any = {
-            amount: values.amount,
-            date: Timestamp.fromDate(values.date),
-            description: values.description,
-            account: values.account,
-            category: values.category,
-            type: values.type
-        };
+    const transactionData = {
+        ...values,
+        userId: user.uid,
+        date: Timestamp.fromDate(values.date),
+        type: 'expense' as const,
+        isCreditCardExpense: true,
+    };
 
-        // If it's not a transfer, update all fields
-        const finalUpdates = isTransfer ? { amount: values.amount, date: Timestamp.fromDate(values.date) } : updates;
-
-        // Update the primary transaction
-        const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-        batch.update(mainDocRef, finalUpdates);
-
-        if (transaction.transferId) {
-            const q = query(
-                collection(firestore, 'users', user.uid, 'transactions'),
-                where('transferId', '==', transaction.transferId)
-            );
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                if (doc.id !== transaction.id) {
-                    batch.update(doc.ref, { amount: values.amount, date: Timestamp.fromDate(values.date) });
-                }
-            });
-        }
-        
-        await batch.commit();
-        
+    const collectionRef = collection(firestore, 'users', user.uid, 'transactions');
+    
+    addDoc(collectionRef, transactionData)
+      .then(() => {
         toast({
-            title: 'Success!',
-            description: t('successToast'),
+          title: 'Success!',
+          description: t('successToast'),
         });
-        onTransactionUpdated();
-        onOpenChange(false);
-
-    } catch (error) {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: `users/${user.uid}/transactions`,
-            operation: 'update',
-        }));
+        setOpen(false);
+        form.reset();
+      })
+      .catch((error) => {
+        const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: transactionData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
         toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: t('errorToast'),
+          variant: 'destructive',
+          title: 'Error',
+          description: t('errorToast'),
         });
-    } finally {
+      })
+      .finally(() => {
         setLoading(false);
-    }
+      });
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full sm:w-auto">
+            <CreditCard className="mr-2 h-4 w-4" />
+            {t('title')}
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
@@ -200,37 +130,6 @@ export function EditTransactionDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>{tAdd('transactionType')}</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex space-x-4"
-                      disabled={isTransfer || isCreditCardExpense}
-                    >
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="income" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{tAdd('income')}</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="expense" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{tAdd('expense')}</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
@@ -239,7 +138,7 @@ export function EditTransactionDialog({
                 <FormItem>
                   <FormLabel>{tAdd('amount')}</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input type="number" placeholder="0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -252,18 +151,18 @@ export function EditTransactionDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{tAdd('category')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={tAdd('selectCategory')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {filteredCategories.map(cat => {
+                      {expenseCategories.map(cat => {
                         const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
                         return (
                           <SelectItem key={cat.id} value={cat.id}>
-                             <div className="flex items-center">
+                            <div className="flex items-center">
                               <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                               {cat.name}
                             </div>
@@ -321,7 +220,7 @@ export function EditTransactionDialog({
                 <FormItem>
                   <FormLabel>{tAdd('optionalDescription')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} value={field.value ?? ''} disabled={isTransfer} />
+                    <Input placeholder={tAdd('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -333,16 +232,16 @@ export function EditTransactionDialog({
               name="account"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{tAdd('account')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
+                  <FormLabel>{t('creditCardAccount')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={tAdd('selectAccount')} />
+                        <SelectValue placeholder={t('selectCreditCard')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availableAccounts.map(acc => {
-                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                      {creditAccounts.map(acc => {
+                        const Icon = ICONS[acc.icon] || ICONS.CreditCard;
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
                            <div className="flex items-center">
@@ -362,7 +261,7 @@ export function EditTransactionDialog({
             <DialogFooter>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t('saveButton')}
+                {t('addButton')}
               </Button>
             </DialogFooter>
           </form>

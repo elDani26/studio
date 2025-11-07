@@ -117,7 +117,32 @@
     "successToast": "Sua transação foi adicionada!",
     "errorToast": "Não foi possível adicionar a transação. Por favor, tente novamente."
   },
-    "AddTransferDialog": {
+  "AddCreditCardTransactionDialog": {
+    "title": "Nova Transação com Cartão de Crédito",
+    "description": "Registre uma nova despesa feita com seu cartão de crédito.",
+    "creditCardAccount": "Cartão de Crédito",
+    "selectCreditCard": "Selecione um cartão de crédito",
+    "addButton": "Adicionar Despesa",
+    "successToast": "Despesa com cartão de crédito registrada!",
+    "errorToast": "Não foi possível registrar a despesa. Por favor, tente novamente."
+  },
+  "PayCreditCardDialog": {
+    "title": "Pagar Cartão de Crédito",
+    "description": "Registre um pagamento de sua dívida do cartão de crédito.",
+    "debtSummary": "Resumo da Dívida",
+    "totalDebt": "Dívida Total",
+    "toCreditCard": "Cartão a Pagar",
+    "selectCreditCard": "Selecione o cartão de crédito",
+    "fromAccount": "Pagar da Conta",
+    "selectDebitAccount": "Selecione a conta de débito",
+    "amountToPay": "Valor a Pagar",
+    "paymentDate": "Data do Pagamento",
+    "payButton": "Registrar Pagamento",
+    "successToast": "Pagamento registrado com sucesso!",
+    "errorToast": "Não foi possível registrar o pagamento. Por favor, tente novamente.",
+    "paymentFor": "Pagamento para"
+  },
+  "AddTransferDialog": {
     "title": "Realizar Transferência",
     "description": "Mova dinheiro entre suas contas.",
     "fromAccount": "Da Conta",
@@ -196,7 +221,12 @@
     "invalidDate": "Data inválida",
     "transfer": "Transferência",
     "transferTo": "Transferência para",
-    "transferFrom": "Transferência de"
+    "transferFrom": "Transferência de",
+    "creditCardExpense": "Despesa com Cartão de Crédito",
+    "creditCardPayment": "Pagamento de Cartão de Crédito",
+    "creditCardDebt": "Dívida do Cartão de Crédito",
+    "debit": "Débito",
+    "credit": "Crédito"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
