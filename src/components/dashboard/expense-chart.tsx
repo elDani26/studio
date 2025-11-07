@@ -20,16 +20,17 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
   const tMisc = useTranslations('misc');
 
   useEffect(() => {
-    // Gastos de débito (excluyendo transferencias y pagos de TC)
+    // 1. Gastos de débito (excluyendo transferencias y pagos de TC)
     const debitExpenses = initialTransactions.filter(t => 
       t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor
     );
 
-    // Gastos realizados con tarjeta de crédito
-    const creditCardExpensesTotal = initialTransactions
-      .filter(t => t.isCreditCardExpense)
+    // 2. Suma de pagos a tarjetas de crédito
+    const creditCardPaymentsTotal = initialTransactions
+      .filter(t => !!t.paymentFor)
       .reduce((sum, t) => sum + t.amount, 0);
 
+    // 3. Agrupar gastos de débito por categoría
     const expenseByCategory = debitExpenses.reduce((acc, transaction) => {
       const categoryId = transaction.category;
       if (!acc[categoryId]) {
@@ -39,7 +40,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
       return acc;
     }, {} as Record<string, number>);
 
-    // Convertir las categorías de débito a formato de gráfico
+    // 4. Convertir categorías de débito a formato de gráfico
     const data = Object.keys(expenseByCategory).map(categoryId => {
       const categoryInfo = categories.find(c => c.id === categoryId);
       return {
@@ -48,14 +49,15 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
       };
     });
 
-    // Añadir el total de gastos de tarjeta de crédito como una categoría separada
-    if (creditCardExpensesTotal > 0) {
+    // 5. Añadir el total de pagos de tarjeta de crédito como una categoría separada
+    if (creditCardPaymentsTotal > 0) {
       data.push({
-        name: tMisc('creditCardExpense'),
-        value: creditCardExpensesTotal
+        name: tMisc('creditCardPayment'),
+        value: creditCardPaymentsTotal
       });
     }
 
+    // 6. Filtrar, ordenar y establecer los datos finales
     const finalData = data
       .filter(item => item.value > 0)
       .sort((a, b) => b.value - a.value);
