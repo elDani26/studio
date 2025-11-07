@@ -109,7 +109,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   const transactionType = form.watch('type');
 
   const filteredCategories = useMemo(() => {
-    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer');
+    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
   }, [categories, transactionType]);
 
 

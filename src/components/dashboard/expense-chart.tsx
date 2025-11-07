@@ -20,7 +20,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
 
   useEffect(() => {
     const expenses = initialTransactions.filter(t => 
-      t.type === 'expense' && !t.transferId
+      t.type === 'expense' && !t.transferId && !t.isCreditCardExpense
     );
 
     const expenseByCategory = expenses.reduce((acc, transaction) => {

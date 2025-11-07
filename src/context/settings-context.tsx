@@ -66,7 +66,12 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       onSnapshot(categoriesColRef, (snapshot) => {
           if (snapshot.empty) {
               const batch = writeBatch(firestore);
-              [...TRANSACTION_CATEGORIES, { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'expense' }, { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'income' }].forEach(cat => {
+              [
+                ...TRANSACTION_CATEGORIES, 
+                { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'expense' },
+                { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'income' },
+                { value: 'credit_card_payment', label: 'Pago Tarjeta de Crédito', icon: 'CreditCard', type: 'expense' }
+              ].forEach(cat => {
                   const newCatRef = doc(collection(firestore, 'users', user.uid, 'categories'));
                   batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
               });
