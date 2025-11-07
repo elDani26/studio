@@ -39,11 +39,14 @@ export function StatCards({ transactions }: StatCardsProps) {
       .filter(t => t.type === 'income' && !t.transferId)
       .reduce((acc, t) => acc + t.amount, 0);
 
-    // Total expenses are REAL money out of debit accounts.
-    // This includes expenses from debit accounts AND payments to credit cards.
-    // It EXCLUDES expenses made with a credit card, as that money hasn't left yet.
+    // Total expenses are REAL money out. This includes expenses from debit accounts
+    // AND payments to credit cards. It EXCLUDES expenses made with a credit card.
     const expenses = transactions
-      .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
+      .filter(t => 
+        t.type === 'expense' && 
+        !t.transferId &&
+        !t.isCreditCardExpense
+      )
       .reduce((acc, t) => acc + t.amount, 0);
 
     // Credit card debt is the sum of expenses made with a credit card...
