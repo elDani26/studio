@@ -131,14 +131,18 @@ export function TransactionDataTable({
       .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
 
-    const creditCardDebt = filteredTransactions
+    const creditCardExpenses = filteredTransactions
       .filter(t => t.isCreditCardExpense)
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const creditCardPayments = filteredTransactions
+      .filter(t => t.type === 'expense' && !!t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);
 
     return {
       income,
       expenses,
-      creditCardDebt,
+      creditCardDebt: creditCardExpenses - creditCardPayments,
       balance: income - expenses,
     };
   }, [filteredTransactions, type]);
