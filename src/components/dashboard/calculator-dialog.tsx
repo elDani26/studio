@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Draggable from 'react-draggable';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from '@/components/ui/dialog';
-import { Calculator } from 'lucide-react';
+import { Calculator, GripVertical, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 
 const buttonClasses = {
@@ -17,22 +19,22 @@ const buttonClasses = {
   operator: "bg-gradient-to-br from-[#3498db] to-[#2980b9] text-white",
   clear: "bg-gradient-to-br from-[#e74c3c] to-[#c0392b] text-white",
   delete: "bg-gradient-to-br from-[#f39c12] to-[#e67e22] text-white",
-  equal: "bg-gradient-to-br from-[#27ae60] to-[#229954] text-white row-span-2",
+  equal: "bg-gradient-to-br from-[#27ae60] to-[#229954] text-white",
 };
 
 export function CalculatorDialog() {
+  const [isOpen, setIsOpen] = useState(false);
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const t = useTranslations('CalculatorDialog');
   const displayRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef(null);
   const locale = useLocale();
 
   const formatNumber = (numStr: string) => {
-    // Avoid formatting if it's not a valid number or ends with a decimal point.
     if (isNaN(parseFloat(numStr)) || numStr.endsWith('.')) return numStr;
     const [integer, decimal] = numStr.split('.');
     
-    // Replace non-digit characters (except the minus sign at the start) before formatting
     const cleanInteger = integer.replace(/[^\d-]/g, '');
     if (cleanInteger === '' || cleanInteger === '-') return integer;
     
@@ -46,7 +48,6 @@ export function CalculatorDialog() {
     setExpression(prev => {
         const isOperator = ['+', '−', '×', '÷'].includes(value);
 
-        // Prevent multiple operators in a row
         if (isOperator) {
             if (prev === '' || ['+', '−', '×', '÷'].includes(prev.trim().slice(-1))) {
                 return prev;
@@ -54,7 +55,6 @@ export function CalculatorDialog() {
             return `${prev} ${value} `;
         }
 
-        // Prevent multiple decimals in one number segment
         if (value === '.') {
             const parts = prev.split(' ');
             if (parts[parts.length - 1].includes('.')) {
@@ -70,7 +70,6 @@ export function CalculatorDialog() {
       return;
     }
     try {
-      // Replace display operators with JS operators and remove thousands separators for evaluation
       const sanitizedExpression = expression
         .replace(/×/g, '*')
         .replace(/÷/g, '/')
@@ -107,11 +106,9 @@ export function CalculatorDialog() {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
       const { key } = event;
-      event.preventDefault(); // Prevent default browser actions for keys
-
+      
       if (key >= '0' && key <= '9' || key === '.') {
         handleInput(key);
       } else if (key === '+') {
@@ -126,16 +123,12 @@ export function CalculatorDialog() {
         calculateResult();
       } else if (key === 'Backspace') {
         deleteLast();
-      } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+      } else if (key.toLowerCase() === 'c') {
         clearAll();
+      } else if (key === 'Escape') {
+        setIsOpen(false);
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expression, locale]);
+  };
 
   useEffect(() => {
     if (displayRef.current) {
@@ -147,7 +140,6 @@ export function CalculatorDialog() {
     if (result !== null) return result;
     if (expression === '') return '0';
 
-    // Format numbers within the expression
     return expression
       .split(' ')
       .map((part) => (['+', '−', '×', '÷'].includes(part) ? part : formatNumber(part)))
@@ -170,40 +162,56 @@ export function CalculatorDialog() {
     { label: '1', action: () => handleInput('1'), style: buttonClasses.number },
     { label: '2', action: () => handleInput('2'), style: buttonClasses.number },
     { label: '3', action: () => handleInput('3'), style: buttonClasses.number },
-    { label: '=', action: calculateResult, style: buttonClasses.equal },
+    { label: '=', action: calculateResult, style: `${buttonClasses.equal} row-span-2` },
     { label: '0', action: () => handleInput('0'), style: `${buttonClasses.number} col-span-2` },
     { label: '.', action: () => handleInput('.'), style: buttonClasses.number },
   ];
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Calculator className="h-5 w-5" />
           <span className="sr-only">{t('calculatorTitle')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm w-full p-6 shadow-2xl bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500">
-        <DialogHeader className="sr-only">
-           <DialogTitle>{t('calculatorTitle')}</DialogTitle>
-        </DialogHeader>
-        <div 
-            ref={displayRef} 
-            className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
-            {getDisplayValue()}
-        </div>
-        <div className="grid grid-cols-4 gap-3">
-          {buttons.map((btn) => (
-            <Button
-              key={btn.label}
-              onClick={btn.action}
-              className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
-            >
-              {btn.label}
-            </Button>
-          ))}
-        </div>
-      </DialogContent>
+       <Draggable nodeRef={nodeRef} handle=".handle">
+        <DialogContent 
+            ref={nodeRef} 
+            className="sm:max-w-sm w-full p-0 shadow-2xl bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden"
+            onKeyDown={handleKeyDown}
+        >
+            <DialogHeader className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <GripVertical className="h-5 w-5 text-gray-400" />
+                    <DialogTitle className="text-base text-gray-600">{t('calculatorTitle')}</DialogTitle>
+                </div>
+                 <DialogClose asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <X className="h-4 w-4" />
+                    </Button>
+                </DialogClose>
+            </DialogHeader>
+            <div className="p-4">
+                <div 
+                    ref={displayRef} 
+                    className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
+                    {getDisplayValue()}
+                </div>
+                <div className="grid grid-cols-4 gap-3 mt-4">
+                {buttons.map((btn) => (
+                    <Button
+                    key={btn.label}
+                    onClick={btn.action}
+                    className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
+                    >
+                    {btn.label}
+                    </Button>
+                ))}
+                </div>
+            </div>
+        </DialogContent>
+       </Draggable>
     </Dialog>
   );
 }
