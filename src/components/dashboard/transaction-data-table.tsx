@@ -115,10 +115,17 @@ export function TransactionDataTable({
         typeFilterPassed = t.type === type && !t.transferId;
       }
 
+      // Special logic for account filter when a credit account is selected
+      if (accountFilter !== 'all' && isCreditAccountSelected) {
+        // Show expenses made WITH this card OR payments made TO this card
+        return dateFilterPassed && (t.account === accountFilter || t.paymentFor === accountFilter);
+      }
+      
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
+
       return dateFilterPassed && categoryFilterPassed && typeFilterPassed && accountFilterPassed;
     });
-  }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter]);
+  }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter, isCreditAccountSelected]);
 
   const filteredTotals = useMemo(() => {
     const income = filteredTransactions
@@ -127,10 +134,7 @@ export function TransactionDataTable({
       
     const expenses = filteredTransactions
       .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
-      .reduce((acc, t) => acc + t.amount, 0)
-      + filteredTransactions
-        .filter(t => !!t.paymentFor)
-        .reduce((acc, t) => acc + t.amount, 0);
+      .reduce((acc, t) => acc + t.amount, 0);
 
     const balance = income - expenses;
     

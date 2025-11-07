@@ -133,6 +133,9 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
     if (!user) return;
     setLoading(true);
 
+    const fromAccountName = debitAccounts.find(a => a.id === values.fromAccount)?.name || tMisc('unknownAccount');
+    const toAccountName = creditAccounts.find(c => c.id === values.toAccount)?.name || tMisc('unknownAccount');
+
     const paymentTransaction = {
       userId: user.uid,
       type: 'expense' as const,
@@ -141,7 +144,7 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
       date: Timestamp.fromDate(values.date),
       account: values.fromAccount, // Egress from debit account
       paymentFor: values.toAccount, // Links the payment to the credit account
-      description: values.description || `${t('paymentFor')} ${creditAccounts.find(c => c.id === values.toAccount)?.name}`,
+      description: values.description || `${t('paymentFor')} ${toAccountName} desde ${fromAccountName}`,
     };
 
     const collectionRef = collection(firestore, 'users', user.uid, 'transactions');
