@@ -84,8 +84,12 @@ export function TransactionDataTable({
     if (type === 'credit-expense') {
       return accounts.filter(a => a.type === 'credit');
     }
+    if (type === 'expense') {
+      return accounts.filter(a => a.type === 'debit');
+    }
     return accounts;
   }, [accounts, type]);
+
 
   useEffect(() => {
     if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
@@ -143,27 +147,27 @@ export function TransactionDataTable({
 
   const filteredTotals = useMemo(() => {
     const income = filteredTransactions
-      .filter(t => t.type === 'income' && !t.transferId)
+      .filter(t => t.type === 'income')
       .reduce((acc, t) => acc + t.amount, 0);
       
     const expenses = filteredTransactions
-      .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
 
     const balance = income - expenses;
     
     // Determine which transactions to use for credit calculation
-    const creditTransactionsSource = accountFilter === 'all' ? transactions : filteredTransactions;
+    const creditTransactionsSource = accountFilter === 'all' || !isCreditAccountSelected ? transactions : filteredTransactions;
 
     const creditHistoryTotal = creditTransactionsSource
-        .filter(t => t.isCreditCardExpense)
+        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
         .reduce((acc, t) => acc + t.amount, 0);
         
     const currentDebt = creditTransactionsSource
-        .filter(t => t.isCreditCardExpense)
+        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
         .reduce((acc, t) => acc + t.amount, 0)
       - creditTransactionsSource
-        .filter(t => (!!t.paymentFor))
+        .filter(t => (!!t.paymentFor) && (accountFilter === 'all' || t.paymentFor === accountFilter))
         .reduce((acc, t) => acc + t.amount, 0);
     
     return {
@@ -173,7 +177,7 @@ export function TransactionDataTable({
       creditHistoryTotal,
       currentDebt,
     };
-  }, [filteredTransactions, transactions, accountFilter]);
+  }, [filteredTransactions, transactions, accountFilter, isCreditAccountSelected]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -435,7 +439,7 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.paymentFor}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
                               <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction)}>
