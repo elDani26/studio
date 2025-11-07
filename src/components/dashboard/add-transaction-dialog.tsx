@@ -113,11 +113,12 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   }, [categories, transactionType]);
   
   const availableAccounts = useMemo(() => {
-    if (transactionType === 'income') {
-      return accounts; // Allow income to any account
+    // If expense, only show debit accounts.
+    if (transactionType === 'expense') {
+      return accounts.filter(acc => acc.type === 'debit');
     }
-    // For expenses, only allow debit accounts
-    return accounts.filter(acc => acc.type === 'debit');
+    // If income, show all accounts.
+    return accounts;
   }, [accounts, transactionType]);
 
 
