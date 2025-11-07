@@ -252,6 +252,7 @@ export function CalculatorDialog() {
             className="z-50 bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
           >
             <div 
+                style={{ touchAction: 'none' }}
                 className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between"
                 onMouseDown={handleDragStart}
                 onTouchStart={handleDragStart}
@@ -283,7 +284,8 @@ export function CalculatorDialog() {
               </div>
             </div>
             <div 
-              className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500 touch-none"
+              style={{ touchAction: 'none' }}
+              className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500"
               onMouseDown={handleResizeStart}
               onTouchStart={handleResizeStart}
             >
