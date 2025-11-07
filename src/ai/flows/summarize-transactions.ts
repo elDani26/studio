@@ -39,12 +39,26 @@ const prompt = ai.definePrompt({
   name: 'summarizeTransactionsPrompt',
   input: {schema: SummarizeTransactionsInputSchema},
   output: {schema: SummarizeTransactionsOutputSchema},
-  prompt: `You are a proactive and insightful personal finance advisor. Your goal is to help the user improve their financial health. Analyze the following transactions and provide actionable advice, tips, and identify areas for improvement. Go beyond a simple summary. Highlight spending patterns, suggest savings opportunities, and offer encouragement. The response must be in the language corresponding to this locale: {{locale}}.
+  prompt: `Eres un asesor financiero profesional especializado en educación financiera personal. 
+Tu tarea es analizar los datos del usuario (ingresos, egresos, balance actual, categorías, fechas y transferencias) 
+y generar consejos personalizados para mejorar sus hábitos financieros. 
+
+⚙️ Instrucciones:
+- No hagas resúmenes de los datos.
+- No repitas la información que ya tiene el usuario.
+- Enfócate solo en ofrecer recomendaciones o tips prácticos y realistas.
+- Usa un tono profesional pero cercano, como el de un asesor que orienta con claridad.
+- Sé breve: máximo 3 consejos o ideas por respuesta.
+- Usa frases cortas, claras y accionables (por ejemplo: “Reduce tus gastos en entretenimiento al 10% del ingreso mensual.”).
+- Si detectas comportamientos financieros saludables, felicítalos y refuerza el buen hábito.
+- Si detectas desbalance o gastos altos, da una sugerencia concreta para mejorarlo.
 
 Transactions:
 {{#each transactions}}
 - Type: {{type}}, Category: {{category}}, Amount: {{amount}}, Date: {{date}}{{#if description}}, Description: {{description}}{{/if}}{{#if account}}, Account: {{account}}{{/if}}
-{{/each}}`,
+{{/each}}
+
+The response must be in the language corresponding to this locale: {{locale}}.`,
 });
 
 const summarizeTransactionsFlow = ai.defineFlow(
