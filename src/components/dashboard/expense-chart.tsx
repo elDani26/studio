@@ -75,6 +75,13 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
     }
     return null;
   };
+  
+  const legendFormatter = (value: string) => {
+    if (value.length > 15) {
+      return `${value.substring(0, 15)}...`;
+    }
+    return value;
+  };
 
   return (
     <Card className="h-full">
@@ -102,7 +109,7 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" />
+              <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" formatter={legendFormatter} />
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
