@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "Statistikübersicht",
-    "aiSummaryTitle": "KI-Zusammenfassung",
+    "aiSummaryTitle": "KI-Finanzberater",
     "transactionsTitle": "Transaktionstabelle"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "Aktueller Kontostand"
   },
   "AiSummary": {
-    "title": "KI-Zusammenfassung",
-    "description": "Erhalten Sie sofort Einblicke in Ihre Ausgabengewohnheiten.",
-    "generateButton": "Zusammenfassung erstellen",
-    "generatingButton": "Wird erstellt...",
-    "placeholderTitle": "Erstellen Sie Ihren Finanzbericht",
-    "placeholderDescription": "Klicken Sie auf die Schaltfläche unten, um eine KI-gestützte Zusammenfassung Ihrer Transaktionen zu erhalten.",
-    "error": "Zusammenfassung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-    "noTransactions": "Keine Transaktionen zum Zusammenfassen verfügbar."
+    "title": "KI-Finanzberater",
+    "description": "Erhalten Sie personalisierte Ratschläge zur Verbesserung Ihrer finanziellen Gewohnheiten.",
+    "generateButton": "Ratschlag erhalten",
+    "generatingButton": "Analysiere...",
+    "placeholderTitle": "Erhalten Sie Ihre Finanzanalyse",
+    "placeholderDescription": "Klicken Sie auf die Schaltfläche, um personalisierte Tipps von unserem KI-Berater zu erhalten.",
+    "error": "Ratschlag konnte nicht generiert werden. Bitte versuchen Sie es erneut.",
+    "noTransactions": "Keine Transaktionen zum Analysieren verfügbar."
   },
   "TransactionDataTable": {
     "title": "Letzte Transaktionen",
@@ -197,5 +197,8 @@
     "transfer": "Überweisung",
     "transferTo": "Überweisung an",
     "transferFrom": "Überweisung von"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "Taschenrechner"
   }
 }

@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "Riepilogo statistiche",
-    "aiSummaryTitle": "Riepilogo IA",
+    "aiSummaryTitle": "Consulente Finanziario IA",
     "transactionsTitle": "Tabella transazioni"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "Saldo attuale"
   },
   "AiSummary": {
-    "title": "Riepilogo IA",
-    "description": "Ottieni informazioni immediate sulle tue abitudini di spesa.",
-    "generateButton": "Genera riepilogo",
-    "generatingButton": "Generazione...",
-    "placeholderTitle": "Genera il tuo report finanziario",
-    "placeholderDescription": "Clicca il pulsante qui sotto per ottenere un riepilogo delle tue transazioni basato sull'IA.",
-    "error": "Impossibile generare il riepilogo. Per favore, riprova.",
-    "noTransactions": "Nessuna transazione disponibile da riepilogare."
+    "title": "Consulente Finanziario IA",
+    "description": "Ricevi consigli personalizzati per migliorare le tue abitudini finanziarie.",
+    "generateButton": "Ricevi Consigli",
+    "generatingButton": "Analisi in corso...",
+    "placeholderTitle": "Ottieni la tua Analisi Finanziaria",
+    "placeholderDescription": "Clicca il pulsante qui sotto per ricevere consigli personalizzati dal nostro consulente IA.",
+    "error": "Impossibile generare consigli. Per favore, riprova.",
+    "noTransactions": "Nessuna transazione disponibile da analizzare."
   },
   "TransactionDataTable": {
     "title": "Transazioni recenti",
@@ -197,5 +197,8 @@
     "transfer": "Trasferimento",
     "transferTo": "Trasferimento a",
     "transferFrom": "Trasferimento da"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "Calcolatrice"
   }
 }

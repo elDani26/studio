@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "Resumo de estatísticas",
-    "aiSummaryTitle": "Resumo por IA",
+    "aiSummaryTitle": "Assessor Financeiro IA",
     "transactionsTitle": "Tabela de transações"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "Saldo atual"
   },
   "AiSummary": {
-    "title": "Resumo por IA",
-    "description": "Obtenha insights instantâneos sobre seus hábitos de consumo.",
-    "generateButton": "Gerar resumo",
-    "generatingButton": "Gerando...",
-    "placeholderTitle": "Gere seu relatório financeiro",
-    "placeholderDescription": "Clique no botão abaixo para obter um resumo de suas transações com tecnologia de IA.",
-    "error": "Não foi possível gerar o resumo. Por favor, tente novamente.",
-    "noTransactions": "Nenhuma transação disponível para resumir."
+    "title": "Assessor Financeiro IA",
+    "description": "Receba conselhos personalizados para melhorar seus hábitos financeiros.",
+    "generateButton": "Obter Conselhos",
+    "generatingButton": "Analisando...",
+    "placeholderTitle": "Obtenha sua Análise Financeira",
+    "placeholderDescription": "Clique no botão abaixo para receber dicas personalizadas do nosso assessor de IA.",
+    "error": "Não foi possível gerar conselhos. Por favor, tente novamente.",
+    "noTransactions": "Nenhuma transação disponível para análise."
   },
   "TransactionDataTable": {
     "title": "Transações recentes",
@@ -197,5 +197,8 @@
     "transfer": "Transferência",
     "transferTo": "Transferência para",
     "transferFrom": "Transferência de"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "Calculadora"
   }
 }

@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "统计摘要",
-    "aiSummaryTitle": "AI摘要",
+    "aiSummaryTitle": "AI财务顾问",
     "transactionsTitle": "交易表"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "当前余额"
   },
   "AiSummary": {
-    "title": "AI摘要",
-    "description": "即时了解您的消费习惯。",
-    "generateButton": "生成摘要",
-    "generatingButton": "正在生成...",
-    "placeholderTitle": "生成您的财务报告",
-    "placeholderDescription": "点击下方按钮，获取由AI支持的交易摘要。",
-    "error": "无法生成摘要。请重试。",
-    "noTransactions": "没有可供摘要的交易。"
+    "title": "AI财务顾问",
+    "description": "获取个性化建议以改善您的财务习惯。",
+    "generateButton": "获取建议",
+    "generatingButton": "正在分析...",
+    "placeholderTitle": "获取您的财务分析",
+    "placeholderDescription": "点击下方按钮，从我们的AI顾问处获取个性化提示。",
+    "error": "无法生成建议。请重试。",
+    "noTransactions": "没有可供分析的交易。"
   },
   "TransactionDataTable": {
     "title": "最近的交易",
@@ -197,5 +197,8 @@
     "transfer": "转账",
     "transferTo": "转账至",
     "transferFrom": "从...转账"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "计算器"
   }
 }

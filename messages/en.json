@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "Statistics Summary",
-    "aiSummaryTitle": "AI Summary",
+    "aiSummaryTitle": "AI Financial Advisor",
     "transactionsTitle": "Transactions Table"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "Current Balance"
   },
   "AiSummary": {
-    "title": "AI Summary",
-    "description": "Get instant insights into your spending habits.",
-    "generateButton": "Generate Summary",
-    "generatingButton": "Generating...",
-    "placeholderTitle": "Generate Your Financial Report",
-    "placeholderDescription": "Click the button below to get an AI-powered summary of your transactions.",
-    "error": "Could not generate summary. Please try again.",
-    "noTransactions": "No transactions available to summarize."
+    "title": "AI Financial Advisor",
+    "description": "Get personalized advice to improve your financial habits.",
+    "generateButton": "Get Advice",
+    "generatingButton": "Analyzing...",
+    "placeholderTitle": "Get Your Financial Analysis",
+    "placeholderDescription": "Click the button below to receive personalized tips from our AI advisor.",
+    "error": "Could not generate advice. Please try again.",
+    "noTransactions": "No transactions available to analyze."
   },
   "TransactionDataTable": {
     "title": "Recent Transactions",
@@ -197,5 +197,8 @@
     "transfer": "Transfer",
     "transferTo": "Transfer to",
     "transferFrom": "Transfer from"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "Calculator"
   }
 }

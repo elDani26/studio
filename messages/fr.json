@@ -44,7 +44,7 @@
   },
   "DashboardPage": {
     "statCardsTitle": "Résumé des statistiques",
-    "aiSummaryTitle": "Résumé IA",
+    "aiSummaryTitle": "Conseiller Financier IA",
     "transactionsTitle": "Tableau des transactions"
   },
   "StatCards": {
@@ -53,14 +53,14 @@
     "currentBalance": "Solde actuel"
   },
   "AiSummary": {
-    "title": "Résumé IA",
-    "description": "Obtenez un aperçu instantané de vos habitudes de dépenses.",
-    "generateButton": "Générer le résumé",
-    "generatingButton": "Génération...",
-    "placeholderTitle": "Générez votre rapport financier",
-    "placeholderDescription": "Cliquez sur le bouton ci-dessous pour obtenir un résumé de vos transactions basé sur l'IA.",
-    "error": "Impossible de générer le résumé. Veuillez réessayer.",
-    "noTransactions": "Aucune transaction disponible à résumer."
+    "title": "Conseiller Financier IA",
+    "description": "Obtenez des conseils personnalisés pour améliorer vos habitudes financières.",
+    "generateButton": "Obtenir des conseils",
+    "generatingButton": "Analyse en cours...",
+    "placeholderTitle": "Obtenez votre analyse financière",
+    "placeholderDescription": "Cliquez sur le bouton ci-dessous pour recevoir des conseils personnalisés de notre conseiller IA.",
+    "error": "Impossible de générer des conseils. Veuillez réessayer.",
+    "noTransactions": "Aucune transaction disponible à analyser."
   },
   "TransactionDataTable": {
     "title": "Transactions récentes",
@@ -197,5 +197,8 @@
     "transfer": "Virement",
     "transferTo": "Virement à",
     "transferFrom": "Virement de"
+  },
+  "CalculatorDialog": {
+    "calculatorTitle": "Calculatrice"
   }
 }
