@@ -44,7 +44,6 @@ interface AddTransactionDialogProps {
   transactions: Transaction[];
 }
 
-
 export function AddTransactionDialog({ transactions }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -113,9 +112,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
   }, [categories, transactionType]);
   
-  // Let user select any account. Logic will be handled on submit.
+  // For 'income', all accounts are available. For 'expense', only debit accounts are available.
   const availableAccounts = accounts;
-
 
   useEffect(() => {
     const currentCategory = form.getValues('category');
@@ -123,7 +121,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
         form.setValue('category', '');
     }
     
-    // Also reset account if it becomes invalid
     const currentAccount = form.getValues('account');
     if (currentAccount && !availableAccounts.some(a => a.id === currentAccount)) {
         form.setValue('account', '');

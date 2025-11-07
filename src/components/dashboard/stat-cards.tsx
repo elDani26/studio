@@ -39,20 +39,21 @@ export function StatCards({ transactions }: StatCardsProps) {
       .filter(t => t.type === 'income' && !t.transferId)
       .reduce((acc, t) => acc + t.amount, 0);
 
-    // Total expenses are all transactions of type 'expense' that are not transfers or credit card expenses.
-    // Credit card payments (paymentFor) ARE included as they are real expenses from a debit account.
+    // Total expenses are REAL money out of debit accounts.
+    // This includes expenses from debit accounts AND payments to credit cards.
+    // It EXCLUDES expenses made with a credit card, as that money hasn't left yet.
     const expenses = transactions
       .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
 
     // Credit card debt is the sum of expenses made with a credit card...
     const debt = transactions
-      .filter(t => t.isCreditCardExpense)
+      .filter(t => t.isCreditCardExpense === true)
       .reduce((acc, t) => acc + t.amount, 0);
 
     // ...minus the sum of payments made to credit cards.
     const payments = transactions
-      .filter(t => t.type === 'expense' && !!t.paymentFor)
+      .filter(t => !!t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);
 
     setTotalIncome(income);
