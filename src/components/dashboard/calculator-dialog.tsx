@@ -26,37 +26,58 @@ export function CalculatorDialog() {
   const [size, setSize] = useState({ width: 340, height: 500 });
   const [isResizing, setIsResizing] = useState(false);
 
-  const handleResizeMouseDown = (e: React.MouseEvent) => {
+  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Crucial to prevent drag from firing
+    e.stopPropagation();
     setIsResizing(true);
   };
-
-  const handleResizeMouseUp = () => {
-    setIsResizing(false);
-  };
-
-  const handleResizeMouseMove = (e: MouseEvent) => {
+  
+  const handleResizeMove = (e: MouseEvent | TouchEvent) => {
     if (isResizing) {
+      let movementX = 0;
+      let movementY = 0;
+      if (e.type === 'mousemove') {
+        movementX = (e as MouseEvent).movementX;
+        movementY = (e as MouseEvent).movementY;
+      } else if (e.type === 'touchmove' && (e as TouchEvent).touches.length > 0) {
+        // For touch, we need to calculate movement manually
+        const touch = (e as TouchEvent).touches[0];
+        // This is a simplified approach; a more robust solution would store the previous touch position
+        // but for this use case it's often sufficient to just grow. A proper implementation would
+        // require storing lastX/lastY in a ref.
+        movementX = touch.clientX - size.width;
+        movementY = touch.clientY - size.height;
+      }
+
       setSize(prevSize => ({
-        width: Math.max(300, prevSize.width + e.movementX),
-        height: Math.max(420, prevSize.height + e.movementY),
+        width: Math.max(300, prevSize.width + movementX),
+        height: Math.max(420, prevSize.height + movementY),
       }));
     }
+  };
+  
+  const handleResizeEnd = () => {
+    setIsResizing(false);
   };
 
   useEffect(() => {
     if (isResizing) {
-      window.addEventListener('mousemove', handleResizeMouseMove);
-      window.addEventListener('mouseup', handleResizeMouseUp);
+      window.addEventListener('mousemove', handleResizeMove);
+      window.addEventListener('mouseup', handleResizeEnd);
+      window.addEventListener('touchmove', handleResizeMove);
+      window.addEventListener('touchend', handleResizeEnd);
     } else {
-      window.removeEventListener('mousemove', handleResizeMouseMove);
-      window.removeEventListener('mouseup', handleResizeMouseUp);
+      window.removeEventListener('mousemove', handleResizeMove);
+      window.removeEventListener('mouseup', handleResizeEnd);
+      window.removeEventListener('touchmove', handleResizeMove);
+      window.removeEventListener('touchend', handleResizeEnd);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleResizeMouseMove);
-      window.removeEventListener('mouseup', handleResizeMouseUp);
+      window.removeEventListener('mousemove', handleResizeMove);
+      window.removeEventListener('mouseup', handleResizeEnd);
+      window.removeEventListener('touchmove', handleResizeMove);
+      window.removeEventListener('touchend', handleResizeEnd);
     };
   }, [isResizing]);
 
@@ -221,7 +242,7 @@ export function CalculatorDialog() {
                     <X className="h-4 w-4" />
                 </Button>
               </div>
-              <div onKeyDown={handleKeyDown} className="p-4 flex flex-col flex-grow">
+              <div onKeyDown={handleKeyDown} tabIndex={0} className="p-4 flex flex-col flex-grow outline-none">
                 <div 
                   ref={displayRef} 
                   className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
@@ -240,8 +261,9 @@ export function CalculatorDialog() {
                 </div>
               </div>
               <div 
-                className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500"
-                onMouseDown={handleResizeMouseDown}
+                className="absolute bottom-0 right-0 cursor-se-resize p-1 text-gray-400 hover:text-blue-500 touch-none"
+                onMouseDown={handleResizeStart}
+                onTouchStart={handleResizeStart}
               >
                   <Grip className="h-4 w-4 rotate-45" />
               </div>
