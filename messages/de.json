@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "VerwalteDeinGeld",
@@ -228,9 +229,14 @@
     "creditCardPayment": "Kreditkartenzahlung",
     "creditCardDebt": "Kreditkartenschulden",
     "debit": "Lastschrift",
-    "credit": "Kredit"
+    "credit": "Kredit",
+    "optionalDescription": "Beschreibung (Optional)",
+    "descriptionPlaceholder": "z.B. Zahlung für...",
+    "pickDate": "Wählen Sie ein Datum"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Taschenrechner"
   }
 }
+
+    

@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "ManageYourMoney",
@@ -228,9 +229,14 @@
     "creditCardPayment": "Credit Card Payment",
     "creditCardDebt": "Credit Card Debt",
     "debit": "Debit",
-    "credit": "Credit"
+    "credit": "Credit",
+    "optionalDescription": "Description (Optional)",
+    "descriptionPlaceholder": "e.g., Payment for...",
+    "pickDate": "Pick a date"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculator"
   }
 }
+
+    

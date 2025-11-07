@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "管理您的资金",
@@ -228,9 +229,14 @@
     "creditCardPayment": "信用卡还款",
     "creditCardDebt": "信用卡债务",
     "debit": "借记",
-    "credit": "信用"
+    "credit": "信用",
+    "optionalDescription": "描述（可选）",
+    "descriptionPlaceholder": "例如：支付给...",
+    "pickDate": "选择一个日期"
   },
   "CalculatorDialog": {
     "calculatorTitle": "计算器"
   }
 }
+
+    

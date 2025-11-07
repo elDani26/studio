@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "GerencieSeuDinheiro",
@@ -126,7 +127,7 @@
     "selectCreditCard": "Selecione um cartão de crédito",
     "addButton": "Adicionar Despesa",
     "successToast": "Despesa com cartão de crédito registrada!",
-    "errorToast": "Não foi possível registrar a despesa. Por favor, tente novamente."
+    "errorToast": "Não foi possível registrar la despesa. Por favor, tente novamente."
   },
   "PayCreditCardDialog": {
     "title": "Pagar Cartão de Crédito",
@@ -228,9 +229,14 @@
     "creditCardPayment": "Pagamento de Cartão de Crédito",
     "creditCardDebt": "Dívida do Cartão de Crédito",
     "debit": "Débito",
-    "credit": "Crédito"
+    "credit": "Crédito",
+    "optionalDescription": "Descrição (opcional)",
+    "descriptionPlaceholder": "Ex: Pagamento para...",
+    "pickDate": "Escolha uma data"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
   }
 }
+
+    

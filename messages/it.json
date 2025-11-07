@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "GestisciIlTuoDenaro",
@@ -228,9 +229,14 @@
     "creditCardPayment": "Pagamento Carta di Credito",
     "creditCardDebt": "Debito Carta di Credito",
     "debit": "Debito",
-    "credit": "Credito"
+    "credit": "Credito",
+    "optionalDescription": "Descrizione (opzionale)",
+    "descriptionPlaceholder": "Es: Pagamento per...",
+    "pickDate": "Scegli una data"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calcolatrice"
   }
 }
+
+    
