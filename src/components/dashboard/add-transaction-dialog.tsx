@@ -112,8 +112,12 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
   }, [categories, transactionType]);
   
-  // For 'income', all accounts are available. For 'expense', only debit accounts are available.
-  const availableAccounts = accounts;
+  const availableAccounts = useMemo(() => {
+    if (transactionType === 'income') {
+      return accounts.filter(a => a.type === 'debit');
+    }
+    return accounts;
+  }, [accounts, transactionType]);
 
   useEffect(() => {
     const currentCategory = form.getValues('category');
