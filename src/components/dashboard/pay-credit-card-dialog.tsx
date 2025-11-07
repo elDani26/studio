@@ -139,121 +139,123 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
           {t('title')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 space-y-2">
-            <h4 className="font-semibold">{t('debtSummary')}</h4>
-            <div className="p-3 bg-muted rounded-md text-sm space-y-1">
-                {creditAccounts.map(acc => (
-                    creditCardDebts[acc.id] > 0 && (
-                        <div key={acc.id} className="flex justify-between">
-                            <span>{acc.name}:</span>
-                            <span className="font-medium text-orange-500">{formatCurrency(creditCardDebts[acc.id])}</span>
-                        </div>
-                    )
-                ))}
-                <div className="flex justify-between font-bold border-t pt-1 mt-1">
-                    <span>{t('totalDebt')}:</span>
-                    <span className="text-orange-500">{formatCurrency(totalDebt)}</span>
-                </div>
-            </div>
-        </div>
+        <div className="flex-grow overflow-y-auto pr-4">
+          <div className="my-4 space-y-2">
+              <h4 className="font-semibold">{t('debtSummary')}</h4>
+              <div className="p-3 bg-muted rounded-md text-sm space-y-1">
+                  {creditAccounts.map(acc => (
+                      creditCardDebts[acc.id] > 0 && (
+                          <div key={acc.id} className="flex justify-between">
+                              <span>{acc.name}:</span>
+                              <span className="font-medium text-orange-500">{formatCurrency(creditCardDebts[acc.id])}</span>
+                          </div>
+                      )
+                  ))}
+                  <div className="flex justify-between font-bold border-t pt-1 mt-1">
+                      <span>{t('totalDebt')}:</span>
+                      <span className="text-orange-500">{formatCurrency(totalDebt)}</span>
+                  </div>
+              </div>
+          </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="toAccount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('toCreditCard')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder={t('selectCreditCard')} /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {creditAccounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="fromAccount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('fromAccount')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder={t('selectDebitAccount')} /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {debitAccounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('amountToPay')}</FormLabel>
-                  <FormControl><Input type="number" placeholder="0.00" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>{t('paymentDate')}</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                          {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tMisc('pickDate')}</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus locale={dateFnsLocale} />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{tMisc('optionalDescription')}</FormLabel>
-                  <FormControl><Input placeholder={tMisc('descriptionPlaceholder')} {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t('payButton')}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="toAccount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('toCreditCard')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder={t('selectCreditCard')} /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {creditAccounts.map(acc => (
+                          <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fromAccount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('fromAccount')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder={t('selectDebitAccount')} /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {debitAccounts.map(acc => (
+                          <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('amountToPay')}</FormLabel>
+                    <FormControl><Input type="number" placeholder="0.00" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{t('paymentDate')}</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                            {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tMisc('pickDate')}</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus locale={dateFnsLocale} />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tMisc('optionalDescription')}</FormLabel>
+                    <FormControl><Input placeholder={tMisc('descriptionPlaceholder')} {...field} value={field.value ?? ''} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="sticky bottom-0 bg-background pt-4">
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {t('payButton')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
