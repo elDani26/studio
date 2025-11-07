@@ -140,17 +140,17 @@ export function TransactionDataTable({
     const balance = income - expenses;
     
     // Determine which transactions to use for credit calculation
-    const creditTransactionsSource = transactions;
+    const creditTransactionsSource = accountFilter === 'all' ? transactions : filteredTransactions;
 
     const creditHistoryTotal = creditTransactionsSource
-        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
+        .filter(t => t.isCreditCardExpense)
         .reduce((acc, t) => acc + t.amount, 0);
         
     const currentDebt = creditTransactionsSource
-        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
+        .filter(t => t.isCreditCardExpense)
         .reduce((acc, t) => acc + t.amount, 0)
       - creditTransactionsSource
-        .filter(t => (!!t.paymentFor) && (accountFilter === 'all' || t.paymentFor === accountFilter))
+        .filter(t => (!!t.paymentFor))
         .reduce((acc, t) => acc + t.amount, 0);
     
     return {
@@ -231,7 +231,7 @@ export function TransactionDataTable({
     setDateTo(undefined);
   };
 
-  const showCreditView = isCreditAccountSelected;
+  const showCreditCardView = type === 'credit-expense' || isCreditAccountSelected;
 
 
   return (
@@ -333,7 +333,7 @@ export function TransactionDataTable({
           </div>
         </CardHeader>
         <CardContent>
-          {showCreditView ? (
+          {showCreditCardView ? (
             <div className="grid gap-4 md:grid-cols-2 mb-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
