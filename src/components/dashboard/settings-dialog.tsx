@@ -52,6 +52,7 @@ export function SettingsDialog() {
     deleteCategory
   } = useSettings();
   const t = useTranslations('SettingsDialog');
+  const tMisc = useTranslations('misc');
 
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currency);
 
@@ -187,8 +188,8 @@ export function SettingsDialog() {
                                   <Select value={newAccountType} onValueChange={(v) => setNewAccountType(v as any)}>
                                     <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="debit">{t('misc.debit')}</SelectItem>
-                                      <SelectItem value="credit">{t('misc.credit')}</SelectItem>
+                                      <SelectItem value="debit">{tMisc('debit')}</SelectItem>
+                                      <SelectItem value="credit">{tMisc('credit')}</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <Select value={newAccountIcon} onValueChange={setNewAccountIcon}>
@@ -222,7 +223,7 @@ export function SettingsDialog() {
                                           <Icon className={`h-5 w-5 ${typeColor}`}/>
                                           <div>
                                               <p>{account.name}</p>
-                                              <p className={`text-xs ${typeColor}`}>{account.type === 'debit' ? t('misc.debit') : t('misc.credit')}</p>
+                                              <p className={`text-xs ${typeColor}`}>{account.type === 'debit' ? tMisc('debit') : tMisc('credit')}</p>
                                           </div>
                                       </div>
                                       <div className="flex items-center gap-1">
