@@ -111,6 +111,14 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
   }, [categories, transactionType]);
+  
+  const availableAccounts = useMemo(() => {
+    if (transactionType === 'income') {
+      return accounts; // Allow income to any account
+    }
+    // For expenses, only allow debit accounts
+    return accounts.filter(acc => acc.type === 'debit');
+  }, [accounts, transactionType]);
 
 
   useEffect(() => {
@@ -118,7 +126,14 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     if (currentCategory && !filteredCategories.some(c => c.id === currentCategory)) {
         form.setValue('category', '');
     }
-  }, [transactionType, form, filteredCategories]);
+    
+    // Also reset account if it becomes invalid
+    const currentAccount = form.getValues('account');
+    if (currentAccount && !availableAccounts.some(a => a.id === currentAccount)) {
+        form.setValue('account', '');
+    }
+
+  }, [transactionType, form, filteredCategories, availableAccounts]);
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
@@ -137,8 +152,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     addDoc(collectionRef, transactionData)
       .then(() => {
         toast({
-          title: 'Success!',
-          description: t('successToast'),
+          title: t('successToast'),
         });
         setOpen(false);
         form.reset();
@@ -166,7 +180,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t('title')}
+            {t('addButton')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -318,7 +332,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {accounts.map(acc => {
+                      {availableAccounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                         const balance = accountBalances[acc.id];
                         const isDebit = acc.type === 'debit';
