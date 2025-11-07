@@ -28,14 +28,17 @@ export function CalculatorDialog() {
   
   const resizeStartPos = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
+  const getClientCoords = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+    if ('touches' in e) {
+      return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+    }
+    return { clientX: e.clientX, clientY: e.clientY };
+  };
+
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
+    const { clientX, clientY } = getClientCoords(e);
     resizeStartPos.current = {
       x: clientX,
       y: clientY,
@@ -46,19 +49,12 @@ export function CalculatorDialog() {
   
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
     if (!isResizing) return;
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
+    const { clientX, clientY } = getClientCoords(e);
     const dx = clientX - resizeStartPos.current.x;
     const dy = clientY - resizeStartPos.current.y;
-
-    const newWidth = resizeStartPos.current.width + dx;
-    const newHeight = resizeStartPos.current.height + dy;
-
     setSize({
-      width: Math.max(300, newWidth),
-      height: Math.max(420, newHeight),
+      width: Math.max(300, resizeStartPos.current.width + dx),
+      height: Math.max(420, resizeStartPos.current.height + dy),
     });
   };
   
@@ -72,11 +68,6 @@ export function CalculatorDialog() {
       window.addEventListener('mouseup', handleResizeEnd);
       window.addEventListener('touchmove', handleResizeMove);
       window.addEventListener('touchend', handleResizeEnd);
-    } else {
-      window.removeEventListener('mousemove', handleResizeMove);
-      window.removeEventListener('mouseup', handleResizeEnd);
-      window.removeEventListener('touchmove', handleResizeMove);
-      window.removeEventListener('touchend', handleResizeEnd);
     }
 
     return () => {
