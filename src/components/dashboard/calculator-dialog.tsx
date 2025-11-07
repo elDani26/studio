@@ -28,23 +28,32 @@ export function CalculatorDialog() {
   const locale = useLocale();
 
   const formatNumber = (numStr: string) => {
-    // Avoid formatting operators
-    if (isNaN(parseFloat(numStr))) return numStr;
+    // Avoid formatting if it's not a valid number or ends with a decimal point.
+    if (isNaN(parseFloat(numStr)) || numStr.endsWith('.')) return numStr;
     const [integer, decimal] = numStr.split('.');
-    const formattedInteger = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(parseFloat(integer));
+    
+    // Replace non-digit characters (except the minus sign at the start) before formatting
+    const cleanInteger = integer.replace(/[^\d-]/g, '');
+    if (cleanInteger === '' || cleanInteger === '-') return integer;
+    
+    const formattedInteger = new Intl.NumberFormat(locale).format(parseInt(cleanInteger, 10));
+    
     return decimal !== undefined ? `${formattedInteger}.${decimal}` : formattedInteger;
   };
   
   const handleInput = (value: string) => {
     setResult(null);
     setExpression(prev => {
+        const isOperator = ['+', '−', '×', '÷'].includes(value);
+
         // Prevent multiple operators in a row
-        if (['+', '-', '*', '/'].includes(value)) {
-            if (prev === '' || ['+', '-', '*', '/'].includes(prev.slice(-1).trim())) {
+        if (isOperator) {
+            if (prev === '' || ['+', '−', '×', '÷'].includes(prev.trim().slice(-1))) {
                 return prev;
             }
-            return prev + ` ${value} `;
+            return `${prev} ${value} `;
         }
+
         // Prevent multiple decimals in one number segment
         if (value === '.') {
             const parts = prev.split(' ');
@@ -57,12 +66,20 @@ export function CalculatorDialog() {
   };
 
   const calculateResult = () => {
-    if (expression === '' || ['+', '-', '*', '/'].includes(expression.slice(-2).trim())) {
+    if (expression === '' || ['+', '−', '×', '÷'].includes(expression.trim().slice(-1))) {
       return;
     }
     try {
+      // Replace display operators with JS operators and remove thousands separators for evaluation
+      const sanitizedExpression = expression
+        .replace(/×/g, '*')
+        .replace(/÷/g, '/')
+        .replace(/−/g, '-')
+        .replace(new RegExp(`\\${new Intl.NumberFormat(locale).format(1111).charAt(1)}`, 'g'), '');
+        
       // eslint-disable-next-line no-eval
-      const evalResult = eval(expression.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'));
+      const evalResult = eval(sanitizedExpression);
+      
       if (isNaN(evalResult) || !isFinite(evalResult)) {
         setResult('Error');
         setExpression('');
@@ -93,16 +110,19 @@ export function CalculatorDialog() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const { key } = event;
+      event.preventDefault(); // Prevent default browser actions for keys
+
       if (key >= '0' && key <= '9' || key === '.') {
         handleInput(key);
-      } else if (key === '+' || key === '-') {
-        handleInput(key);
+      } else if (key === '+') {
+        handleInput('+');
+      } else if (key === '-') {
+        handleInput('−');
       } else if (key === '*') {
         handleInput('×');
       } else if (key === '/') {
         handleInput('÷');
       } else if (key === 'Enter' || key === '=') {
-        event.preventDefault();
         calculateResult();
       } else if (key === 'Backspace') {
         deleteLast();
@@ -115,16 +135,25 @@ export function CalculatorDialog() {
       window.removeEventListener('keydown', handleKeyDown);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expression]);
+  }, [expression, locale]);
 
   useEffect(() => {
     if (displayRef.current) {
         displayRef.current.scrollLeft = displayRef.current.scrollWidth;
     }
   }, [expression, result]);
-
-  const displayValue = result ? result : (expression || '0');
   
+  const getDisplayValue = () => {
+    if (result !== null) return result;
+    if (expression === '') return '0';
+
+    // Format numbers within the expression
+    return expression
+      .split(' ')
+      .map((part) => (['+', '−', '×', '÷'].includes(part) ? part : formatNumber(part)))
+      .join(' ');
+  }
+
   const buttons = [
     { label: 'C', action: clearAll, style: buttonClasses.clear },
     { label: '⌫', action: deleteLast, style: buttonClasses.delete },
@@ -161,7 +190,7 @@ export function CalculatorDialog() {
         <div 
             ref={displayRef} 
             className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
-            {displayValue}
+            {getDisplayValue()}
         </div>
         <div className="grid grid-cols-4 gap-3">
           {buttons.map((btn) => (
