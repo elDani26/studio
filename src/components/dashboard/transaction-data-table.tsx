@@ -79,12 +79,25 @@ export function TransactionDataTable({
     }
     return categories.filter(c => c.type === type);
   }, [categories, type]);
+  
+  const availableAccountsForFilter = useMemo(() => {
+    if (type === 'credit-expense') {
+      return accounts.filter(a => a.type === 'credit');
+    }
+    return accounts;
+  }, [accounts, type]);
 
   useEffect(() => {
     if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
       setCategoryFilter('all');
     }
   }, [type, filteredCategories, categoryFilter]);
+  
+  useEffect(() => {
+    if (accountFilter !== 'all' && !availableAccountsForFilter.some(a => a.id === accountFilter)) {
+      setAccountFilter('all');
+    }
+  }, [type, availableAccountsForFilter, accountFilter]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -278,7 +291,7 @@ export function TransactionDataTable({
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">{t('all')}</SelectItem>
-                      {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                      {availableAccountsForFilter.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <div className="flex flex-wrap items-center gap-2">
@@ -422,7 +435,7 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.paymentFor}>
                               <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction)}>
