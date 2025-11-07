@@ -218,14 +218,15 @@
     "transferFrom": "Transfer from",
     "creditCardExpense": "Credit Card Expense",
     "creditCardPayment": "Credit Card Payment",
-    "creditCardDebt": "Credit Card Debt",
+    "creditCardDebt": "Credit Debt",
     "debit": "Debit",
     "credit": "Credit",
     "optionalDescription": "Description (Optional)",
-    "descriptionPlaceholder": "e.g., Payment for...",
-    "pickDate": "Pick a date"
+    "descriptionPlaceholder": "e.g., Payment for..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculator"
   }
 }
+
+    

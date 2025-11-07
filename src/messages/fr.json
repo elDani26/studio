@@ -111,7 +111,6 @@
     "category": "Catégorie",
     "selectCategory": "Sélectionner une catégorie",
     "date": "Date de la transaction",
-semicolon
     "pickDate": "Choisir une date",
     "optionalDescription": "Description (facultatif)",
     "descriptionPlaceholder": "Ex: Supermarché",
@@ -225,9 +224,3 @@ semicolon
     "optionalDescription": "Description (facultatif)",
     "descriptionPlaceholder": "Ex: Paiement pour..."
   },
-  "CalculatorDialog": {
-    "calculatorTitle": "Calculatrice"
-  }
-}
-
-    

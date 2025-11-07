@@ -222,10 +222,11 @@
     "debit": "Lastschrift",
     "credit": "Kredit",
     "optionalDescription": "Beschreibung (Optional)",
-    "descriptionPlaceholder": "z.B. Zahlung für...",
-    "pickDate": "Wählen Sie ein Datum"
+    "descriptionPlaceholder": "z.B. Zahlung für..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Taschenrechner"
   }
 }
+
+    

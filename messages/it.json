@@ -222,10 +222,11 @@
     "debit": "Debito",
     "credit": "Credito",
     "optionalDescription": "Descrizione (opzionale)",
-    "descriptionPlaceholder": "Es: Pagamento per...",
-    "pickDate": "Scegli una data"
+    "descriptionPlaceholder": "Es: Pagamento per..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calcolatrice"
   }
 }
+
+    

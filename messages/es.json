@@ -218,14 +218,15 @@
     "transferFrom": "Transferencia de",
     "creditCardExpense": "Gasto con TC",
     "creditCardPayment": "Pago de Tarjeta de Crédito",
-    "creditCardDebt": "Deuda Tarjeta Crédito",
+    "creditCardDebt": "Deuda Crédito",
     "debit": "Débito",
     "credit": "Crédito",
     "optionalDescription": "Descripción (Opcional)",
-    "descriptionPlaceholder": "Ej: Pago para...",
-    "pickDate": "Elige una fecha"
+    "descriptionPlaceholder": "Ej: Pago para..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
   }
 }
+
+    

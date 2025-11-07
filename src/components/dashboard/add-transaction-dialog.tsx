@@ -181,7 +181,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addButton')}
+            {t('title')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

@@ -83,7 +83,7 @@ export function TransactionDataTable({
     if (type === 'credit-expense') {
         return accounts.filter(a => a.type === 'credit');
     }
-    if (type === 'expense' || type === 'transfer' || type === 'income') {
+    if (type === 'expense') {
         return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
@@ -275,7 +275,7 @@ export function TransactionDataTable({
                       <SelectItem value="all">{t('all')}</SelectItem>
                       <SelectItem value="income">{t('income')}</SelectItem>
                       <SelectItem value="expense">{t('expense')}</SelectItem>
-                      <SelectItem value="credit-expense">{tMisc('creditCardExpense')}</SelectItem>
+                      <SelectItem value="credit-expense">{tMisc('creditCardDebt')}</SelectItem>
                       <SelectItem value="transfer">{tMisc('transfer')}</SelectItem>
                   </SelectContent>
               </Select>
@@ -488,5 +488,3 @@ export function TransactionDataTable({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
-}
