@@ -111,6 +111,10 @@ export function TransactionDataTable({
         typeFilterPassed = !!t.transferId;
       } else if (type === 'credit-expense') {
         typeFilterPassed = !!t.isCreditCardExpense;
+      } else if (type === 'expense') {
+        // A true expense is money out, not debt creation.
+        // It must be of type 'expense', not a transfer, and not a credit card expense.
+        typeFilterPassed = t.type === 'expense' && !t.transferId && !t.isCreditCardExpense;
       } else {
         typeFilterPassed = t.type === type && !t.transferId;
       }
