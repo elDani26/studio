@@ -72,6 +72,7 @@ export function TransactionDataTable({
 
   const selectedAccount = useMemo(() => accounts.find(a => a.id === accountFilter), [accounts, accountFilter]);
   const isCreditAccountSelected = useMemo(() => selectedAccount?.type === 'credit', [selectedAccount]);
+  const isCreditExpenseTypeSelected = useMemo(() => type === 'credit-expense', [type]);
 
   const filteredCategories = useMemo(() => {
     if (type === 'all' || type === 'transfer') {
@@ -97,7 +98,7 @@ export function TransactionDataTable({
           tDate = new Date(t.date as any);
         }
         const fromDate = startOfDay(dateFrom);
-        const toDate = dateTo ? endOfDay(dateTo) : endOfDay(dateFrom);
+        const toDate = dateTo ? endOfDay(dateTo) : endOfDay(fromDate);
         dateFilterPassed = tDate >= fromDate && tDate <= toDate;
       }
 
@@ -130,20 +131,36 @@ export function TransactionDataTable({
 
     const balance = income - expenses;
 
-    const creditHistoryTotal = isCreditAccountSelected
-      ? transactions
-          .filter(t => t.isCreditCardExpense && t.account === accountFilter)
-          .reduce((acc, t) => acc + t.amount, 0)
-      : 0;
-      
-    const currentDebt = isCreditAccountSelected
-      ? transactions
-          .filter(t => t.account === accountFilter && t.isCreditCardExpense)
-          .reduce((acc, t) => acc + t.amount, 0)
-        - transactions
-          .filter(t => t.paymentFor === accountFilter)
-          .reduce((acc, t) => acc + t.amount, 0)
-      : 0;
+    // Calculations for the special credit view
+    let creditHistoryTotal = 0;
+    let currentDebt = 0;
+    
+    // Determine which transactions to use for credit calculation
+    const creditTransactionsSource = isCreditExpenseTypeSelected ? transactions : filteredTransactions;
+
+    if (isCreditAccountSelected) {
+        creditHistoryTotal = creditTransactionsSource
+            .filter(t => t.isCreditCardExpense && t.account === accountFilter)
+            .reduce((acc, t) => acc + t.amount, 0);
+        
+        currentDebt = creditTransactionsSource
+            .filter(t => t.account === accountFilter && t.isCreditCardExpense)
+            .reduce((acc, t) => acc + t.amount, 0)
+          - creditTransactionsSource
+            .filter(t => t.paymentFor === accountFilter)
+            .reduce((acc, t) => acc + t.amount, 0);
+    } else if (isCreditExpenseTypeSelected) {
+        creditHistoryTotal = creditTransactionsSource
+            .filter(t => t.isCreditCardExpense)
+            .reduce((acc, t) => acc + t.amount, 0);
+
+        currentDebt = creditTransactionsSource
+            .filter(t => t.isCreditCardExpense)
+            .reduce((acc, t) => acc + t.amount, 0)
+          - creditTransactionsSource
+            .filter(t => !!t.paymentFor)
+            .reduce((acc, t) => acc + t.amount, 0);
+    }
     
     return {
       income,
@@ -152,7 +169,7 @@ export function TransactionDataTable({
       creditHistoryTotal,
       currentDebt,
     };
-  }, [filteredTransactions, isCreditAccountSelected, accountFilter, transactions]);
+  }, [filteredTransactions, transactions, isCreditAccountSelected, isCreditExpenseTypeSelected, accountFilter]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -222,6 +239,9 @@ export function TransactionDataTable({
     setDateFrom(undefined);
     setDateTo(undefined);
   };
+
+  const showCreditView = isCreditAccountSelected || isCreditExpenseTypeSelected;
+
 
   return (
     <>
@@ -322,7 +342,7 @@ export function TransactionDataTable({
           </div>
         </CardHeader>
         <CardContent>
-          {isCreditAccountSelected ? (
+          {showCreditView ? (
             <div className="grid gap-4 md:grid-cols-2 mb-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
