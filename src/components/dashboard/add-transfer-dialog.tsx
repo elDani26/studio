@@ -56,6 +56,8 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
+  const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
+
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
     accounts.forEach(acc => balances[acc.id] = 0);
@@ -83,17 +85,13 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
       message: 'La cuenta de origen y destino no pueden ser la misma.',
       path: ['toAccount'],
     }).refine(data => {
-      const fromAccount = accounts.find(a => a.id === data.fromAccount);
-      if (fromAccount?.type === 'debit') {
-        const balance = accountBalances[data.fromAccount] || 0;
-        return data.amount <= balance;
-      }
-      return true;
+      const balance = accountBalances[data.fromAccount] || 0;
+      return data.amount <= balance;
     }, {
       message: 'El monto de la transferencia supera el saldo disponible en la cuenta de origen.',
       path: ['amount'],
     });
-  }, [accounts, accountBalances]);
+  }, [accountBalances]);
 
   const form = useForm<z.infer<typeof transferSchema>>({
     resolver: zodResolver(transferSchema),
@@ -198,10 +196,9 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {accounts.map(acc => {
+                      {debitAccounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                         const balance = accountBalances[acc.id];
-                        const isDebit = acc.type === 'debit';
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
                            <div className="flex items-center justify-between w-full">
@@ -209,7 +206,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                               <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                               {acc.name}
                             </div>
-                            {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
+                            <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>
                           </div>
                         </SelectItem>
                         );
@@ -234,10 +231,9 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {accounts.map(acc => {
+                      {debitAccounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                         const balance = accountBalances[acc.id];
-                        const isDebit = acc.type === 'debit';
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
                            <div className="flex items-center justify-between w-full">
@@ -245,7 +241,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                               <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                               {acc.name}
                             </div>
-                            {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
+                            <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>
                           </div>
                         </SelectItem>
                         );
