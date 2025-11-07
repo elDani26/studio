@@ -19,11 +19,22 @@ export function CalculatorDialog() {
   const [result, setResult] = useState<string | null>(null);
   const t = useTranslations('CalculatorDialog');
   const displayRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef(null);
   const { locale } = useTranslations();
 
   const [position, setPosition] = useState({ x: window.innerWidth / 4, y: window.innerHeight / 4 });
   const [size, setSize] = useState({ width: 340, height: 500 });
-  const dragInfo = useRef({ isDragging: false, isResizing: false, startX: 0, startY: 0, startWidth: 0, startHeight: 0, startLeft: 0, startTop: 0 });
+  
+  const dragInfo = useRef({ 
+    isDragging: false, 
+    isResizing: false, 
+    startX: 0, 
+    startY: 0, 
+    startWidth: 0, 
+    startHeight: 0, 
+    startLeft: 0, 
+    startTop: 0 
+  });
 
   const getClientCoords = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
     if ('touches' in e && e.touches.length > 0) {
@@ -111,10 +122,10 @@ export function CalculatorDialog() {
   const handleInput = (value: string) => {
     setResult(null);
     setExpression(prev => {
-        const isOperator = ['+', '−', '×', '÷'].includes(value);
+        const isOperator = ['+', '−', '×', '÷', '%'].includes(value);
 
         if (isOperator) {
-            if (prev === '' || ['+', '−', '×', '÷'].includes(prev.trim().slice(-1))) {
+            if (prev === '' || ['+', '−', '×', '÷', '%'].includes(prev.trim().slice(-1))) {
                 return prev;
             }
             return `${prev} ${value} `;
@@ -131,16 +142,29 @@ export function CalculatorDialog() {
   };
 
   const calculateResult = () => {
-    if (expression === '' || ['+', '−', '×', '÷'].includes(expression.trim().slice(-1))) {
+    if (expression === '' || ['+', '−', '×', '÷', '%'].includes(expression.trim().slice(-1))) {
       return;
     }
     try {
-      const sanitizedExpression = expression
+      let sanitizedExpression = expression
         .replace(/×/g, '*')
         .replace(/÷/g, '/')
         .replace(/−/g, '-')
         .replace(new RegExp(`\\${new Intl.NumberFormat(locale).format(1111).charAt(1)}`, 'g'), '');
         
+      if (sanitizedExpression.includes('%')) {
+        const parts = sanitizedExpression.split(' ');
+        if (parts.length >= 3 && parts[1] === '%') {
+            const num1 = parseFloat(parts[0]);
+            const num2 = parseFloat(parts[2]);
+            const percentageResult = (num1 * num2) / 100;
+            
+            // Rebuild the expression with the calculated percentage
+            const remainingParts = parts.slice(3);
+            sanitizedExpression = `${percentageResult} ${remainingParts.join(' ')}`;
+        }
+      }
+      
       // eslint-disable-next-line no-eval
       const evalResult = eval(sanitizedExpression);
       
@@ -184,6 +208,8 @@ export function CalculatorDialog() {
         handleInput('×');
       } else if (key === '/') {
         handleInput('÷');
+      } else if (key === '%') {
+        handleInput('%');
       } else if (key === 'Enter' || key === '=') {
         event.preventDefault();
         calculateResult();
@@ -208,29 +234,30 @@ export function CalculatorDialog() {
 
     return expression
       .split(' ')
-      .map((part) => (['+', '−', '×', '÷'].includes(part) ? part : formatNumber(part)))
+      .map((part) => (['+', '−', '×', '÷', '%'].includes(part) ? part : formatNumber(part)))
       .join(' ');
   }
 
   const buttons = [
     { label: 'C', action: clearAll, style: buttonClasses.clear },
     { label: '⌫', action: deleteLast, style: buttonClasses.delete },
+    { label: '%', action: () => handleInput('%'), style: buttonClasses.operator },
     { label: '÷', action: () => handleInput('÷'), style: buttonClasses.operator },
-    { label: '×', action: () => handleInput('×'), style: buttonClasses.operator },
     { label: '7', action: () => handleInput('7'), style: buttonClasses.number },
     { label: '8', action: () => handleInput('8'), style: buttonClasses.number },
     { label: '9', action: () => handleInput('9'), style: buttonClasses.number },
-    { label: '−', action: () => handleInput('−'), style: buttonClasses.operator },
+    { label: '×', action: () => handleInput('×'), style: buttonClasses.operator },
     { label: '4', action: () => handleInput('4'), style: buttonClasses.number },
     { label: '5', action: () => handleInput('5'), style: buttonClasses.number },
     { label: '6', action: () => handleInput('6'), style: buttonClasses.number },
-    { label: '+', action: () => handleInput('+'), style: buttonClasses.operator },
+    { label: '−', action: () => handleInput('−'), style: buttonClasses.operator },
     { label: '1', action: () => handleInput('1'), style: buttonClasses.number },
     { label: '2', action: () => handleInput('2'), style: buttonClasses.number },
     { label: '3', action: () => handleInput('3'), style: buttonClasses.number },
-    { label: '=', action: calculateResult, style: `${buttonClasses.equal} row-span-2` },
+    { label: '+', action: () => handleInput('+'), style: buttonClasses.operator },
     { label: '0', action: () => handleInput('0'), style: `${buttonClasses.number} col-span-2` },
     { label: '.', action: () => handleInput('.'), style: buttonClasses.number },
+    { label: '=', action: calculateResult, style: buttonClasses.equal },
   ];
 
   return (
@@ -242,6 +269,7 @@ export function CalculatorDialog() {
 
       {isOpen && (
          <div
+            ref={nodeRef}
             style={{
                 position: 'fixed',
                 left: `${position.x}px`,
@@ -276,7 +304,7 @@ export function CalculatorDialog() {
                   <Button
                     key={btn.label}
                     onClick={() => btn.action()}
-                    className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
+                    className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style} ${btn.label === '=' ? 'row-span-2' : ''}`}
                   >
                     {btn.label}
                   </Button>
