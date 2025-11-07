@@ -132,11 +132,18 @@ export default function LoginPage() {
     try {
       if (!auth) throw new Error('Firebase Auth not available');
       
-      // Use test credentials for sign up if email matches
-      const signUpEmail = email === TEST_USER_EMAIL ? TEST_USER_EMAIL : email;
-      const signUpPassword = email === TEST_USER_EMAIL ? TEST_USER_PASS : password;
+      // If the user tries to sign up with the test email, use the predefined secure password.
+      const isTestUserSignUp = email === TEST_USER_EMAIL;
+      const signUpPassword = isTestUserSignUp ? TEST_USER_PASS : password;
+      
+      // Ensure the entered password matches the required password for the test account.
+      if (isTestUserSignUp && password !== TEST_USER_PASS) {
+        setError(t('passwordMismatchError'));
+        setLoading(false);
+        return;
+      }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, signUpPassword);
       const newUser = userCredential.user;
 
       const userData = {
