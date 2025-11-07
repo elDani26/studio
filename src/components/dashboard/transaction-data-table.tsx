@@ -110,7 +110,7 @@ export function TransactionDataTable({
       } else if (type === 'transfer') {
         typeFilterPassed = !!t.transferId;
       } else if (type === 'credit-expense') {
-        typeFilterPassed = !!t.isCreditCardExpense;
+        typeFilterPassed = !!t.isCreditCardExpense || !!t.paymentFor;
       } else if (type === 'expense') {
         typeFilterPassed = t.type === 'expense' && !t.transferId && !t.isCreditCardExpense;
       } else { // income
@@ -474,3 +474,5 @@ export function TransactionDataTable({
     </>
   );
 }
+
+    
