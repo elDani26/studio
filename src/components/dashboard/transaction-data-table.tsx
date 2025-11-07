@@ -83,10 +83,7 @@ export function TransactionDataTable({
     if (type === 'credit-expense') {
         return accounts.filter(a => a.type === 'credit');
     }
-    if (type === 'expense' || type === 'transfer') {
-        return accounts.filter(a => a.type === 'debit');
-    }
-    if (type === 'income') {
+    if (type === 'expense' || type === 'transfer' || type === 'income') {
         return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
@@ -128,7 +125,7 @@ export function TransactionDataTable({
       } else if (type === 'transfer') {
         typeFilterPassed = !!t.transferId;
       } else if (type === 'credit-expense') {
-        typeFilterPassed = !!t.isCreditCardExpense || !!t.paymentFor;
+        typeFilterPassed = t.isCreditCardExpense || !!t.paymentFor;
       } else if (type === 'expense') {
         typeFilterPassed = t.type === 'expense' && !t.transferId && !t.isCreditCardExpense;
       } else { // income
@@ -151,16 +148,15 @@ export function TransactionDataTable({
     const relevantTransactions = accountFilter === 'all' ? transactions : filteredTransactions;
 
     const income = relevantTransactions
-      .filter(t => t.type === 'income' && (accountFilter === 'all' ? true : !t.transferId || t.account === accountFilter))
+      .filter(t => t.type === 'income' && (accountFilter === 'all' ? !t.transferId : true))
       .reduce((acc, t) => acc + t.amount, 0);
 
     const expenses = relevantTransactions
-      .filter(t => t.type === 'expense' && !t.isCreditCardExpense && (accountFilter === 'all' ? true : !t.transferId || t.account === accountFilter))
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense && (accountFilter === 'all' ? !t.transferId : true))
       .reduce((acc, t) => acc + t.amount, 0);
 
     const balance = income - expenses;
     
-    // Determine which transactions to use for credit calculation
     const creditTransactionsSource = accountFilter === 'all' || !isCreditAccountSelected ? transactions : filteredTransactions;
 
     const creditHistoryTotal = creditTransactionsSource
@@ -473,6 +469,7 @@ export function TransactionDataTable({
             setIsEditDialogOpen(false);
             setSelectedTransaction(null);
           }}
+          allTransactions={transactions}
         />
       )}
 

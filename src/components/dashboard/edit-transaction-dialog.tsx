@@ -39,22 +39,12 @@ import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
 
-const transactionSchema = z.object({
-  type: z.enum(['income', 'expense']),
-  amount: z.coerce.number().positive(),
-  category: z.string().min(1),
-  date: z.date(),
-  description: z.string().optional(),
-  account: z.string().min(1),
-  isCreditCardExpense: z.boolean().optional(),
-  paymentFor: z.string().optional(),
-});
-
 interface EditTransactionDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   transaction: Transaction | null;
   onTransactionUpdated: () => void;
+  allTransactions: Transaction[];
 }
 
 export function EditTransactionDialog({
@@ -62,6 +52,7 @@ export function EditTransactionDialog({
   onOpenChange,
   transaction,
   onTransactionUpdated,
+  allTransactions,
 }: EditTransactionDialogProps) {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
@@ -78,6 +69,48 @@ export function EditTransactionDialog({
   const isPayment = useMemo(() => !!transaction?.paymentFor, [transaction]);
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
   const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
+
+  const creditCardDebts = useMemo(() => {
+    if (!transaction || !isPayment) return {};
+
+    const debts: Record<string, number> = {};
+    creditAccounts.forEach(acc => debts[acc.id] = 0);
+    
+    allTransactions.forEach(t => {
+      // Suma todos los gastos hechos con la tarjeta
+      if (t.isCreditCardExpense && debts.hasOwnProperty(t.account)) {
+        debts[t.account] += t.amount;
+      }
+      // Resta todos los pagos, EXCEPTO el que se está editando
+      if (t.paymentFor && debts.hasOwnProperty(t.paymentFor) && t.id !== transaction.id) {
+         debts[t.paymentFor] -= t.amount;
+      }
+    });
+
+    return debts;
+  }, [allTransactions, transaction, isPayment, creditAccounts]);
+
+
+  const transactionSchema = useMemo(() => {
+    return z.object({
+      type: z.enum(['income', 'expense']),
+      amount: z.coerce.number().positive(),
+      category: z.string().min(1),
+      date: z.date(),
+      description: z.string().optional(),
+      account: z.string().min(1),
+      isCreditCardExpense: z.boolean().optional(),
+      paymentFor: z.string().optional(),
+    }).refine(data => {
+        if (!isPayment || !data.paymentFor) return true;
+        const debt = creditCardDebts[data.paymentFor] || 0;
+        return data.amount <= debt;
+      }, {
+        message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
+        path: ['amount'],
+      });
+  }, [isPayment, creditCardDebts]);
+
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -130,10 +163,11 @@ export function EditTransactionDialog({
   }, [transactionType, filteredCategories, form, transaction, isTransfer, isPayment]);
 
   const availableAccounts = useMemo(() => {
-    if (isCreditCardExpense) return creditAccounts;
-    if (isPayment) return debitAccounts;
+    if (transactionType === 'income') {
+      return accounts.filter(a => a.type === 'debit');
+    }
     return accounts;
-  }, [isCreditCardExpense, isPayment, creditAccounts, debitAccounts, accounts]);
+  }, [transactionType, accounts]);
 
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
@@ -142,6 +176,9 @@ export function EditTransactionDialog({
 
     try {
         const batch = writeBatch(firestore);
+        
+        const selectedAccount = accounts.find(a => a.id === values.account);
+        const isCreditExpense = values.type === 'expense' && selectedAccount?.type === 'credit';
         
         let updates: any = {
             amount: values.amount,
@@ -153,7 +190,13 @@ export function EditTransactionDialog({
           updates.account = values.account; // fromAccount
           updates.paymentFor = values.paymentFor; // toAccount
         } else if (!isTransfer) {
-          updates = { ...updates, account: values.account, category: values.category, type: values.type };
+          updates = { 
+            ...updates, 
+            account: values.account, 
+            category: values.category, 
+            type: values.type,
+            isCreditCardExpense: isCreditExpense,
+          };
         }
 
         const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
