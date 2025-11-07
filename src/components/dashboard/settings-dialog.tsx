@@ -327,7 +327,7 @@ export function SettingsDialog() {
             <div className="space-y-4 py-4">
                 <div className="space-y-2">
                     <Label>{t('nameLabel')}</Label>
-                    <Input value={editingItem?.name} onChange={e => setEditingItem(prev => prev ? {...prev, name: e.target.value} : null)} />
+                    <Input value={editingItem?.name || ''} onChange={e => setEditingItem(prev => prev ? {...prev, name: e.target.value} : null)} />
                 </div>
                 <div className="space-y-2">
                     <Label>{t('icon')}</Label>
