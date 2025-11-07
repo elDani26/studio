@@ -14,10 +14,15 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
-import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { doc, setDoc, getFirestore, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { SOURCE_ACCOUNTS, TRANSACTION_CATEGORIES } from '@/lib/constants';
+
+// Special test account credentials
+const TEST_USER_EMAIL = 'test@test.com';
+const TEST_USER_PASS = 'Password123!';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
@@ -36,13 +41,63 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  
+  // --- Test Account Reset Logic ---
+  const resetTestAccountData = async (userId: string) => {
+    try {
+      const batch = writeBatch(firestore);
+
+      // 1. Delete all existing data
+      const transactionsRef = collection(firestore, 'users', userId, 'transactions');
+      const categoriesRef = collection(firestore, 'users', userId, 'categories');
+      const accountsRef = collection(firestore, 'users', userId, 'sourceAccounts');
+
+      const [transactionsSnap, categoriesSnap, accountsSnap] = await Promise.all([
+        getDocs(transactionsRef),
+        getDocs(categoriesRef),
+        getDocs(accountsRef),
+      ]);
+
+      transactionsSnap.forEach(doc => batch.delete(doc.ref));
+      categoriesSnap.forEach(doc => batch.delete(doc.ref));
+      accountsSnap.forEach(doc => batch.delete(doc.ref));
+      
+      // 2. Add default data back
+      [
+        ...TRANSACTION_CATEGORIES, 
+        { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'expense' },
+        { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'income' },
+        { value: 'credit_card_payment', label: 'Pago Tarjeta de Crédito', icon: 'CreditCard', type: 'expense' }
+      ].forEach(cat => {
+          const newCatRef = doc(collection(firestore, 'users', userId, 'categories'));
+          batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
+      });
+
+      SOURCE_ACCOUNTS.forEach(acc => {
+          const newAccRef = doc(collection(firestore, 'users', userId, 'sourceAccounts'));
+          batch.set(newAccRef, {name: acc.label, icon: acc.icon, type: acc.type as 'debit' | 'credit'});
+      });
+
+      await batch.commit();
+
+    } catch (e) {
+      console.error("Failed to reset test account data:", e);
+      // We don't block the login if reset fails, but we log it.
+    }
+  }
 
   const handleSignIn = async () => {
     setLoading(true);
     setError(null);
     try {
       if (!auth) throw new Error('Firebase Auth not available');
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      // If it's the test user, reset their data before navigating
+      if (userCredential.user && userCredential.user.email === TEST_USER_EMAIL) {
+        await resetTestAccountData(userCredential.user.uid);
+      }
+
       router.push(`/${locale}/dashboard`);
     } catch (error: any) {
       setError(t('invalidCredentialsError'));
@@ -76,7 +131,12 @@ export default function LoginPage() {
 
     try {
       if (!auth) throw new Error('Firebase Auth not available');
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Use test credentials for sign up if email matches
+      const signUpEmail = email === TEST_USER_EMAIL ? TEST_USER_EMAIL : email;
+      const signUpPassword = email === TEST_USER_EMAIL ? TEST_USER_PASS : password;
+
+      const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
       const newUser = userCredential.user;
 
       const userData = {
