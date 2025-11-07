@@ -27,10 +27,10 @@ export function CalculatorDialog() {
   const resizeRef = useRef({ isResizing: false, startX: 0, startY: 0, startWidth: 0, startHeight: 0 });
 
   const getClientCoords = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
-    if ('touches' in e) {
+    if ('touches' in e && e.touches.length > 0) {
       return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
     }
-    return { clientX: e.clientX, clientY: e.clientY };
+    return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY };
   };
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
