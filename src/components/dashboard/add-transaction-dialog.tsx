@@ -82,6 +82,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
     }).refine(data => {
       const account = accounts.find(a => a.id === data.account);
+      // Only apply balance validation for debit accounts on expense
       if (account?.type === 'debit' && data.type === 'expense') {
         const balance = accountBalances[data.account] || 0;
         return data.amount <= balance;
@@ -112,14 +113,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
   }, [categories, transactionType]);
   
-  const availableAccounts = useMemo(() => {
-    // If expense, only show debit accounts.
-    if (transactionType === 'expense') {
-      return accounts.filter(acc => acc.type === 'debit');
-    }
-    // If income, show all accounts.
-    return accounts;
-  }, [accounts, transactionType]);
+  // Let user select any account. Logic will be handled on submit.
+  const availableAccounts = accounts;
 
 
   useEffect(() => {
@@ -142,10 +137,14 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     if (!user) return;
     setLoading(true);
 
+    const selectedAccount = accounts.find(a => a.id === values.account);
+    const isCreditExpense = values.type === 'expense' && selectedAccount?.type === 'credit';
+
     const transactionData = {
         ...values,
         userId: user.uid,
         date: Timestamp.fromDate(values.date),
+        isCreditCardExpense: isCreditExpense,
     };
 
     const collectionRef = collection(firestore, 'users', user.uid, 'transactions');
