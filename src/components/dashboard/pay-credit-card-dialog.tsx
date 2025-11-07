@@ -39,14 +39,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
 import type { Transaction } from '@/types';
 
-const paymentSchema = z.object({
-  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
-  fromAccount: z.string().min(1, { message: 'Selecciona la cuenta de origen (débito).' }),
-  toAccount: z.string().min(1, { message: 'Selecciona la tarjeta de crédito a pagar.' }),
-  description: z.string().optional(),
-});
-
 interface PayCreditCardDialogProps {
   transactions: Transaction[];
 }
@@ -83,6 +75,26 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
   }, [transactions, creditAccounts]);
   
   const totalDebt = useMemo(() => Object.values(creditCardDebts).reduce((sum, debt) => sum + debt, 0), [creditCardDebts]);
+
+  const creditAccountsWithDebt = useMemo(() => {
+    return creditAccounts.filter(acc => creditCardDebts[acc.id] > 0);
+  }, [creditAccounts, creditCardDebts]);
+
+  const paymentSchema = useMemo(() => {
+    return z.object({
+      amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+      date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
+      fromAccount: z.string().min(1, { message: 'Selecciona la cuenta de origen (débito).' }),
+      toAccount: z.string().min(1, { message: 'Selecciona la tarjeta de crédito a pagar.' }),
+      description: z.string().optional(),
+    }).refine(data => {
+        const debt = creditCardDebts[data.toAccount] || 0;
+        return data.amount <= debt;
+    }, {
+        message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
+        path: ['amount'],
+    });
+  }, [creditCardDebts]);
 
   const form = useForm<z.infer<typeof paymentSchema>>({
     resolver: zodResolver(paymentSchema),
@@ -175,7 +187,7 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder={t('selectCreditCard')} /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {creditAccounts.map(acc => (
+                        {creditAccountsWithDebt.map(acc => (
                           <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
                         ))}
                       </SelectContent>
