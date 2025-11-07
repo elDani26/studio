@@ -130,7 +130,7 @@
     "selectAccount": "Selecione uma conta",
     "transferButton": "Realizar Transferência",
     "successToast": "Sua transferência foi registrada!",
-    "errorToast": "Não foi possível registrar a transferência. Por favor, tente novamente."
+    "errorToast": "Não foi possível registrar la transferência. Por favor, tente novamente."
   },
   "EditTransactionDialog": {
     "title": "Editar transação",

@@ -5,6 +5,7 @@ import { Icons } from '@/components/icons';
 import { SettingsDialog } from '@/components/dashboard/settings-dialog';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { CalculatorDialog } from './calculator-dialog';
 
 export function DashboardHeader() {
   const t = useTranslations('DashboardHeader');
@@ -18,6 +19,7 @@ export function DashboardHeader() {
         </div>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          <CalculatorDialog />
           <SettingsDialog />
           <UserNav />
         </div>
