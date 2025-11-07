@@ -84,6 +84,8 @@
     "filteredIncome": "Ingresos Filtrados",
     "filteredExpenses": "Egresos Filtrados",
     "filteredBalance": "Balance Filtrado",
+    "accountHistory": "Historial de la Cuenta",
+    "currentAccountDebt": "Deuda Actual de la Cuenta",
     "noTransactions": "No se encontraron transacciones que coincidan con los filtros.",
     "confirmDeleteTitle": "¿Estás seguro?",
     "confirmDeleteDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la transacción de tus registros.",

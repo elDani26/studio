@@ -15,7 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '../ui/skeleton';
-import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard, History } from 'lucide-react';
 import { doc, deleteDoc, writeBatch, collection, query, where, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -70,7 +70,8 @@ export function TransactionDataTable({
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
 
-  const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
+  const selectedAccount = useMemo(() => accounts.find(a => a.id === accountFilter), [accounts, accountFilter]);
+  const isCreditAccountSelected = useMemo(() => selectedAccount?.type === 'credit', [selectedAccount]);
 
   const filteredCategories = useMemo(() => {
     if (type === 'all' || type === 'transfer') {
@@ -119,16 +120,12 @@ export function TransactionDataTable({
   }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter]);
 
   const filteredTotals = useMemo(() => {
-    if (type === 'transfer') {
-      return { income: 0, expenses: 0, creditCardDebt: 0, balance: 0 };
-    }
-
     const income = filteredTransactions
       .filter(t => t.type === 'income' && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
     
     const expenses = filteredTransactions
-      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense && !t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);
 
     const creditCardExpenses = filteredTransactions
@@ -136,16 +133,32 @@ export function TransactionDataTable({
       .reduce((acc, t) => acc + t.amount, 0);
     
     const creditCardPayments = filteredTransactions
-      .filter(t => t.type === 'expense' && !!t.paymentFor)
+      .filter(t => !!t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);
+
+    const creditHistoryTotal = isCreditAccountSelected
+      ? transactions
+          .filter(t => t.isCreditCardExpense && t.account === accountFilter)
+          .reduce((acc, t) => acc + t.amount, 0)
+      : 0;
+      
+    const currentDebt = isCreditAccountSelected
+      ? transactions
+          .filter(t => t.account === accountFilter && t.isCreditCardExpense)
+          .reduce((acc, t) => acc + t.amount, 0)
+        - transactions
+          .filter(t => t.paymentFor === accountFilter)
+          .reduce((acc, t) => acc + t.amount, 0)
+      : 0;
 
     return {
       income,
       expenses,
-      creditCardDebt: creditCardExpenses - creditCardPayments,
       balance: income - expenses,
+      creditHistoryTotal,
+      currentDebt,
     };
-  }, [filteredTransactions, type]);
+  }, [filteredTransactions, isCreditAccountSelected, accountFilter, transactions]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -163,11 +176,9 @@ export function TransactionDataTable({
     try {
         const batch = writeBatch(firestore);
 
-        // Delete the primary transaction
         const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transactionToDelete.id);
         batch.delete(mainDocRef);
 
-        // If it's a transfer, find and delete the linked transaction
         if (transactionToDelete.transferId) {
             const q = query(
                 collection(firestore, 'users', user.uid, 'transactions'),
@@ -317,8 +328,29 @@ export function TransactionDataTable({
           </div>
         </CardHeader>
         <CardContent>
-          {(type !== 'transfer' && type !== 'credit-expense') && (
-            <div className="grid gap-4 md:grid-cols-4 mb-6">
+          {isCreditAccountSelected ? (
+            <div className="grid gap-4 md:grid-cols-2 mb-6">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">{t('accountHistory')}</CardTitle>
+                        <History className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-500">{formatCurrency(filteredTotals.creditHistoryTotal)}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">{t('currentAccountDebt')}</CardTitle>
+                        <CreditCard className="h-4 w-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-orange-500">{formatCurrency(filteredTotals.currentDebt)}</div>
+                    </CardContent>
+                </Card>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-3 mb-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
@@ -335,15 +367,6 @@ export function TransactionDataTable({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
-                </CardContent>
-              </Card>
-               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{tMisc('creditCardDebt')}</CardTitle>
-                  <CreditCard className="h-4 w-4 text-orange-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-500">{formatCurrency(filteredTotals.creditCardDebt)}</div>
                 </CardContent>
               </Card>
               <Card>

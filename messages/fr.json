@@ -84,6 +84,8 @@
     "filteredIncome": "Revenus filtrés",
     "filteredExpenses": "Dépenses filtrées",
     "filteredBalance": "Solde filtré",
+    "accountHistory": "Historique du compte",
+    "currentAccountDebt": "Dette actuelle du compte",
     "noTransactions": "Aucune transaction trouvée correspondant aux filtres.",
     "confirmDeleteTitle": "Êtes-vous sûr ?",
     "confirmDeleteDescription": "Cette action est irréversible. Cela supprimera définitivement la transaction de vos registres.",

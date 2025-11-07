@@ -84,6 +84,8 @@
     "filteredIncome": "筛选后的收入",
     "filteredExpenses": "筛选后的支出",
     "filteredBalance": "筛选后的余额",
+    "accountHistory": "账户历史",
+    "currentAccountDebt": "当前账户债务",
     "noTransactions": "未找到与筛选条件匹配的交易。",
     "confirmDeleteTitle": "您确定吗？",
     "confirmDeleteDescription": "此操作无法撤销。这将从您的记录中永久删除该交易。",

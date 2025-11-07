@@ -84,6 +84,8 @@
     "filteredIncome": "Filtered Income",
     "filteredExpenses": "Filtered Expenses",
     "filteredBalance": "Filtered Balance",
+    "accountHistory": "Account History",
+    "currentAccountDebt": "Current Account Debt",
     "noTransactions": "No transactions found matching the filters.",
     "confirmDeleteTitle": "Are you sure?",
     "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the transaction from your records.",

@@ -84,6 +84,8 @@
     "filteredIncome": "Gefilterte Einnahmen",
     "filteredExpenses": "Gefilterte Ausgaben",
     "filteredBalance": "Gefilterter Kontostand",
+    "accountHistory": "Kontoverlauf",
+    "currentAccountDebt": "Aktuelle Kontoschulden",
     "noTransactions": "Keine Transaktionen gefunden, die den Filtern entsprechen.",
     "confirmDeleteTitle": "Sind Sie sicher?",
     "confirmDeleteDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch wird die Transaktion dauerhaft aus Ihren Unterlagen gelöscht.",

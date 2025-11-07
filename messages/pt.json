@@ -84,6 +84,8 @@
     "filteredIncome": "Rendas filtradas",
     "filteredExpenses": "Despesas filtradas",
     "filteredBalance": "Saldo filtrado",
+    "accountHistory": "Histórico da Conta",
+    "currentAccountDebt": "Dívida Atual da Conta",
     "noTransactions": "Nenhuma transação encontrada correspondente aos filtros.",
     "confirmDeleteTitle": "Você tem certeza?",
     "confirmDeleteDescription": "Esta ação não pode ser desfeita. Isso excluirá permanentemente a transação de seus registros.",
