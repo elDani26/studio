@@ -112,7 +112,7 @@ export function TransactionDataTable({
       } else if (type === 'credit-expense') {
         typeFilterPassed = !!t.isCreditCardExpense;
       } else {
-        typeFilterPassed = t.type === type && !t.transferId && !t.isCreditCardExpense;
+        typeFilterPassed = t.type === type && !t.transferId;
       }
 
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
@@ -124,43 +124,29 @@ export function TransactionDataTable({
     const income = filteredTransactions
       .filter(t => t.type === 'income' && !t.transferId)
       .reduce((acc, t) => acc + t.amount, 0);
-
+      
     const expenses = filteredTransactions
       .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
-      .reduce((acc, t) => acc + t.amount, 0);
+      .reduce((acc, t) => acc + t.amount, 0)
+      + filteredTransactions
+        .filter(t => !!t.paymentFor)
+        .reduce((acc, t) => acc + t.amount, 0);
 
     const balance = income - expenses;
-
-    // Calculations for the special credit view
-    let creditHistoryTotal = 0;
-    let currentDebt = 0;
     
     // Determine which transactions to use for credit calculation
-    const creditTransactionsSource = isCreditExpenseTypeSelected ? transactions : filteredTransactions;
+    const creditTransactionsSource = (isCreditAccountSelected || isCreditExpenseTypeSelected) ? transactions : filteredTransactions;
 
-    if (isCreditAccountSelected) {
-        creditHistoryTotal = creditTransactionsSource
-            .filter(t => t.isCreditCardExpense && t.account === accountFilter)
-            .reduce((acc, t) => acc + t.amount, 0);
+    const creditHistoryTotal = creditTransactionsSource
+        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
+        .reduce((acc, t) => acc + t.amount, 0);
         
-        currentDebt = creditTransactionsSource
-            .filter(t => t.account === accountFilter && t.isCreditCardExpense)
-            .reduce((acc, t) => acc + t.amount, 0)
-          - creditTransactionsSource
-            .filter(t => t.paymentFor === accountFilter)
-            .reduce((acc, t) => acc + t.amount, 0);
-    } else if (isCreditExpenseTypeSelected) {
-        creditHistoryTotal = creditTransactionsSource
-            .filter(t => t.isCreditCardExpense)
-            .reduce((acc, t) => acc + t.amount, 0);
-
-        currentDebt = creditTransactionsSource
-            .filter(t => t.isCreditCardExpense)
-            .reduce((acc, t) => acc + t.amount, 0)
-          - creditTransactionsSource
-            .filter(t => !!t.paymentFor)
-            .reduce((acc, t) => acc + t.amount, 0);
-    }
+    const currentDebt = creditTransactionsSource
+        .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
+        .reduce((acc, t) => acc + t.amount, 0)
+      - creditTransactionsSource
+        .filter(t => (!!t.paymentFor) && (accountFilter === 'all' || t.paymentFor === accountFilter))
+        .reduce((acc, t) => acc + t.amount, 0);
     
     return {
       income,
