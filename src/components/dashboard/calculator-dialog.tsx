@@ -24,11 +24,9 @@ export function CalculatorDialog() {
   const { locale } = useTranslations();
 
   const [size, setSize] = useState({ width: 340, height: 500 });
-  const [isResizing, setIsResizing] = useState(false);
-  
-  const resizeStartPos = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const resizeRef = useRef({ isResizing: false, startX: 0, startY: 0, startWidth: 0, startHeight: 0 });
 
-  const getClientCoords = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+  const getClientCoords = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
     if ('touches' in e) {
       return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
     }
@@ -36,53 +34,46 @@ export function CalculatorDialog() {
   };
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    setIsResizing(true);
     const { clientX, clientY } = getClientCoords(e);
-    resizeStartPos.current = {
-      x: clientX,
-      y: clientY,
-      width: size.width,
-      height: size.height,
+    resizeRef.current = {
+      isResizing: true,
+      startX: clientX,
+      startY: clientY,
+      startWidth: size.width,
+      startHeight: size.height,
     };
+    window.addEventListener('mousemove', handleResizeMove);
+    window.addEventListener('mouseup', handleResizeEnd);
+    window.addEventListener('touchmove', handleResizeMove);
+    window.addEventListener('touchend', handleResizeEnd);
   };
-  
+
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
-    if (!isResizing) return;
+    if (!resizeRef.current.isResizing) return;
     const { clientX, clientY } = getClientCoords(e);
-    const dx = clientX - resizeStartPos.current.x;
-    const dy = clientY - resizeStartPos.current.y;
+    const dx = clientX - resizeRef.current.startX;
+    const dy = clientY - resizeRef.current.startY;
     setSize({
-      width: Math.max(300, resizeStartPos.current.width + dx),
-      height: Math.max(420, resizeStartPos.current.height + dy),
+      width: Math.max(300, resizeRef.current.startWidth + dx),
+      height: Math.max(420, resizeRef.current.startHeight + dy),
     });
   };
-  
+
   const handleResizeEnd = () => {
-    setIsResizing(false);
+    resizeRef.current.isResizing = false;
+    window.removeEventListener('mousemove', handleResizeMove);
+    window.removeEventListener('mouseup', handleResizeEnd);
+    window.removeEventListener('touchmove', handleResizeMove);
+    window.removeEventListener('touchend', handleResizeEnd);
   };
-
-  useEffect(() => {
-    if (isResizing) {
-      window.addEventListener('mousemove', handleResizeMove);
-      window.addEventListener('mouseup', handleResizeEnd);
-      window.addEventListener('touchmove', handleResizeMove);
-      window.addEventListener('touchend', handleResizeEnd);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleResizeMove);
-      window.removeEventListener('mouseup', handleResizeEnd);
-      window.removeEventListener('touchmove', handleResizeMove);
-      window.removeEventListener('touchend', handleResizeEnd);
-    };
-  }, [isResizing]);
 
   const handleClose = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     setIsOpen(false);
   };
-
+  
   const formatNumber = (numStr: string) => {
     if (isNaN(parseFloat(numStr)) || numStr.endsWith('.')) return numStr;
     const [integer, decimal] = numStr.split('.');
