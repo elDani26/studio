@@ -9,15 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Calculator, Grip, X } from 'lucide-react';
+import { Calculator } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 
 const buttonClasses = {
-  number: "bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
-  operator: "bg-blue-500 hover:bg-blue-600 text-white",
-  clear: "bg-red-500 hover:bg-red-600 text-white",
-  delete: "bg-orange-500 hover:bg-orange-600 text-white",
-  equal: "bg-green-500 hover:bg-green-600 text-white row-span-2",
+  number: "bg-[#f8f9fa] hover:bg-gray-200 text-[#2c3e50] shadow-sm",
+  operator: "bg-gradient-to-br from-[#3498db] to-[#2980b9] text-white",
+  clear: "bg-gradient-to-br from-[#e74c3c] to-[#c0392b] text-white",
+  delete: "bg-gradient-to-br from-[#f39c12] to-[#e67e22] text-white",
+  equal: "bg-gradient-to-br from-[#27ae60] to-[#229954] text-white row-span-2",
 };
 
 export function CalculatorDialog() {
@@ -28,21 +28,26 @@ export function CalculatorDialog() {
   const locale = useLocale();
 
   const formatNumber = (numStr: string) => {
-    const number = parseFloat(numStr);
-    if (isNaN(number)) return numStr;
-    return new Intl.NumberFormat(locale, { maximumFractionDigits: 10 }).format(number);
+    // Avoid formatting operators
+    if (isNaN(parseFloat(numStr))) return numStr;
+    const [integer, decimal] = numStr.split('.');
+    const formattedInteger = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(parseFloat(integer));
+    return decimal !== undefined ? `${formattedInteger}.${decimal}` : formattedInteger;
   };
   
   const handleInput = (value: string) => {
     setResult(null);
     setExpression(prev => {
+        // Prevent multiple operators in a row
         if (['+', '-', '*', '/'].includes(value)) {
-            if (prev === '' || ['+', '-', '*', '/'].includes(prev.slice(-1))) {
+            if (prev === '' || ['+', '-', '*', '/'].includes(prev.slice(-1).trim())) {
                 return prev;
             }
+            return prev + ` ${value} `;
         }
+        // Prevent multiple decimals in one number segment
         if (value === '.') {
-            const parts = prev.split(/[\+\-\*\/]/);
+            const parts = prev.split(' ');
             if (parts[parts.length - 1].includes('.')) {
                 return prev;
             }
@@ -52,17 +57,19 @@ export function CalculatorDialog() {
   };
 
   const calculateResult = () => {
-    if (expression === '' || ['+', '-', '*', '/'].includes(expression.slice(-1))) {
+    if (expression === '' || ['+', '-', '*', '/'].includes(expression.slice(-2).trim())) {
       return;
     }
     try {
       // eslint-disable-next-line no-eval
-      const evalResult = eval(expression);
+      const evalResult = eval(expression.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'));
       if (isNaN(evalResult) || !isFinite(evalResult)) {
         setResult('Error');
+        setExpression('');
       } else {
-        setResult(formatNumber(String(evalResult)));
-        setExpression(String(evalResult));
+        const resultString = String(evalResult);
+        setResult(formatNumber(resultString));
+        setExpression(resultString);
       }
     } catch (error) {
       setResult('Error');
@@ -79,7 +86,7 @@ export function CalculatorDialog() {
     if (result !== null) {
       clearAll();
     } else {
-      setExpression(prev => prev.slice(0, -1));
+      setExpression(prev => prev.trim().slice(0, -1).trim());
     }
   };
 
@@ -88,14 +95,18 @@ export function CalculatorDialog() {
       const { key } = event;
       if (key >= '0' && key <= '9' || key === '.') {
         handleInput(key);
-      } else if (['+', '-', '*', '/'].includes(key)) {
+      } else if (key === '+' || key === '-') {
         handleInput(key);
+      } else if (key === '*') {
+        handleInput('×');
+      } else if (key === '/') {
+        handleInput('÷');
       } else if (key === 'Enter' || key === '=') {
         event.preventDefault();
         calculateResult();
       } else if (key === 'Backspace') {
         deleteLast();
-      } else if (key === 'Escape' || key === 'Delete') {
+      } else if (key === 'Escape' || key.toLowerCase() === 'c') {
         clearAll();
       }
     };
@@ -104,7 +115,7 @@ export function CalculatorDialog() {
       window.removeEventListener('keydown', handleKeyDown);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [expression]);
 
   useEffect(() => {
     if (displayRef.current) {
@@ -112,23 +123,17 @@ export function CalculatorDialog() {
     }
   }, [expression, result]);
 
-  const displayValue = result ?? expression || '0';
-  const formattedDisplay = displayValue.split(/([\+\-\*\/])/).map(part => {
-      if (['+', '-', '*', '/'].includes(part)) {
-          return ` ${part} `;
-      }
-      return formatNumber(part);
-  }).join('');
+  const displayValue = result ? result : (expression || '0');
   
   const buttons = [
     { label: 'C', action: clearAll, style: buttonClasses.clear },
     { label: '⌫', action: deleteLast, style: buttonClasses.delete },
-    { label: '÷', action: () => handleInput('/'), style: buttonClasses.operator },
-    { label: '×', action: () => handleInput('*'), style: buttonClasses.operator },
+    { label: '÷', action: () => handleInput('÷'), style: buttonClasses.operator },
+    { label: '×', action: () => handleInput('×'), style: buttonClasses.operator },
     { label: '7', action: () => handleInput('7'), style: buttonClasses.number },
     { label: '8', action: () => handleInput('8'), style: buttonClasses.number },
     { label: '9', action: () => handleInput('9'), style: buttonClasses.number },
-    { label: '−', action: () => handleInput('-'), style: buttonClasses.operator },
+    { label: '−', action: () => handleInput('−'), style: buttonClasses.operator },
     { label: '4', action: () => handleInput('4'), style: buttonClasses.number },
     { label: '5', action: () => handleInput('5'), style: buttonClasses.number },
     { label: '6', action: () => handleInput('6'), style: buttonClasses.number },
@@ -137,7 +142,7 @@ export function CalculatorDialog() {
     { label: '2', action: () => handleInput('2'), style: buttonClasses.number },
     { label: '3', action: () => handleInput('3'), style: buttonClasses.number },
     { label: '=', action: calculateResult, style: buttonClasses.equal },
-    { label: '0', action: () => handleInput('0'), style: buttonClasses.number, className: "col-span-2" },
+    { label: '0', action: () => handleInput('0'), style: `${buttonClasses.number} col-span-2` },
     { label: '.', action: () => handleInput('.'), style: buttonClasses.number },
   ];
 
@@ -149,21 +154,21 @@ export function CalculatorDialog() {
           <span className="sr-only">{t('calculatorTitle')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xs w-full p-4 border-0 shadow-lg bg-card rounded-3xl flex flex-col">
+      <DialogContent className="sm:max-w-sm w-full p-6 shadow-2xl bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500">
         <DialogHeader className="sr-only">
            <DialogTitle>{t('calculatorTitle')}</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 flex flex-col justify-end text-right overflow-hidden h-32">
-          <div ref={displayRef} className="overflow-x-auto whitespace-nowrap scrollbar-hide text-right pb-2 text-4xl font-light pr-4">
-            {formattedDisplay}
-          </div>
+        <div 
+            ref={displayRef} 
+            className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
+            {displayValue}
         </div>
-        <div className="grid grid-cols-4 grid-rows-5 gap-2">
+        <div className="grid grid-cols-4 gap-3">
           {buttons.map((btn) => (
             <Button
               key={btn.label}
               onClick={btn.action}
-              className={`h-auto aspect-square text-2xl rounded-2xl transition-transform duration-100 ease-in-out active:scale-95 ${btn.style} ${btn.className || ''}`}
+              className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
             >
               {btn.label}
             </Button>
