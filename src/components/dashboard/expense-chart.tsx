@@ -17,13 +17,20 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
   const [chartData, setChartData] = useState<any[]>([]);
   const { currency, categories } = useSettings();
   const t = useTranslations('ExpenseChart');
+  const tMisc = useTranslations('misc');
 
   useEffect(() => {
-    const expenses = initialTransactions.filter(t => 
-      t.type === 'expense' && !t.transferId && !t.isCreditCardExpense
+    // Gastos de débito (excluyendo transferencias y pagos de TC)
+    const debitExpenses = initialTransactions.filter(t => 
+      t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor
     );
 
-    const expenseByCategory = expenses.reduce((acc, transaction) => {
+    // Gastos realizados con tarjeta de crédito
+    const creditCardExpensesTotal = initialTransactions
+      .filter(t => t.isCreditCardExpense)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const expenseByCategory = debitExpenses.reduce((acc, transaction) => {
       const categoryId = transaction.category;
       if (!acc[categoryId]) {
         acc[categoryId] = 0;
@@ -32,19 +39,29 @@ export function ExpenseChart({ transactions: initialTransactions }: ExpenseChart
       return acc;
     }, {} as Record<string, number>);
 
-
+    // Convertir las categorías de débito a formato de gráfico
     const data = Object.keys(expenseByCategory).map(categoryId => {
       const categoryInfo = categories.find(c => c.id === categoryId);
       return {
         name: categoryInfo?.name || categoryId,
         value: expenseByCategory[categoryId],
       };
-    })
-    .filter(item => item.value > 0)
-    .sort((a, b) => b.value - a.value);
+    });
 
-    setChartData(data);
-  }, [initialTransactions, categories]);
+    // Añadir el total de gastos de tarjeta de crédito como una categoría separada
+    if (creditCardExpensesTotal > 0) {
+      data.push({
+        name: tMisc('creditCardExpense'),
+        value: creditCardExpensesTotal
+      });
+    }
+
+    const finalData = data
+      .filter(item => item.value > 0)
+      .sort((a, b) => b.value - a.value);
+
+    setChartData(finalData);
+  }, [initialTransactions, categories, tMisc]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
