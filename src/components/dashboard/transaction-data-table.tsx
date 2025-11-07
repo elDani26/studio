@@ -230,8 +230,8 @@ export function TransactionDataTable({
             <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                 <AddCreditCardTransactionDialog />
                 <PayCreditCardDialog transactions={transactions} />
-                <AddTransferDialog />
-                <AddTransactionDialog />
+                <AddTransferDialog transactions={transactions} />
+                <AddTransactionDialog transactions={transactions} />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4">

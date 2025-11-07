@@ -58,6 +58,22 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
   const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
 
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    accounts.forEach(acc => balances[acc.id] = 0);
+
+    transactions.forEach(t => {
+      if (balances.hasOwnProperty(t.account)) {
+        if (t.type === 'income') {
+          balances[t.account] += t.amount;
+        } else {
+          balances[t.account] -= t.amount;
+        }
+      }
+    });
+    return balances;
+  }, [transactions, accounts]);
+
   const creditCardDebts = useMemo(() => {
     const debts: Record<string, number> = {};
     creditAccounts.forEach(acc => debts[acc.id] = 0);
@@ -93,8 +109,14 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
     }, {
         message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
         path: ['amount'],
+    }).refine(data => {
+        const balance = accountBalances[data.fromAccount] || 0;
+        return data.amount <= balance;
+    }, {
+        message: 'El monto a pagar supera el saldo disponible en la cuenta de débito.',
+        path: ['amount'],
     });
-  }, [creditCardDebts]);
+  }, [creditCardDebts, accountBalances]);
 
   const form = useForm<z.infer<typeof paymentSchema>>({
     resolver: zodResolver(paymentSchema),
@@ -188,7 +210,12 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
                       <FormControl><SelectTrigger><SelectValue placeholder={t('selectCreditCard')} /></SelectTrigger></FormControl>
                       <SelectContent>
                         {creditAccountsWithDebt.map(acc => (
-                          <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                          <SelectItem key={acc.id} value={acc.id}>
+                            <div className="flex items-center justify-between w-full">
+                              {acc.name}
+                              <span className="text-xs text-muted-foreground">{formatCurrency(creditCardDebts[acc.id])}</span>
+                            </div>
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -206,7 +233,12 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
                       <FormControl><SelectTrigger><SelectValue placeholder={t('selectDebitAccount')} /></SelectTrigger></FormControl>
                       <SelectContent>
                         {debitAccounts.map(acc => (
-                          <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                          <SelectItem key={acc.id} value={acc.id}>
+                            <div className="flex items-center justify-between w-full">
+                              {acc.name}
+                              <span className="text-xs text-muted-foreground">{formatCurrency(accountBalances[acc.id])}</span>
+                            </div>
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

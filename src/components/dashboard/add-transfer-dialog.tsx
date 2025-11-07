@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,29 +38,62 @@ import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { Transaction } from '@/types';
 
-const transferSchema = z.object({
-  fromAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de origen.' }),
-  toAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de destino.' }),
-  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
-  description: z.string().optional(),
-}).refine(data => data.fromAccount !== data.toAccount, {
-  message: 'La cuenta de origen y destino no pueden ser la misma.',
-  path: ['toAccount'],
-});
+interface AddTransferDialogProps {
+  transactions: Transaction[];
+}
 
-export function AddTransferDialog() {
+export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { accounts } = useSettings();
+  const { accounts, currency } = useSettings();
   const t = useTranslations('AddTransferDialog');
   const tMisc = useTranslations('misc');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
+
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    accounts.forEach(acc => balances[acc.id] = 0);
+
+    transactions.forEach(t => {
+      if (balances.hasOwnProperty(t.account)) {
+        if (t.type === 'income') {
+          balances[t.account] += t.amount;
+        } else {
+          balances[t.account] -= t.amount;
+        }
+      }
+    });
+    return balances;
+  }, [transactions, accounts]);
+
+  const transferSchema = useMemo(() => {
+    return z.object({
+      fromAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de origen.' }),
+      toAccount: z.string().min(1, { message: 'Por favor, selecciona una cuenta de destino.' }),
+      amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+      date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
+      description: z.string().optional(),
+    }).refine(data => data.fromAccount !== data.toAccount, {
+      message: 'La cuenta de origen y destino no pueden ser la misma.',
+      path: ['toAccount'],
+    }).refine(data => {
+      const fromAccount = accounts.find(a => a.id === data.fromAccount);
+      if (fromAccount?.type === 'debit') {
+        const balance = accountBalances[data.fromAccount] || 0;
+        return data.amount <= balance;
+      }
+      return true;
+    }, {
+      message: 'El monto de la transferencia supera el saldo disponible en la cuenta de origen.',
+      path: ['amount'],
+    });
+  }, [accounts, accountBalances]);
 
   const form = useForm<z.infer<typeof transferSchema>>({
     resolver: zodResolver(transferSchema),
@@ -72,6 +105,8 @@ export function AddTransferDialog() {
       description: '',
     },
   });
+  
+  const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
   const onSubmit = async (values: z.infer<typeof transferSchema>) => {
     if (!user) return;
@@ -165,11 +200,16 @@ export function AddTransferDialog() {
                     <SelectContent>
                       {accounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                        const balance = accountBalances[acc.id];
+                        const isDebit = acc.type === 'debit';
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
-                           <div className="flex items-center">
-                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {acc.name}
+                           <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center">
+                              <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                              {acc.name}
+                            </div>
+                            {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
                           </div>
                         </SelectItem>
                         );
@@ -196,11 +236,16 @@ export function AddTransferDialog() {
                     <SelectContent>
                       {accounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                        const balance = accountBalances[acc.id];
+                        const isDebit = acc.type === 'debit';
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
-                           <div className="flex items-center">
-                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {acc.name}
+                           <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center">
+                              <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                              {acc.name}
+                            </div>
+                            {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
                           </div>
                         </SelectItem>
                         );
