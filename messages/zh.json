@@ -120,15 +120,6 @@
     "successToast": "您的交易已添加！",
     "errorToast": "无法添加交易。请重试。"
   },
-  "AddCreditCardTransactionDialog": {
-    "title": "新的信用卡交易",
-    "description": "记录一笔用信用卡进行的新消费。",
-    "creditCardAccount": "信用卡",
-    "selectCreditCard": "选择一张信用卡",
-    "addButton": "添加消费",
-    "successToast": "信用卡消费已记录！",
-    "errorToast": "无法记录消费。请重试。"
-  },
   "PayCreditCardDialog": {
     "title": "支付信用卡",
     "description": "记录一笔用于偿还信用卡债务的付款。",
@@ -238,5 +229,3 @@
     "calculatorTitle": "计算器"
   }
 }
-
-    

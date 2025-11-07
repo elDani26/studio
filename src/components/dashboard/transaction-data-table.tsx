@@ -34,7 +34,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import { format } from 'date-fns';
 import { getLocale } from '@/lib/utils';
 import { startOfDay, endOfDay } from 'date-fns';
-import { AddCreditCardTransactionDialog } from './add-credit-card-transaction-dialog';
 import { PayCreditCardDialog } from './pay-credit-card-dialog';
 
 
@@ -82,10 +81,13 @@ export function TransactionDataTable({
   
   const availableAccountsForFilter = useMemo(() => {
     if (type === 'credit-expense') {
-      return accounts.filter(a => a.type === 'credit');
+        return accounts.filter(a => a.type === 'credit');
     }
-    if (type === 'expense') {
-      return accounts.filter(a => a.type === 'debit');
+    if (type === 'expense' || type === 'transfer') {
+        return accounts.filter(a => a.type === 'debit');
+    }
+    if (type === 'income') {
+        return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
   }, [accounts, type]);
@@ -146,12 +148,14 @@ export function TransactionDataTable({
   }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter, isCreditAccountSelected]);
 
   const filteredTotals = useMemo(() => {
-    const income = filteredTransactions
-      .filter(t => t.type === 'income')
+    const relevantTransactions = accountFilter === 'all' ? transactions : filteredTransactions;
+
+    const income = relevantTransactions
+      .filter(t => t.type === 'income' && (accountFilter === 'all' ? true : !t.transferId || t.account === accountFilter))
       .reduce((acc, t) => acc + t.amount, 0);
-      
-    const expenses = filteredTransactions
-      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
+
+    const expenses = relevantTransactions
+      .filter(t => t.type === 'expense' && !t.isCreditCardExpense && (accountFilter === 'all' ? true : !t.transferId || t.account === accountFilter))
       .reduce((acc, t) => acc + t.amount, 0);
 
     const balance = income - expenses;
@@ -261,7 +265,6 @@ export function TransactionDataTable({
               <CardDescription>{t('description')}</CardDescription>
             </div>
             <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                <AddCreditCardTransactionDialog />
                 <PayCreditCardDialog transactions={transactions} />
                 <AddTransferDialog transactions={transactions} />
                 <AddTransactionDialog transactions={transactions} />

@@ -120,15 +120,6 @@
     "successToast": "Votre transaction a été ajoutée !",
     "errorToast": "Impossible d'ajouter la transaction. Veuillez réessayer."
   },
-   "AddCreditCardTransactionDialog": {
-    "title": "Nouvelle Transaction par Carte de Crédit",
-    "description": "Enregistrez une nouvelle dépense effectuée avec votre carte de crédit.",
-    "creditCardAccount": "Carte de Crédit",
-    "selectCreditCard": "Sélectionnez une carte de crédit",
-    "addButton": "Ajouter la Dépense",
-    "successToast": "Dépense par carte de crédit enregistrée !",
-    "errorToast": "Impossible d'enregistrer la dépense. Veuillez réessayer."
-  },
   "PayCreditCardDialog": {
     "title": "Payer la Carte de Crédit",
     "description": "Enregistrez un paiement de votre dette de carte de crédit.",
@@ -238,5 +229,3 @@
     "calculatorTitle": "Calculatrice"
   }
 }
-
-    

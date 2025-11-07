@@ -120,15 +120,6 @@
     "successToast": "Ihre Transaktion wurde hinzugefügt!",
     "errorToast": "Transaktion konnte nicht hinzugefügt werden. Bitte versuchen Sie es erneut."
   },
-  "AddCreditCardTransactionDialog": {
-    "title": "Neue Kreditkartentransaktion",
-    "description": "Erfassen Sie eine neue Ausgabe, die mit Ihrer Kreditkarte getätigt wurde.",
-    "creditCardAccount": "Kreditkarte",
-    "selectCreditCard": "Wählen Sie eine Kreditkarte aus",
-    "addButton": "Ausgabe hinzufügen",
-    "successToast": "Kreditkartenausgabe erfasst!",
-    "errorToast": "Ausgabe konnte nicht erfasst werden. Bitte versuchen Sie es erneut."
-  },
   "PayCreditCardDialog": {
     "title": "Kreditkarte bezahlen",
     "description": "Erfassen Sie eine Zahlung Ihrer Kreditkartenschulden.",
@@ -238,5 +229,3 @@
     "calculatorTitle": "Taschenrechner"
   }
 }
-
-    

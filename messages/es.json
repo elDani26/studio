@@ -120,15 +120,6 @@
     "successToast": "¡Tu transacción ha sido agregada!",
     "errorToast": "No se pudo agregar la transacción. Inténtalo de nuevo."
   },
-  "AddCreditCardTransactionDialog": {
-    "title": "Nueva Transacción TC",
-    "description": "Registra un nuevo gasto hecho con tu tarjeta de crédito.",
-    "creditCardAccount": "Tarjeta de Crédito",
-    "selectCreditCard": "Selecciona una tarjeta",
-    "addButton": "Agregar Gasto",
-    "successToast": "¡Gasto con tarjeta de crédito registrado!",
-    "errorToast": "No se pudo registrar el gasto. Inténtalo de nuevo."
-  },
   "PayCreditCardDialog": {
     "title": "Pagar Tarjeta de Crédito",
     "description": "Registra un pago a la deuda de tu tarjeta de crédito.",
@@ -238,5 +229,3 @@
     "calculatorTitle": "Calculadora"
   }
 }
-
-    
