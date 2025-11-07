@@ -67,7 +67,7 @@ export default function LoginPage() {
         ...TRANSACTION_CATEGORIES, 
         { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'expense' },
         { value: 'transfer', label: 'Transfer', icon: 'Repeat', type: 'income' },
-        { value: 'credit_card_payment', label: 'Pago Tarjeta de Crédito', icon: 'CreditCard', type: 'expense' }
+        { value: 'credit_card_payment', label: 'Pago creditos', icon: 'CreditCard', type: 'expense' }
       ].forEach(cat => {
           const newCatRef = doc(collection(firestore, 'users', userId, 'categories'));
           batch.set(newCatRef, {name: cat.label, icon: cat.icon, type: cat.type});
