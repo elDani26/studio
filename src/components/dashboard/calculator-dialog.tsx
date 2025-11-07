@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
 import { Button } from '@/components/ui/button';
 import { Calculator, GripVertical, X, Grip } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 const buttonClasses = {
   number: "bg-[#f8f9fa] hover:bg-gray-200 text-[#2c3e50] shadow-sm",
@@ -21,39 +21,45 @@ export function CalculatorDialog() {
   const t = useTranslations('CalculatorDialog');
   const displayRef = useRef<HTMLDivElement>(null);
   const nodeRef = useRef(null);
-  const locale = useLocale();
+  const { locale } = useTranslations();
 
   const [size, setSize] = useState({ width: 340, height: 500 });
   const [isResizing, setIsResizing] = useState(false);
+  
+  const resizeStartPos = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    resizeStartPos.current = {
+      x: clientX,
+      y: clientY,
+      width: size.width,
+      height: size.height,
+    };
   };
   
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
-    if (isResizing) {
-      let movementX = 0;
-      let movementY = 0;
-      if (e.type === 'mousemove') {
-        movementX = (e as MouseEvent).movementX;
-        movementY = (e as MouseEvent).movementY;
-      } else if (e.type === 'touchmove' && (e as TouchEvent).touches.length > 0) {
-        // For touch, we need to calculate movement manually
-        const touch = (e as TouchEvent).touches[0];
-        // This is a simplified approach; a more robust solution would store the previous touch position
-        // but for this use case it's often sufficient to just grow. A proper implementation would
-        // require storing lastX/lastY in a ref.
-        movementX = touch.clientX - size.width;
-        movementY = touch.clientY - size.height;
-      }
+    if (!isResizing) return;
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
-      setSize(prevSize => ({
-        width: Math.max(300, prevSize.width + movementX),
-        height: Math.max(420, prevSize.height + movementY),
-      }));
-    }
+    const dx = clientX - resizeStartPos.current.x;
+    const dy = clientY - resizeStartPos.current.y;
+
+    const newWidth = resizeStartPos.current.width + dx;
+    const newHeight = resizeStartPos.current.height + dy;
+
+    setSize({
+      width: Math.max(300, newWidth),
+      height: Math.max(420, newHeight),
+    });
   };
   
   const handleResizeEnd = () => {
@@ -81,6 +87,10 @@ export function CalculatorDialog() {
     };
   }, [isResizing]);
 
+  const handleClose = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setIsOpen(false);
+  };
 
   const formatNumber = (numStr: string) => {
     if (isNaN(parseFloat(numStr)) || numStr.endsWith('.')) return numStr;
@@ -227,7 +237,7 @@ export function CalculatorDialog() {
       </Button>
 
       {isOpen && (
-         <Draggable nodeRef={nodeRef} handle=".handle">
+         <Draggable nodeRef={nodeRef} handle=".handle" bounds="parent">
             <div 
               ref={nodeRef}
               style={{ width: `${size.width}px`, height: `${size.height}px` }}
@@ -238,21 +248,21 @@ export function CalculatorDialog() {
                   <GripVertical className="h-5 w-5 text-gray-400" />
                   <p className="text-base text-gray-600">{t('calculatorTitle')}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClose} onTouchEnd={handleClose}>
                     <X className="h-4 w-4" />
                 </Button>
               </div>
               <div onKeyDown={handleKeyDown} tabIndex={0} className="p-4 flex flex-col flex-grow outline-none">
                 <div 
                   ref={displayRef} 
-                  className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
+                  className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
                   {getDisplayValue()}
                 </div>
                 <div className="grid grid-cols-4 grid-rows-5 gap-3 mt-4 flex-grow">
                   {buttons.map((btn) => (
                     <Button
                       key={btn.label}
-                      onClick={btn.action}
+                      onClick={() => btn.action()}
                       className={`text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
                     >
                       {btn.label}
