@@ -3,14 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose
-} from '@/components/ui/dialog';
 import { Calculator, GripVertical, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -169,35 +161,28 @@ export function CalculatorDialog() {
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+    <>
+      <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
           <Calculator className="h-5 w-5" />
           <span className="sr-only">{t('calculatorTitle')}</span>
-        </Button>
-      </DialogTrigger>
+      </Button>
+
       {isOpen && (
-        <DialogContent 
-          className="p-0 bg-transparent border-none shadow-none"
-          onKeyDown={handleKeyDown}
-          hideCloseButton={true}
-        >
-          <Draggable nodeRef={nodeRef} handle=".handle">
+         <Draggable nodeRef={nodeRef} handle=".handle">
             <div 
               ref={nodeRef} 
-              className="sm:max-w-sm w-full bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
+              onKeyDown={handleKeyDown}
+              className="fixed top-1/4 left-1/4 z-50 sm:max-w-sm w-full bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden shadow-2xl"
             >
-              <DialogHeader className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
+              <div className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <GripVertical className="h-5 w-5 text-gray-400" />
-                  <DialogTitle className="text-base text-gray-600">{t('calculatorTitle')}</DialogTitle>
+                  <p className="text-base text-gray-600">{t('calculatorTitle')}</p>
                 </div>
-                <DialogClose asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
                     <X className="h-4 w-4" />
-                  </Button>
-                </DialogClose>
-              </DialogHeader>
+                </Button>
+              </div>
               <div className="p-4">
                 <div 
                   ref={displayRef} 
@@ -217,9 +202,8 @@ export function CalculatorDialog() {
                 </div>
               </div>
             </div>
-          </Draggable>
-        </DialogContent>
+         </Draggable>
       )}
-    </Dialog>
+    </>
   );
 }

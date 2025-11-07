@@ -42,11 +42,6 @@ const DialogContent = React.forwardRef<
         className
       )}
       {...props}
-      onInteractOutside={(e) => {
-        if (e.target instanceof HTMLElement && e.target.closest('.react-draggable')) {
-           e.preventDefault();
-        }
-      }}
     >
       {children}
       {!hideCloseButton && (
