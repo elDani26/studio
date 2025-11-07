@@ -224,3 +224,7 @@
     "optionalDescription": "Description (facultatif)",
     "descriptionPlaceholder": "Ex: Paiement pour..."
   },
+  "CalculatorDialog": {
+    "calculatorTitle": "Calculatrice"
+  }
+}

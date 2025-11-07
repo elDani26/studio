@@ -206,7 +206,6 @@
     "signupSuccessDescription": "Sua conta foi criada. Agora você pode fazer login.",
     "transactionDeletedSuccess": "A transação foi excluída.",
     "transactionDeletedError": "Não foi possível excluir a transação. Por favor, tente novamente.",
-semicolon
     "operationError": "Erro de operação",
     "operationErrorDescription": "Não foi possível concluir a operação."
   },

@@ -129,7 +129,7 @@ export function TransactionDataTable({
       } else if (type === 'expense') {
         typeFilterPassed = t.type === 'expense' && !t.transferId && !t.isCreditCardExpense;
       } else { // income
-        typeFilterPassed = t.type === type && !t.transferId;
+        typeFilterPassed = t.type === 'income' && !t.transferId;
       }
 
       // Special logic for account filter when a credit account is selected
@@ -488,3 +488,5 @@ export function TransactionDataTable({
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
