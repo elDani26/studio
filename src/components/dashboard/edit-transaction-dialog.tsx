@@ -47,6 +47,7 @@ const transactionSchema = z.object({
   description: z.string().optional(),
   account: z.string().min(1),
   isCreditCardExpense: z.boolean().optional(),
+  paymentFor: z.string().optional(),
 });
 
 interface EditTransactionDialogProps {
@@ -69,10 +70,12 @@ export function EditTransactionDialog({
   const { categories, accounts } = useSettings();
   const t = useTranslations('EditTransactionDialog');
   const tAdd = useTranslations('AddTransactionDialog');
+  const tPay = useTranslations('PayCreditCardDialog');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
   const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
+  const isPayment = useMemo(() => !!transaction?.paymentFor, [transaction]);
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
   const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
 
@@ -86,6 +89,7 @@ export function EditTransactionDialog({
       description: '',
       account: '',
       isCreditCardExpense: false,
+      paymentFor: '',
     }
   });
 
@@ -109,12 +113,13 @@ export function EditTransactionDialog({
         ...transaction,
         date,
         description: transaction.description || '',
+        paymentFor: transaction.paymentFor || '',
       });
     }
   }, [transaction, isOpen, form]);
 
   useEffect(() => {
-    if (transaction && !isTransfer) {
+    if (transaction && !isTransfer && !isPayment) {
       const currentCategoryValue = form.getValues('category');
       const isCategoryStillValid = filteredCategories.some(c => c.id === currentCategoryValue);
 
@@ -122,11 +127,13 @@ export function EditTransactionDialog({
           form.setValue('category', '');
       }
     }
-  }, [transactionType, filteredCategories, form, transaction, isTransfer]);
+  }, [transactionType, filteredCategories, form, transaction, isTransfer, isPayment]);
 
   const availableAccounts = useMemo(() => {
-    return isCreditCardExpense ? creditAccounts : debitAccounts;
-  }, [isCreditCardExpense, creditAccounts, debitAccounts]);
+    if (isCreditCardExpense) return creditAccounts;
+    if (isPayment) return debitAccounts;
+    return accounts;
+  }, [isCreditCardExpense, isPayment, creditAccounts, debitAccounts, accounts]);
 
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
@@ -136,21 +143,21 @@ export function EditTransactionDialog({
     try {
         const batch = writeBatch(firestore);
         
-        const updates: any = {
+        let updates: any = {
             amount: values.amount,
             date: Timestamp.fromDate(values.date),
             description: values.description,
-            account: values.account,
-            category: values.category,
-            type: values.type
         };
 
-        // If it's not a transfer, update all fields
-        const finalUpdates = isTransfer ? { amount: values.amount, date: Timestamp.fromDate(values.date) } : updates;
+        if (isPayment) {
+          updates.account = values.account; // fromAccount
+          updates.paymentFor = values.paymentFor; // toAccount
+        } else if (!isTransfer) {
+          updates = { ...updates, account: values.account, category: values.category, type: values.type };
+        }
 
-        // Update the primary transaction
         const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-        batch.update(mainDocRef, finalUpdates);
+        batch.update(mainDocRef, updates);
 
         if (transaction.transferId) {
             const q = query(
@@ -200,44 +207,47 @@ export function EditTransactionDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>{tAdd('transactionType')}</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex space-x-4"
-                      disabled={isTransfer || isCreditCardExpense}
-                    >
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="income" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{tAdd('income')}</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="expense" />
-                        </FormControl>
-                        <FormLabel className="font-normal">{tAdd('expense')}</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
+            {!isPayment && (
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>{tAdd('transactionType')}</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex space-x-4"
+                        disabled={isTransfer || isCreditCardExpense || isPayment}
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="income" />
+                          </FormControl>
+                          <FormLabel className="font-normal">{tAdd('income')}</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="expense" />
+                          </FormControl>
+                          <FormLabel className="font-normal">{tAdd('expense')}</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{tAdd('amount')}</FormLabel>
+                  <FormLabel>{isPayment ? tPay('amountToPay') : tAdd('amount')}</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -246,43 +256,45 @@ export function EditTransactionDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{tAdd('category')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={tAdd('selectCategory')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredCategories.map(cat => {
-                        const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
-                        return (
-                          <SelectItem key={cat.id} value={cat.id}>
-                             <div className="flex items-center">
-                              <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {cat.name}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!isPayment && (
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tAdd('category')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer || isPayment}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={tAdd('selectCategory')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCategories.map(cat => {
+                          const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
+                          return (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {cat.name}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             
             <FormField
               control={form.control}
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>{tAdd('date')}</FormLabel>
+                  <FormLabel>{isPayment ? tPay('paymentDate') : tAdd('date')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -328,36 +340,102 @@ export function EditTransactionDialog({
               )}
             />
 
-             <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{tAdd('account')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={tAdd('selectAccount')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableAccounts.map(acc => {
-                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
-                        return (
-                          <SelectItem key={acc.id} value={acc.id}>
-                           <div className="flex items-center">
-                            <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {acc.name}
-                          </div>
-                        </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {isPayment ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="paymentFor" // This is the credit card
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{tPay('toCreditCard')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={tPay('selectCreditCard')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {creditAccounts.map(acc => {
+                            const Icon = ICONS[acc.icon] || ICONS.CreditCard;
+                            return (
+                              <SelectItem key={acc.id} value={acc.id}>
+                                <div className="flex items-center">
+                                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {acc.name}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="account" // This is the debit account
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{tPay('fromAccount')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={tPay('selectDebitAccount')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {debitAccounts.map(acc => {
+                            const Icon = ICONS[acc.icon] || ICONS.Landmark;
+                            return (
+                              <SelectItem key={acc.id} value={acc.id}>
+                                <div className="flex items-center">
+                                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  {acc.name}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tAdd('account')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isTransfer}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={tAdd('selectAccount')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableAccounts.map(acc => {
+                          const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                          return (
+                            <SelectItem key={acc.id} value={acc.id}>
+                              <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {acc.name}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
 
             <DialogFooter>
               <Button type="submit" disabled={loading} className="w-full">

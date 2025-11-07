@@ -72,7 +72,6 @@ export function TransactionDataTable({
 
   const selectedAccount = useMemo(() => accounts.find(a => a.id === accountFilter), [accounts, accountFilter]);
   const isCreditAccountSelected = useMemo(() => selectedAccount?.type === 'credit', [selectedAccount]);
-  const isCreditExpenseTypeSelected = useMemo(() => type === 'credit-expense', [type]);
 
   const filteredCategories = useMemo(() => {
     if (type === 'all' || type === 'transfer') {
@@ -141,7 +140,7 @@ export function TransactionDataTable({
     const balance = income - expenses;
     
     // Determine which transactions to use for credit calculation
-    const creditTransactionsSource = (isCreditAccountSelected || isCreditExpenseTypeSelected) ? transactions : filteredTransactions;
+    const creditTransactionsSource = transactions;
 
     const creditHistoryTotal = creditTransactionsSource
         .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
@@ -161,7 +160,7 @@ export function TransactionDataTable({
       creditHistoryTotal,
       currentDebt,
     };
-  }, [filteredTransactions, transactions, isCreditAccountSelected, isCreditExpenseTypeSelected, accountFilter]);
+  }, [filteredTransactions, transactions, accountFilter]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -232,7 +231,7 @@ export function TransactionDataTable({
     setDateTo(undefined);
   };
 
-  const showCreditView = isCreditAccountSelected || isCreditExpenseTypeSelected;
+  const showCreditView = isCreditAccountSelected;
 
 
   return (
@@ -423,7 +422,7 @@ export function TransactionDataTable({
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)} disabled={!!transaction.paymentFor}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
                               <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction)}>
@@ -474,5 +473,3 @@ export function TransactionDataTable({
     </>
   );
 }
-
-    
