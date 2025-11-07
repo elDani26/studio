@@ -89,7 +89,15 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
               });
               batch.commit().catch(e => console.error("Failed to create default accounts", e));
           } else {
-              setAccounts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as WithId<SourceAccount>[]);
+            const userAccounts = snapshot.docs.map(doc => {
+              const data = doc.data() as SourceAccount;
+              // If an old account doesn't have a type, default it to 'debit'
+              if (!data.type) {
+                data.type = 'debit';
+              }
+              return { id: doc.id, ...data };
+            }) as WithId<SourceAccount>[];
+            setAccounts(userAccounts);
           }
       }, (error) => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: accountsColRef.path, operation: 'list' })))
     ];
