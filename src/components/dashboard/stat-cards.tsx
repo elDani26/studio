@@ -34,19 +34,23 @@ export function StatCards({ transactions }: StatCardsProps) {
   const dateFnsLocale = getLocale(locale);
 
   useEffect(() => {
+    // Total income is all transactions of type 'income' that are not transfers
     const income = transactions
-      .filter(t => t.type === 'income' && !t.isCreditCardExpense)
-      .reduce((acc, t) => acc + t.amount, 0);
-    
-    const expenses = transactions
-      .filter(t => t.type === 'expense' && !t.isCreditCardExpense)
+      .filter(t => t.type === 'income' && !t.transferId)
       .reduce((acc, t) => acc + t.amount, 0);
 
+    // Total expenses are all transactions of type 'expense' that are not transfers or credit card expenses.
+    // Credit card payments (paymentFor) ARE included as they are real expenses from a debit account.
+    const expenses = transactions
+      .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    // Credit card debt is the sum of expenses made with a credit card...
     const debt = transactions
       .filter(t => t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
 
-    // Los pagos de tarjeta de crédito (egresos que tienen `paymentFor`) reducen la deuda
+    // ...minus the sum of payments made to credit cards.
     const payments = transactions
       .filter(t => t.type === 'expense' && !!t.paymentFor)
       .reduce((acc, t) => acc + t.amount, 0);

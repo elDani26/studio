@@ -121,20 +121,14 @@ export function TransactionDataTable({
 
   const filteredTotals = useMemo(() => {
     const income = filteredTransactions
-      .filter(t => t.type === 'income' && !t.isCreditCardExpense)
-      .reduce((acc, t) => acc + t.amount, 0);
-    
-    const expenses = filteredTransactions
-      .filter(t => t.type === 'expense' && !t.isCreditCardExpense && !t.paymentFor)
+      .filter(t => t.type === 'income' && !t.transferId)
       .reduce((acc, t) => acc + t.amount, 0);
 
-    const creditCardExpenses = filteredTransactions
-      .filter(t => t.isCreditCardExpense)
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense)
       .reduce((acc, t) => acc + t.amount, 0);
-    
-    const creditCardPayments = filteredTransactions
-      .filter(t => !!t.paymentFor)
-      .reduce((acc, t) => acc + t.amount, 0);
+
+    const balance = income - expenses;
 
     const creditHistoryTotal = isCreditAccountSelected
       ? transactions
@@ -150,11 +144,11 @@ export function TransactionDataTable({
           .filter(t => t.paymentFor === accountFilter)
           .reduce((acc, t) => acc + t.amount, 0)
       : 0;
-
+    
     return {
       income,
       expenses,
-      balance: income - expenses,
+      balance,
       creditHistoryTotal,
       currentDebt,
     };
