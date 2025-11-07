@@ -175,43 +175,45 @@ export function CalculatorDialog() {
           <span className="sr-only">{t('calculatorTitle')}</span>
         </Button>
       </DialogTrigger>
-       <Draggable nodeRef={nodeRef} handle=".handle">
-        <DialogContent 
-            ref={nodeRef} 
-            className="sm:max-w-sm w-full p-0 shadow-2xl bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden"
-            onKeyDown={handleKeyDown}
-        >
-            <DialogHeader className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <GripVertical className="h-5 w-5 text-gray-400" />
-                    <DialogTitle className="text-base text-gray-600">{t('calculatorTitle')}</DialogTitle>
+      {isOpen && (
+        <Draggable nodeRef={nodeRef} handle=".handle">
+            <DialogContent 
+                ref={nodeRef} 
+                className="sm:max-w-sm w-full p-0 shadow-2xl bg-white rounded-2xl flex flex-col font-[Poppins] border-t-4 border-blue-500 overflow-hidden"
+                onKeyDown={handleKeyDown}
+            >
+                <DialogHeader className="handle cursor-move bg-gray-100 p-2 flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <GripVertical className="h-5 w-5 text-gray-400" />
+                        <DialogTitle className="text-base text-gray-600">{t('calculatorTitle')}</DialogTitle>
+                    </div>
+                    <DialogClose asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </DialogClose>
+                </DialogHeader>
+                <div className="p-4">
+                    <div 
+                        ref={displayRef} 
+                        className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
+                        {getDisplayValue()}
+                    </div>
+                    <div className="grid grid-cols-4 gap-3 mt-4">
+                    {buttons.map((btn) => (
+                        <Button
+                        key={btn.label}
+                        onClick={btn.action}
+                        className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
+                        >
+                        {btn.label}
+                        </Button>
+                    ))}
+                    </div>
                 </div>
-                 <DialogClose asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <X className="h-4 w-4" />
-                    </Button>
-                </DialogClose>
-            </DialogHeader>
-            <div className="p-4">
-                <div 
-                    ref={displayRef} 
-                    className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-5 text-right text-4xl text-[#2c3e50] overflow-x-auto whitespace-nowrap shadow-inner min-h-[80px] flex items-center justify-end font-medium">
-                    {getDisplayValue()}
-                </div>
-                <div className="grid grid-cols-4 gap-3 mt-4">
-                {buttons.map((btn) => (
-                    <Button
-                    key={btn.label}
-                    onClick={btn.action}
-                    className={`h-auto aspect-square text-xl rounded-xl transition-transform duration-100 ease-in-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md p-0 font-medium ${btn.style}`}
-                    >
-                    {btn.label}
-                    </Button>
-                ))}
-                </div>
-            </div>
-        </DialogContent>
-       </Draggable>
+            </DialogContent>
+        </Draggable>
+       )}
     </Dialog>
   );
 }
