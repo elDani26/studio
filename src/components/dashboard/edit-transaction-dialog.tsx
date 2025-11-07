@@ -70,25 +70,26 @@ export function EditTransactionDialog({
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
   const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
 
-  const creditCardDebts = useMemo(() => {
-    if (!transaction || !isPayment) return {};
+  const maxPayableAmount = useMemo(() => {
+    if (!transaction || !isPayment) return 0;
 
-    const debts: Record<string, number> = {};
-    creditAccounts.forEach(acc => debts[acc.id] = 0);
+    // Calculate current debt for the specific card
+    const cardId = transaction.paymentFor;
+    if (!cardId) return 0;
     
-    allTransactions.forEach(t => {
-      // Suma todos los gastos hechos con la tarjeta
-      if (t.isCreditCardExpense && debts.hasOwnProperty(t.account)) {
-        debts[t.account] += t.amount;
-      }
-      // Resta todos los pagos, EXCEPTO el que se está editando
-      if (t.paymentFor && debts.hasOwnProperty(t.paymentFor) && t.id !== transaction.id) {
-         debts[t.paymentFor] -= t.amount;
-      }
-    });
+    const cardExpenses = allTransactions
+      .filter(t => t.isCreditCardExpense && t.account === cardId)
+      .reduce((sum, t) => sum + t.amount, 0);
+      
+    const cardPayments = allTransactions
+      .filter(t => t.paymentFor === cardId)
+      .reduce((sum, t) => sum + t.amount, 0);
 
-    return debts;
-  }, [allTransactions, transaction, isPayment, creditAccounts]);
+    const currentDebt = cardExpenses - cardPayments;
+    
+    // The max payable amount is the current debt PLUS the amount of the very payment we are editing.
+    return currentDebt + transaction.amount;
+  }, [allTransactions, transaction, isPayment]);
 
 
   const transactionSchema = useMemo(() => {
@@ -103,13 +104,13 @@ export function EditTransactionDialog({
       paymentFor: z.string().optional(),
     }).refine(data => {
         if (!isPayment || !data.paymentFor) return true;
-        const debt = creditCardDebts[data.paymentFor] || 0;
-        return data.amount <= debt;
+        // The new amount cannot be greater than the max payable amount.
+        return data.amount <= maxPayableAmount;
       }, {
         message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
         path: ['amount'],
       });
-  }, [isPayment, creditCardDebts]);
+  }, [isPayment, maxPayableAmount]);
 
 
   const form = useForm<z.infer<typeof transactionSchema>>({
