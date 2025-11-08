@@ -43,15 +43,6 @@ interface AddTransactionDialogProps {
   transactions: Transaction[];
 }
 
-const transactionSchema = z.object({
-  type: z.enum(['income', 'expense']),
-  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-  category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
-  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
-  description: z.string().optional(),
-  account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
-});
-
 export function AddTransactionDialog({ transactions }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,6 +56,43 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   const t = useTranslations('AddTransactionDialog');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
+  
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    accounts.forEach(acc => balances[acc.id] = 0);
+
+    transactions.forEach(t => {
+      if (balances.hasOwnProperty(t.account)) {
+        if (t.type === 'income') {
+          balances[t.account] += t.amount;
+        } else {
+          balances[t.account] -= t.amount;
+        }
+      }
+    });
+    return balances;
+  }, [transactions, accounts]);
+
+  const transactionSchema = useMemo(() => {
+    return z.object({
+      type: z.enum(['income', 'expense']),
+      amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+      category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
+      date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
+      description: z.string().optional(),
+      account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
+    }).refine(data => {
+      const selectedAccount = accounts.find(a => a.id === data.account);
+      if (data.type === 'expense' && selectedAccount?.type === 'debit') {
+        const balance = accountBalances[data.account] || 0;
+        return data.amount <= balance;
+      }
+      return true;
+    }, {
+      message: 'El monto del egreso supera el saldo disponible en la cuenta.',
+      path: ['amount'],
+    });
+  }, [accounts, accountBalances]);
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -97,22 +125,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     form.setValue('type', type);
     setStep(2);
   };
-  
-  const accountBalances = useMemo(() => {
-    const balances: Record<string, number> = {};
-    accounts.forEach(acc => balances[acc.id] = 0);
-
-    transactions.forEach(t => {
-      if (balances.hasOwnProperty(t.account)) {
-        if (t.type === 'income') {
-          balances[t.account] += t.amount;
-        } else {
-          balances[t.account] -= t.amount;
-        }
-      }
-    });
-    return balances;
-  }, [transactions, accounts]);
 
   const filteredCategories = useMemo(() => {
     if (!transactionType) return [];
