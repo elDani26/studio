@@ -71,7 +71,7 @@ export function SettingsDialog() {
 
   const handleSaveSettings = () => {
     setCurrency(selectedCurrency);
-    // The setHasCreditCard is already being called onCheckChange
+    setHasCreditCard(hasCreditCard);
     toast({
       title: t('currencySuccessToast'),
       description: t('currencySuccessDescription'),

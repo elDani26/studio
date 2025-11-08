@@ -126,23 +126,37 @@ export default function DashboardPage() {
 
   const debtChartData = useMemo(() => {
     if (!hasCreditCard) return [];
-    const creditAccounts = accounts.filter(a => a.type === 'credit');
-    const debtByAccount = creditAccounts.reduce((acc, account) => {
-      const debt = filteredChartTransactions.filter(t => t.isCreditCardExpense && t.account === account.id).reduce((sum, t) => sum + t.amount, 0);
-      const payments = filteredChartTransactions.filter(t => t.paymentFor === account.id).reduce((sum, t) => sum + t.amount, 0);
-      const currentDebt = debt - payments;
-      if (currentDebt > 0) acc[account.id] = { name: account.name, value: currentDebt };
-      return acc;
-    }, {} as Record<string, {name: string, value: number}>);
+    
+    // Get all expenses made with credit cards
+    const creditCardExpenses = filteredChartTransactions.filter(t => t.isCreditCardExpense);
+    
+    // Group them by category
+    const debtByCategory = creditCardExpenses.reduce((acc, transaction) => {
+        const categoryId = transaction.category;
+        const categoryInfo = categories.find(c => c.id === categoryId);
+        const categoryName = categoryInfo?.name || tMisc('unknownCategory');
+        
+        if (!acc[categoryName]) {
+            acc[categoryName] = 0;
+        }
+        acc[categoryName] += transaction.amount;
+        
+        return acc;
+    }, {} as Record<string, number>);
 
-    return Object.values(debtByAccount).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
-  }, [filteredChartTransactions, accounts, hasCreditCard]);
+    // Format for the chart
+    return Object.entries(debtByCategory)
+        .map(([name, value]) => ({ name, value }))
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value);
+
+  }, [filteredChartTransactions, categories, hasCreditCard, tMisc]);
 
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2 space-y-4">
           <StatCards transactions={transactions} />
         </div>
         <div className="lg:col-span-1">
