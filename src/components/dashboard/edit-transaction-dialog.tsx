@@ -63,11 +63,14 @@ export function EditTransactionDialog({
   const { categories, accounts, currency } = useSettings();
   const t = useTranslations('EditTransactionDialog');
   const tAdd = useTranslations('AddTransactionDialog');
+  const tPay = useTranslations('PayCreditCardDialog');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
   
   const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
   const isPayment = useMemo(() => !!transaction?.paymentFor, [transaction]);
+
+  const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
 
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
@@ -80,6 +83,22 @@ export function EditTransactionDialog({
     });
     return balances;
   }, [allTransactions, accounts]);
+
+  const creditCardDebts = useMemo(() => {
+    const debts: Record<string, number> = {};
+    creditAccounts.forEach(acc => debts[acc.id] = 0);
+    
+    allTransactions.forEach(t => {
+      if (t.isCreditCardExpense && debts.hasOwnProperty(t.account)) {
+        debts[t.account] += t.amount;
+      }
+      if (t.paymentFor && debts.hasOwnProperty(t.paymentFor)) {
+         debts[t.paymentFor] -= t.amount;
+      }
+    });
+
+    return debts;
+  }, [allTransactions, creditAccounts]);
 
   const transactionSchema = useMemo(() => {
     return z.object({
@@ -95,21 +114,28 @@ export function EditTransactionDialog({
         if (!transaction) return true;
         const selectedAccount = accounts.find(a => a.id === data.account);
         const originalTransactionAmount = transaction.amount || 0;
-        const currentBalanceInAccount = accountBalances[data.account] || 0;
         
-        // This is the key: the maximum amount you can set is the current balance plus whatever amount this transaction originally had.
-        // This correctly calculates the account's balance *before* this transaction happened.
-        const maxEditableAmount = currentBalanceInAccount + originalTransactionAmount;
-
-        if (data.type === 'expense' && selectedAccount?.type === 'debit') {
+        if (data.type === 'expense' && selectedAccount?.type === 'debit' && !isPayment) {
+            const currentBalanceInAccount = accountBalances[data.account] || 0;
+            const maxEditableAmount = currentBalanceInAccount + (transaction.account === data.account ? originalTransactionAmount : 0);
             return data.amount <= maxEditableAmount;
         }
         return true;
-      }, {
-        message: 'El monto del egreso supera el saldo disponible en la cuenta.',
-        path: ['amount'],
-      });
-  }, [accounts, transaction, accountBalances]);
+    }, {
+      message: 'El monto del egreso supera el saldo disponible en la cuenta.',
+      path: ['amount'],
+    }).refine(data => {
+      if (!transaction || !isPayment || !transaction.paymentFor) return true;
+
+      const cardDebt = creditCardDebts[transaction.paymentFor] || 0;
+      const maxPayable = cardDebt + transaction.amount;
+      return data.amount <= maxPayable;
+
+    }, {
+      message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
+      path: ['amount'],
+    });
+  }, [accounts, transaction, accountBalances, isPayment, creditCardDebts]);
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -167,25 +193,59 @@ export function EditTransactionDialog({
     setLoading(true);
 
     try {
-        const batch = writeBatch(firestore);
-        
-        const selectedAccount = accounts.find(a => a.id === values.account);
-        const isCreditExpense = values.type === 'expense' && selectedAccount?.type === 'credit';
-        
-        const updates: any = {
-            amount: values.amount,
-            date: Timestamp.fromDate(values.date),
-            description: values.description,
-            account: values.account, 
-            category: values.category, 
-            type: values.type,
-            isCreditCardExpense: isCreditExpense,
-        };
+        if (isTransfer) {
+            const expensePart = allTransactions.find(t => t.transferId === transaction.transferId && t.type === 'expense');
+            if (expensePart) {
+                const fromAccountBalance = accountBalances[expensePart.account] || 0;
+                const maxAllowed = fromAccountBalance + expensePart.amount;
+                if (values.amount > maxAllowed) {
+                    form.setError('amount', { type: 'manual', message: 'El monto de la transferencia supera el saldo disponible.' });
+                    setLoading(false);
+                    return;
+                }
+            }
 
-        const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-        batch.update(mainDocRef, updates);
-        
-        await batch.commit();
+            const batch = writeBatch(firestore);
+            const updates = {
+                amount: values.amount,
+                date: Timestamp.fromDate(values.date),
+            };
+
+            const q = query(
+                collection(firestore, 'users', user.uid, 'transactions'),
+                where('transferId', '==', transaction.transferId)
+            );
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                batch.update(doc.ref, updates);
+            });
+            await batch.commit();
+
+        } else if (isPayment) {
+            const updates = {
+                amount: values.amount,
+                date: Timestamp.fromDate(values.date),
+            };
+            const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
+            await updateDoc(mainDocRef, updates);
+
+        } else { // Regular transaction
+            const selectedAccount = accounts.find(a => a.id === values.account);
+            const isCreditExpense = values.type === 'expense' && selectedAccount?.type === 'credit';
+            
+            const updates: any = {
+                amount: values.amount,
+                date: Timestamp.fromDate(values.date),
+                description: values.description,
+                account: values.account, 
+                category: values.category, 
+                type: values.type,
+                isCreditCardExpense: isCreditExpense,
+            };
+
+            const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
+            await updateDoc(mainDocRef, updates);
+        }
         
         toast({
             title: 'Success!',
@@ -210,65 +270,23 @@ export function EditTransactionDialog({
   };
 
   if (isTransfer || isPayment) {
+    const title = isTransfer ? 'Editar Transferencia' : 'Editar Pago de Tarjeta';
+    const description = isTransfer 
+        ? 'Solo puedes editar el monto y la fecha de una transferencia.'
+        : 'Solo puedes editar el monto y la fecha de un pago.';
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
                  <DialogHeader>
-                    <DialogTitle>{t('title')}</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>
-                        Las transferencias y pagos de tarjeta solo pueden tener su monto y fecha editados.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex-grow overflow-y-auto pr-4 -mr-4">
                   <Form {...form}>
-                      <form onSubmit={form.handleSubmit(async (values) => {
-                          if (!user || !transaction) return;
-                          setLoading(true);
-                          
-                          // Validation logic for transfers
-                          if (transaction.transferId) {
-                            const expensePart = allTransactions.find(t => t.transferId === transaction.transferId && t.type === 'expense');
-                            if (expensePart) {
-                                const fromAccountBalance = accountBalances[expensePart.account] || 0;
-                                const maxAllowed = fromAccountBalance + expensePart.amount;
-                                if (values.amount > maxAllowed) {
-                                    form.setError('amount', { type: 'manual', message: 'El monto de la transferencia supera el saldo disponible.' });
-                                    setLoading(false);
-                                    return;
-                                }
-                            }
-                          }
-
-                          try {
-                              const batch = writeBatch(firestore);
-                              const updates = {
-                                  amount: values.amount,
-                                  date: Timestamp.fromDate(values.date),
-                              };
-
-                              if (transaction.transferId) {
-                                  const q = query(
-                                      collection(firestore, 'users', user.uid, 'transactions'),
-                                      where('transferId', '==', transaction.transferId)
-                                  );
-                                  const querySnapshot = await getDocs(q);
-                                  querySnapshot.forEach((doc) => {
-                                      batch.update(doc.ref, updates);
-                                  });
-                              } else { // It's a payment
-                                  const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-                                  batch.update(mainDocRef, updates);
-                              }
-                              await batch.commit();
-                              toast({ title: 'Success!', description: t('successToast') });
-                              onTransactionUpdated();
-                              onOpenChange(false);
-                          } catch (e) {
-                              toast({ variant: 'destructive', title: 'Error', description: t('errorToast') });
-                          } finally {
-                              setLoading(false);
-                          }
-                      })} className="space-y-4">
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                           <FormField
                               control={form.control}
                               name="amount"
@@ -473,6 +491,7 @@ export function EditTransactionDialog({
                                 const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                                 const balance = accountBalances[acc.id];
                                 const isDebit = acc.type === 'debit';
+                                const originalAmount = field.value === transaction?.account ? (transaction?.amount || 0) : 0;
                                 return (
                                 <SelectItem key={acc.id} value={acc.id}>
                                 <div className="flex items-center justify-between w-full">
@@ -480,7 +499,7 @@ export function EditTransactionDialog({
                                     <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                                     {acc.name}
                                     </div>
-                                    {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
+                                    {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance + originalAmount)}</span>}
                                 </div>
                                 </SelectItem>
                                 );
