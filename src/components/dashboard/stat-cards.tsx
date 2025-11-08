@@ -27,10 +27,10 @@ const StatCard = ({ title, value, icon: Icon, colorClass }: { title: string; val
   };
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-1">
           <Icon className={`h-4 w-4 ${colorClass}`} />
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
@@ -38,7 +38,7 @@ const StatCard = ({ title, value, icon: Icon, colorClass }: { title: string; val
         </div>
       </CardHeader>
       <CardContent className="flex-grow flex items-end">
-        <div className={`text-2xl sm:text-3xl font-bold ${colorClass} leading-tight`}>{formatCurrency(value)}</div>
+        <div className={`text-2xl lg:text-xl xl:text-2xl font-bold ${colorClass} leading-tight break-all`}>{formatCurrency(value)}</div>
       </CardContent>
     </Card>
   );
@@ -84,14 +84,14 @@ export function StatCards({ transactions }: StatCardsProps) {
   
   return (
     <>
-      <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+      <div className="col-span-1">
         <StatCard title={t('totalIncome')} value={totalIncome} icon={ArrowUp} colorClass="text-green-500" />
       </div>
-      <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+      <div className="col-span-1">
         <StatCard title={t('totalExpenses')} value={totalExpenses} icon={ArrowDown} colorClass="text-red-500" />
       </div>
-      {hasCreditCard && <div className="col-span-1 sm:col-span-2 lg:col-span-1"><StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" /></div>}
-       <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+      {hasCreditCard && <div className="col-span-1"><StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" /></div>}
+       <div className="col-span-1">
         <StatCard title={t('currentBalance')} value={balance} icon={Scale} colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'} />
       </div>
     </>
