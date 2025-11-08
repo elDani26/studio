@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -47,7 +46,6 @@ interface AddTransactionDialogProps {
 export function AddTransactionDialog({ transactions }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -106,6 +104,14 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   });
 
   const transactionType = form.watch('type');
+  
+  const handleTypeChange = (newType: 'income' | 'expense') => {
+    form.setValue('type', newType, { shouldValidate: true });
+    // Reset category and account as they are dependent on the type
+    form.setValue('category', '');
+    form.setValue('account', '');
+  };
+
 
   useEffect(() => {
     if (open) {
@@ -119,15 +125,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       });
     }
   }, [open, form]);
-
-  const handleTypeChange = (newType: 'income' | 'expense') => {
-    form.setValue('type', newType);
-    setTimeout(() => {
-      form.setValue('category', '');
-      form.setValue('account', '');
-    }, 0);
-  };
-
 
   const filteredCategories = useMemo(() => {
     if (!transactionType) return [];
@@ -207,28 +204,28 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
               <FormField
                 control={form.control}
                 name="type"
-                render={({ field }) => (
+                render={() => (
                   <FormItem className="space-y-3">
                     <FormLabel>{t('transactionType')}</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={(value) => handleTypeChange(value as 'income' | 'expense')}
-                        value={field.value}
-                        className="flex space-x-4"
-                      >
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="income" />
-                          </FormControl>
-                          <FormLabel className="font-normal">{t('income')}</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="expense" />
-                          </FormControl>
-                          <FormLabel className="font-normal">{t('expense')}</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
+                      <div className="flex space-x-4">
+                         <Button
+                          type="button"
+                          variant={transactionType === 'income' ? 'default' : 'outline'}
+                          onClick={() => handleTypeChange('income')}
+                          className="flex-1"
+                        >
+                          {t('income')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={transactionType === 'expense' ? 'destructive' : 'outline'}
+                          onClick={() => handleTypeChange('expense')}
+                           className="flex-1"
+                        >
+                          {t('expense')}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
