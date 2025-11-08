@@ -56,17 +56,16 @@ export function EditTransactionDialog({
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [transactionType, setTransactionType] = useState<'income' | 'expense' | null>(null);
-
+  
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { categories, accounts, currency } = useSettings();
   const t = useTranslations('EditTransactionDialog');
   const tAdd = useTranslations('AddTransactionDialog');
-  const tPay = useTranslations('PayCreditCardDialog');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
-
+  
   const isTransfer = useMemo(() => !!transaction?.transferId, [transaction]);
   const isPayment = useMemo(() => !!transaction?.paymentFor, [transaction]);
 
@@ -82,13 +81,6 @@ export function EditTransactionDialog({
     return balances;
   }, [allTransactions, accounts]);
 
-  const maxEditableAmount = useMemo(() => {
-    if (!transaction) return 0;
-    const balance = accountBalances[transaction.account] || 0;
-    return balance + transaction.amount;
-  }, [transaction, accountBalances]);
-
-
   const transactionSchema = useMemo(() => {
     return z.object({
       type: z.enum(['income', 'expense']),
@@ -100,7 +92,15 @@ export function EditTransactionDialog({
       isCreditCardExpense: z.boolean().optional(),
       paymentFor: z.string().optional(),
     }).refine(data => {
+        if (!transaction) return true;
         const selectedAccount = accounts.find(a => a.id === data.account);
+        const originalTransactionAmount = transaction.amount || 0;
+        const currentBalanceInAccount = accountBalances[data.account] || 0;
+        
+        // This is the key: the maximum amount you can set is the current balance plus whatever amount this transaction originally had.
+        // This correctly calculates the account's balance *before* this transaction happened.
+        const maxEditableAmount = currentBalanceInAccount + originalTransactionAmount;
+
         if (data.type === 'expense' && selectedAccount?.type === 'debit') {
             return data.amount <= maxEditableAmount;
         }
@@ -109,21 +109,10 @@ export function EditTransactionDialog({
         message: 'El monto del egreso supera el saldo disponible en la cuenta.',
         path: ['amount'],
       });
-  }, [accounts, maxEditableAmount]);
-
+  }, [accounts, transaction, accountBalances]);
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      type: 'expense',
-      amount: 0,
-      category: '',
-      date: new Date(),
-      description: '',
-      account: '',
-      isCreditCardExpense: false,
-      paymentFor: '',
-    }
   });
 
   const filteredCategories = useMemo(() => {
@@ -143,7 +132,7 @@ export function EditTransactionDialog({
       } else {
         date = new Date(transaction.date as any);
       }
-
+      
       form.reset({
         ...transaction,
         date,
@@ -164,14 +153,14 @@ export function EditTransactionDialog({
   };
 
   const availableAccounts = useMemo(() => {
+    if (!transactionType) return [];
     if (transactionType === 'income') {
       return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
-  }, [transactionType, accounts]);
+  }, [accounts, transactionType]);
   
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
-
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
     if (!user || !transaction) return;
@@ -183,7 +172,7 @@ export function EditTransactionDialog({
         const selectedAccount = accounts.find(a => a.id === values.account);
         const isCreditExpense = values.type === 'expense' && selectedAccount?.type === 'credit';
         
-        let updates: any = {
+        const updates: any = {
             amount: values.amount,
             date: Timestamp.fromDate(values.date),
             description: values.description,
@@ -221,103 +210,119 @@ export function EditTransactionDialog({
   };
 
   if (isTransfer || isPayment) {
-    // A simplified form for transfers and payments as they are not fully editable
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-sm">
+            <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
                  <DialogHeader>
                     <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription>
                         Las transferencias y pagos de tarjeta solo pueden tener su monto y fecha editados.
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(async (values) => {
-                         if (!user || !transaction) return;
-                         setLoading(true);
-                         try {
-                            const batch = writeBatch(firestore);
-                            const updates = {
-                                amount: values.amount,
-                                date: Timestamp.fromDate(values.date),
-                            };
-
-                            if (transaction.transferId) {
-                                const q = query(
-                                    collection(firestore, 'users', user.uid, 'transactions'),
-                                    where('transferId', '==', transaction.transferId)
-                                );
-                                const querySnapshot = await getDocs(q);
-                                querySnapshot.forEach((doc) => {
-                                    batch.update(doc.ref, updates);
-                                });
-                            } else {
-                                const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
-                                batch.update(mainDocRef, updates);
+                <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+                  <Form {...form}>
+                      <form onSubmit={form.handleSubmit(async (values) => {
+                          if (!user || !transaction) return;
+                          setLoading(true);
+                          
+                          // Validation logic for transfers
+                          if (transaction.transferId) {
+                            const expensePart = allTransactions.find(t => t.transferId === transaction.transferId && t.type === 'expense');
+                            if (expensePart) {
+                                const fromAccountBalance = accountBalances[expensePart.account] || 0;
+                                const maxAllowed = fromAccountBalance + expensePart.amount;
+                                if (values.amount > maxAllowed) {
+                                    form.setError('amount', { type: 'manual', message: 'El monto de la transferencia supera el saldo disponible.' });
+                                    setLoading(false);
+                                    return;
+                                }
                             }
-                            await batch.commit();
-                            toast({ title: 'Success!', description: t('successToast') });
-                            onTransactionUpdated();
-                            onOpenChange(false);
-                         } catch (e) {
-                             toast({ variant: 'destructive', title: 'Error', description: t('errorToast') });
-                         } finally {
-                            setLoading(false);
-                         }
-                    })} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="amount"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>{tAdd('amount')}</FormLabel>
-                                <FormControl>
-                                    <Input type="number" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="date"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel>{tAdd('date')}</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                        variant={'outline'}
-                                        className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>
-                                        {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tAdd('pickDate')}</span>}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                                        initialFocus
-                                        locale={dateFnsLocale}
-                                    />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <Button type="submit" disabled={loading} className="w-full">
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {t('saveButton')}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                          }
+
+                          try {
+                              const batch = writeBatch(firestore);
+                              const updates = {
+                                  amount: values.amount,
+                                  date: Timestamp.fromDate(values.date),
+                              };
+
+                              if (transaction.transferId) {
+                                  const q = query(
+                                      collection(firestore, 'users', user.uid, 'transactions'),
+                                      where('transferId', '==', transaction.transferId)
+                                  );
+                                  const querySnapshot = await getDocs(q);
+                                  querySnapshot.forEach((doc) => {
+                                      batch.update(doc.ref, updates);
+                                  });
+                              } else { // It's a payment
+                                  const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transaction.id);
+                                  batch.update(mainDocRef, updates);
+                              }
+                              await batch.commit();
+                              toast({ title: 'Success!', description: t('successToast') });
+                              onTransactionUpdated();
+                              onOpenChange(false);
+                          } catch (e) {
+                              toast({ variant: 'destructive', title: 'Error', description: t('errorToast') });
+                          } finally {
+                              setLoading(false);
+                          }
+                      })} className="space-y-4">
+                          <FormField
+                              control={form.control}
+                              name="amount"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>{tAdd('amount')}</FormLabel>
+                                  <FormControl>
+                                      <Input type="number" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="date"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                  <FormLabel>{tAdd('date')}</FormLabel>
+                                  <Popover>
+                                      <PopoverTrigger asChild>
+                                      <FormControl>
+                                          <Button
+                                          variant={'outline'}
+                                          className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>
+                                          {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tAdd('pickDate')}</span>}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                      </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0" align="start">
+                                      <Calendar
+                                          mode="single"
+                                          selected={field.value}
+                                          onSelect={field.onChange}
+                                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                                          initialFocus
+                                          locale={dateFnsLocale}
+                                      />
+                                      </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <DialogFooter className="pt-4 sticky bottom-0 bg-background">
+                              <Button type="submit" disabled={loading} className="w-full">
+                                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  {t('saveButton')}
+                              </Button>
+                          </DialogFooter>
+                      </form>
+                  </Form>
+                </div>
             </DialogContent>
         </Dialog>
     )
