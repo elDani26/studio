@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
@@ -44,6 +44,15 @@ interface AddTransactionDialogProps {
   transactions: Transaction[];
 }
 
+const transactionSchema = z.object({
+  type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo.' }),
+  amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+  category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
+  date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
+  description: z.string().optional(),
+  account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
+});
+
 export function AddTransactionDialog({ transactions }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,76 +79,53 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     });
     return balances;
   }, [transactions, accounts]);
-
-  const transactionSchema = z.object({
-    type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
-    amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-    category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
-    date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
-    description: z.string().optional(),
-    account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
-  }).refine(data => {
-    const account = accounts.find(a => a.id === data.account);
-    if (account?.type === 'debit' && data.type === 'expense') {
-      const balance = accountBalances[data.account] || 0;
-      return data.amount <= balance;
-    }
-    return true;
-  }, {
-    message: 'El monto supera el saldo disponible en esta cuenta.',
-    path: ['amount'],
-  });
-
+  
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      type: 'expense',
+      type: undefined,
       amount: 0,
-      category: '',
       date: new Date(),
       description: '',
       account: '',
+      category: '',
     },
   });
 
-  // This is the key fix: Reset the entire form state whenever the dialog opens.
-  // This prevents stale state from previous interactions causing rendering conflicts.
+  const transactionType = form.watch('type');
+
   useEffect(() => {
     if (open) {
       form.reset({
-        type: 'expense',
+        type: undefined,
         amount: 0,
-        category: '',
         date: new Date(),
         description: '',
         account: '',
+        category: '',
       });
     }
   }, [open, form]);
+  
+  useEffect(() => {
+    form.setValue('category', '');
+    form.setValue('account', '');
+  }, [transactionType, form]);
 
-  const transactionType = form.watch('type');
 
-  // These are now simple computations based on the current form state (`transactionType`).
-  // No complex useEffects are needed.
   const filteredCategories = useMemo(() => {
+    if (!transactionType) return [];
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
   }, [categories, transactionType]);
 
   const availableAccounts = useMemo(() => {
+    if (!transactionType) return [];
     if (transactionType === 'income') {
       return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
   }, [accounts, transactionType]);
   
-  // This function is now simplified. It only updates the `type` field.
-  // Then, it resets `category` and `account` fields to avoid invalid selections.
-  const handleTypeChange = (value: 'income' | 'expense') => {
-    form.setValue('type', value);
-    form.setValue('category', '');
-    form.setValue('account', '');
-  }
-
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
   const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
@@ -209,7 +195,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                   <FormLabel>{t('transactionType')}</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value: 'income' | 'expense') => handleTypeChange(value)}
+                      onValueChange={field.onChange}
                       value={field.value}
                       className="flex space-x-4"
                     >
@@ -252,7 +238,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('category')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={t('selectCategory')} />
@@ -334,7 +320,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('account')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={t('selectAccount')} />

@@ -404,9 +404,11 @@ export function TransactionDataTable({
               <TableHeader>
                 <TableRow>
                   {columns.map(column => (
-                    <TableHead key={column.accessor.toString()} className={column.className}>{column.header}</TableHead>
+                    <TableHead key={column.accessor.toString()} className={cn(column.className, 'text-xs md:text-sm')}>
+                      {column.header}
+                    </TableHead>
                   ))}
-                  <TableHead className="text-right">{tColumns('actions')}</TableHead>
+                  <TableHead className="text-right text-xs md:text-sm">{tColumns('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

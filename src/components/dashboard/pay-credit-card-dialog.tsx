@@ -182,7 +182,7 @@ export function PayCreditCardDialog({ transactions }: PayCreditCardDialogProps) 
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-grow overflow-y-auto pr-4">
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
           <div className="my-4 space-y-2">
               <h4 className="font-semibold">{t('debtSummary')}</h4>
               <div className="p-3 bg-muted rounded-md text-sm space-y-1">

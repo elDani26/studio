@@ -173,13 +173,14 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
             {t('title')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
             {t('description')}
           </DialogDescription>
         </DialogHeader>
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 
@@ -318,7 +319,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="pt-4 sticky bottom-0 bg-background">
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t('transferButton')}
@@ -326,6 +327,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
             </DialogFooter>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
