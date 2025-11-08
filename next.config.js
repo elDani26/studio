@@ -30,6 +30,9 @@ const nextConfig = {
       },
     ],
   },
+  compiler: {
+    ignore: ['React.jsx: type is invalid'],
+  },
 };
 
 module.exports = withNextIntl(nextConfig);
