@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -102,6 +102,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     },
   });
 
+  // This is the key fix: Reset the entire form state whenever the dialog opens.
+  // This prevents stale state from previous interactions causing rendering conflicts.
   useEffect(() => {
     if (open) {
       form.reset({
@@ -117,6 +119,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
 
   const transactionType = form.watch('type');
 
+  // These are now simple computations based on the current form state (`transactionType`).
+  // No complex useEffects are needed.
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
   }, [categories, transactionType]);
@@ -128,6 +132,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return accounts;
   }, [accounts, transactionType]);
   
+  // This function is now simplified. It only updates the `type` field.
+  // Then, it resets `category` and `account` fields to avoid invalid selections.
   const handleTypeChange = (value: 'income' | 'expense') => {
     form.setValue('type', value);
     form.setValue('category', '');
