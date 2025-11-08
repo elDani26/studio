@@ -26,14 +26,14 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const { hasCreditCard } = useSettings();
+  const { hasCreditCard, categories, accounts } = useSettings();
   
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const tDatePicker = useTranslations('TransactionDataTable.datePicker');
+  const tMisc = useTranslations('misc');
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
-
 
   const transactionsQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -84,6 +84,60 @@ export default function DashboardPage() {
       return tDate >= fromDate && tDate <= toDate;
     });
   }, [transactions, dateFrom, dateTo]);
+
+  // --- Chart Data Calculation ---
+  const incomeChartData = useMemo(() => {
+    const incomes = filteredChartTransactions.filter(t => t.type === 'income' && !t.transferId);
+    const incomeByCategory = incomes.reduce((acc, transaction) => {
+      const categoryId = transaction.category;
+      if (!acc[categoryId]) acc[categoryId] = 0;
+      acc[categoryId] += transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.keys(incomeByCategory).map(categoryId => {
+      const categoryInfo = categories.find(c => c.id === categoryId);
+      return { name: categoryInfo?.name || categoryId, value: incomeByCategory[categoryId] };
+    }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+  }, [filteredChartTransactions, categories]);
+
+  const expenseChartData = useMemo(() => {
+    const debitExpenses = filteredChartTransactions.filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor);
+    const creditCardPaymentsTotal = filteredChartTransactions.filter(t => !!t.paymentFor).reduce((sum, t) => sum + t.amount, 0);
+
+    const expenseByCategory = debitExpenses.reduce((acc, transaction) => {
+      const categoryId = transaction.category;
+      if (!acc[categoryId]) acc[categoryId] = 0;
+      acc[categoryId] += transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const data = Object.keys(expenseByCategory).map(categoryId => {
+      const categoryInfo = categories.find(c => c.id === categoryId);
+      return { name: categoryInfo?.name || categoryId, value: expenseByCategory[categoryId] };
+    });
+
+    if (creditCardPaymentsTotal > 0) {
+      data.push({ name: tMisc('creditCardPayment'), value: creditCardPaymentsTotal });
+    }
+
+    return data.filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+  }, [filteredChartTransactions, categories, tMisc]);
+
+  const debtChartData = useMemo(() => {
+    if (!hasCreditCard) return [];
+    const creditAccounts = accounts.filter(a => a.type === 'credit');
+    const debtByAccount = creditAccounts.reduce((acc, account) => {
+      const debt = filteredChartTransactions.filter(t => t.isCreditCardExpense && t.account === account.id).reduce((sum, t) => sum + t.amount, 0);
+      const payments = filteredChartTransactions.filter(t => t.paymentFor === account.id).reduce((sum, t) => sum + t.amount, 0);
+      const currentDebt = debt - payments;
+      if (currentDebt > 0) acc[account.id] = { name: account.name, value: currentDebt };
+      return acc;
+    }, {} as Record<string, {name: string, value: number}>);
+
+    return Object.values(debtByAccount).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+  }, [filteredChartTransactions, accounts, hasCreditCard]);
+
 
   return (
     <div className="p-4 md:p-8 space-y-8">
@@ -152,9 +206,9 @@ export default function DashboardPage() {
             "grid gap-8",
             hasCreditCard ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"
         )}>
-            <ExpenseChart transactions={filteredChartTransactions} />
-            <IncomeChart transactions={filteredChartTransactions} />
-            {hasCreditCard && <DebtChart transactions={filteredChartTransactions} />}
+            <ExpenseChart data={expenseChartData} />
+            <IncomeChart data={incomeChartData} />
+            {hasCreditCard && <DebtChart data={debtChartData} />}
         </div>
       </div>
       

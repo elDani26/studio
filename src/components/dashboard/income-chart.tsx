@@ -1,49 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 
 interface IncomeChartProps {
-  transactions: Transaction[];
+  data: { name: string; value: number }[];
 }
 
 const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
 
-export function IncomeChart({ transactions: initialTransactions }: IncomeChartProps) {
-  const [chartData, setChartData] = useState<any[]>([]);
-  const { currency, categories } = useSettings();
+export function IncomeChart({ data: chartData }: IncomeChartProps) {
+  const { currency } = useSettings();
   const t = useTranslations('IncomeChart');
-
-  useEffect(() => {
-    const incomes = initialTransactions.filter(t => 
-      t.type === 'income' && !t.transferId
-    );
-    
-    const incomeByCategory = incomes.reduce((acc, transaction) => {
-      const categoryId = transaction.category;
-      if (!acc[categoryId]) {
-        acc[categoryId] = 0;
-      }
-      acc[categoryId] += transaction.amount;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const data = Object.keys(incomeByCategory).map(categoryId => {
-      const categoryInfo = categories.find(c => c.id === categoryId);
-      return {
-        name: categoryInfo?.name || categoryId,
-        value: incomeByCategory[categoryId],
-      };
-    })
-    .filter(item => item.value > 0)
-    .sort((a, b) => b.value - a.value);
-
-    setChartData(data);
-  }, [initialTransactions, categories]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
