@@ -54,8 +54,6 @@ export function EditTransactionDialog({
   allTransactions,
 }: EditTransactionDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [transactionType, setTransactionType] = useState<'income' | 'expense' | null>(null);
   
   const { user } = useUser();
   const firestore = useFirestore();
@@ -141,6 +139,15 @@ export function EditTransactionDialog({
     resolver: zodResolver(transactionSchema),
   });
 
+  const transactionType = form.watch('type');
+
+  const handleTypeChange = (newType: 'income' | 'expense') => {
+    form.setValue('type', newType, { shouldValidate: true });
+    // Reset category and account as they are dependent on the type
+    form.setValue('category', '');
+    form.setValue('account', '');
+  };
+
   const filteredCategories = useMemo(() => {
     if (!transactionType) return [];
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
@@ -148,10 +155,6 @@ export function EditTransactionDialog({
 
   useEffect(() => {
     if (isOpen && transaction) {
-      const type = transaction.type;
-      setTransactionType(type);
-      setStep(isTransfer || isPayment ? 2 : 1);
-      
       let date;
       if (transaction.date && typeof (transaction.date as any).toDate === 'function') {
         date = (transaction.date as any).toDate();
@@ -166,18 +169,8 @@ export function EditTransactionDialog({
         paymentFor: transaction.paymentFor || '',
       });
     }
-  }, [transaction, isOpen, form, isTransfer, isPayment]);
-
-  const handleTypeSelect = (type: 'income' | 'expense') => {
-    setTransactionType(type);
-    form.setValue('type', type);
-    if (type !== form.getValues('type')) {
-      form.setValue('category', '');
-      form.setValue('account', '');
-    }
-    setStep(2);
-  };
-
+  }, [transaction, isOpen, form]);
+  
   const availableAccounts = useMemo(() => {
     if (!transactionType) return [];
     if (transactionType === 'income') {
@@ -248,8 +241,7 @@ export function EditTransactionDialog({
         }
         
         toast({
-            title: 'Success!',
-            description: t('successToast'),
+            title: t('successToast'),
         });
         onTransactionUpdated();
         onOpenChange(false);
@@ -350,177 +342,188 @@ export function EditTransactionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <div className="flex items-center">
-            {step === 2 && (
-              <Button variant="ghost" size="icon" className="mr-2" onClick={() => setStep(1)}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <div>
-                <DialogTitle>{t('title')}</DialogTitle>
-                <DialogDescription>
-                    {step === 1 ? tAdd('transactionType') : t('description')}
-                </DialogDescription>
-            </div>
-          </div>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>
+                {t('description')}
+            </DialogDescription>
         </DialogHeader>
 
-        {step === 1 ? (
-            <div className="flex-grow flex flex-col justify-center items-center gap-4 py-8">
-                <Button onClick={() => handleTypeSelect('income')} className="w-48 h-16 text-lg bg-green-500 hover:bg-green-600">
-                    {tAdd('income')}
-                </Button>
-                <Button onClick={() => handleTypeSelect('expense')} className="w-48 h-16 text-lg bg-red-500 hover:bg-red-600">
-                    {tAdd('expense')}
-                </Button>
-            </div>
-        ) : (
-            <div className="flex-grow overflow-y-auto pr-4 -mr-4">
-                <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>{tAdd('amount')}</FormLabel>
-                        <FormControl>
-                            <Input type="number" placeholder="0.00" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={() => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>{tAdd('transactionType')}</FormLabel>
+                    <FormControl>
+                      <div className="flex space-x-4">
+                         <Button
+                          type="button"
+                          variant={transactionType === 'income' ? 'default' : 'outline'}
+                          onClick={() => handleTypeChange('income')}
+                          className="flex-1"
+                        >
+                          {tAdd('income')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={transactionType === 'expense' ? 'destructive' : 'outline'}
+                          onClick={() => handleTypeChange('expense')}
+                           className="flex-1"
+                        >
+                          {tAdd('expense')}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                    <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>{tAdd('category')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder={tAdd('selectCategory')} />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {filteredCategories.map(cat => {
-                                const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
-                                return (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                    <div className="flex items-center">
-                                    <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                                    {cat.name}
-                                    </div>
-                                </SelectItem>
-                                );
-                            })}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    
-                    <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                        <FormLabel>{tAdd('date')}</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <FormControl>
-                                <Button
-                                variant={'outline'}
-                                className={cn(
-                                    'w-full pl-3 text-left font-normal',
-                                    !field.value && 'text-muted-foreground'
-                                )}
-                                >
-                                {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tAdd('pickDate')}</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                                initialFocus
-                                locale={dateFnsLocale}
-                            />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    
-                    <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>{tAdd('optionalDescription')}</FormLabel>
-                        <FormControl>
-                            <Input placeholder={tAdd('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{tAdd('amount')}</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-                    <FormField
-                    control={form.control}
-                    name="account"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>{tAdd('account')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder={tAdd('selectAccount')} />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {availableAccounts.map(acc => {
-                                const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
-                                const balance = accountBalances[acc.id];
-                                const isDebit = acc.type === 'debit';
-                                const originalAmount = field.value === transaction?.account ? (transaction?.amount || 0) : 0;
-                                return (
-                                <SelectItem key={acc.id} value={acc.id}>
-                                <div className="flex items-center justify-between w-full">
-                                    <div className="flex items-center">
-                                    <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                                    {acc.name}
-                                    </div>
-                                    {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance + originalAmount)}</span>}
+                <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{tAdd('category')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder={tAdd('selectCategory')} />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {filteredCategories.map(cat => {
+                            const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
+                            return (
+                            <SelectItem key={cat.id} value={cat.id}>
+                                <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {cat.name}
                                 </div>
-                                </SelectItem>
-                                );
-                            })}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                            </SelectItem>
+                            );
+                        })}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                
+                <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                    <FormLabel>{tAdd('date')}</FormLabel>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <FormControl>
+                            <Button
+                            variant={'outline'}
+                            className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                            )}
+                            >
+                            {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{tAdd('pickDate')}</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                        </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                            initialFocus
+                            locale={dateFnsLocale}
+                        />
+                        </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                
+                <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{tAdd('optionalDescription')}</FormLabel>
+                    <FormControl>
+                        <Input placeholder={tAdd('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-                    <DialogFooter className="pt-4 sticky bottom-0 bg-background">
-                    <Button type="submit" disabled={loading} className="w-full">
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {t('saveButton')}
-                    </Button>
-                    </DialogFooter>
-                </form>
-                </Form>
-            </div>
-        )}
+                <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{tAdd('account')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder={tAdd('selectAccount')} />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {availableAccounts.map(acc => {
+                            const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                            const balance = accountBalances[acc.id];
+                            const isDebit = acc.type === 'debit';
+                            const originalAmount = field.value === transaction?.account ? (transaction?.amount || 0) : 0;
+                            return (
+                            <SelectItem key={acc.id} value={acc.id}>
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {acc.name}
+                                </div>
+                                {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance + originalAmount)}</span>}
+                            </div>
+                            </SelectItem>
+                            );
+                        })}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+
+                <DialogFooter className="pt-4 sticky bottom-0 bg-background">
+                <Button type="submit" disabled={loading} className="w-full">
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t('saveButton')}
+                </Button>
+                </DialogFooter>
+            </form>
+            </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
