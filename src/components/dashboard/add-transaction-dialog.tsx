@@ -99,6 +99,9 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       amount: 0,
       date: new Date(),
       description: '',
+      type: undefined,
+      category: '',
+      account: '',
     },
   });
 
@@ -110,14 +113,20 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
         amount: 0,
         date: new Date(),
         description: '',
+        type: undefined,
+        category: '',
+        account: '',
       });
     }
   }, [open, form]);
 
-  useEffect(() => {
-    form.setValue('category', '');
-    form.setValue('account', '');
-  }, [transactionType, form]);
+  const handleTypeChange = (newType: 'income' | 'expense') => {
+    form.setValue('type', newType);
+    setTimeout(() => {
+      form.setValue('category', '');
+      form.setValue('account', '');
+    }, 0);
+  };
 
 
   const filteredCategories = useMemo(() => {
@@ -203,7 +212,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                     <FormLabel>{t('transactionType')}</FormLabel>
                     <FormControl>
                       <RadioGroup
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => handleTypeChange(value as 'income' | 'expense')}
                         value={field.value}
                         className="flex space-x-4"
                       >
