@@ -19,14 +19,12 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { SOURCE_ACCOUNTS, TRANSACTION_CATEGORIES } from '@/lib/constants';
-import {unstable_setRequestLocale} from 'next-intl/server';
 
 // Special test account credentials
 const TEST_USER_EMAIL = 'test@test.com';
 const TEST_USER_PASS = 'Password123!';
 
-export default function LoginPage({params: {locale}}: {params: {locale: string}}) {
-  //unstable_setRequestLocale(locale);
+export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const auth = useFirebaseAuth();
   const firestore = getFirestore();
