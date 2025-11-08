@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
@@ -71,28 +71,24 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return balances;
   }, [transactions, accounts]);
 
-  const transactionSchema = useMemo(() => {
-    return z.object({
-      type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
-      amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
-      category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
-      date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
-      description: z.string().optional(),
-      account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
-    }).refine(data => {
-      const account = accounts.find(a => a.id === data.account);
-      // Only apply balance validation for debit accounts on expense
-      if (account?.type === 'debit' && data.type === 'expense') {
-        const balance = accountBalances[data.account] || 0;
-        return data.amount <= balance;
-      }
-      return true;
-    }, {
-      message: 'El monto supera el saldo disponible en esta cuenta.',
-      path: ['amount'],
-    });
-  }, [accounts, accountBalances]);
-
+  const transactionSchema = z.object({
+    type: z.enum(['income', 'expense'], { required_error: 'Por favor, selecciona un tipo de transacción.' }),
+    amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
+    category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
+    date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
+    description: z.string().optional(),
+    account: z.string().min(1, { message: 'Por favor, selecciona una cuenta.' }),
+  }).refine(data => {
+    const account = accounts.find(a => a.id === data.account);
+    if (account?.type === 'debit' && data.type === 'expense') {
+      const balance = accountBalances[data.account] || 0;
+      return data.amount <= balance;
+    }
+    return true;
+  }, {
+    message: 'El monto supera el saldo disponible en esta cuenta.',
+    path: ['amount'],
+  });
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -105,9 +101,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       account: '',
     },
   });
-  
-  const transactionType = form.watch('type');
-  const isMountedRef = useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -119,29 +112,27 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
         description: '',
         account: '',
       });
-      // Set ref to true after initial mount reset
-      isMountedRef.current = false;
-      setTimeout(() => { isMountedRef.current = true }, 100);
     }
   }, [open, form]);
 
-  useEffect(() => {
-    if (isMountedRef.current) {
-        form.setValue('category', '');
-        form.setValue('account', '');
-    }
-  }, [transactionType, form]);
-  
+  const transactionType = form.watch('type');
+
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
   }, [categories, transactionType]);
-  
+
   const availableAccounts = useMemo(() => {
     if (transactionType === 'income') {
       return accounts.filter(a => a.type === 'debit');
     }
     return accounts;
   }, [accounts, transactionType]);
+  
+  const handleTypeChange = (value: 'income' | 'expense') => {
+    form.setValue('type', value);
+    form.setValue('category', '');
+    form.setValue('account', '');
+  }
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
@@ -212,7 +203,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                   <FormLabel>{t('transactionType')}</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={(value: 'income' | 'expense') => handleTypeChange(value)}
                       value={field.value}
                       className="flex space-x-4"
                     >
