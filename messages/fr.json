@@ -168,6 +168,9 @@
     "currencySectionDescription": "Sélectionnez la devise principale pour vos transactions.",
     "currencyLabel": "Devise",
     "selectCurrency": "Sélectionner une devise",
+    "creditCardSectionTitle": "Cartes de Crédit",
+    "creditCardSectionDescription": "Activez cette option si vous utilisez et souhaitez suivre les cartes de crédit.",
+    "hasCreditCardLabel": "J'ai une carte de crédit",
     "accountsSectionTitle": "Vos comptes",
     "accountsSectionDescription": "Ajoutez et gérez les comptes que vous utilisez (ex: Banque, Espèces).",
     "newAccountPlaceholder": "Nom du nouveau compte",
@@ -178,9 +181,9 @@
     "income": "Revenu",
     "expense": "Dépense",
     "closeButton": "Fermer",
-    "saveCurrencyButton": "Enregistrer la devise",
-    "currencySuccessToast": "Devise enregistrée !",
-    "currencySuccessDescription": "Votre devise principale a été mise à jour.",
+    "saveButton": "Enregistrer les Paramètres",
+    "currencySuccessToast": "Paramètres enregistrés !",
+    "currencySuccessDescription": "Vos préférences ont été mises à jour.",
     "accountAddedToast": "Compte ajouté !",
     "categoryAddedToast": "Catégorie ajoutée !",
     "editAccountTitle": "Modifier le compte",
@@ -201,6 +204,11 @@
     "description": "Revenus par catégorie",
     "noData": "Aucune donnée de revenu disponible."
   },
+  "DebtChart": {
+    "title": "Répartition de la Dette",
+    "description": "Visualisez votre dette par carte de crédit",
+    "noData": "Aucune donnée de dette disponible."
+  },
   "Toasts": {
     "signupSuccessTitle": "Inscription réussie !",
     "signupSuccessDescription": "Votre compte a été créé. Vous pouvez maintenant vous connecter.",
@@ -217,7 +225,7 @@
     "transferTo": "Virement à",
     "transferFrom": "Virement de",
     "creditCardExpense": "Dépense par TC",
-    "creditCardPayment": "Paiement de crédit",
+    "creditCardPayment": "Paiement de Carte de Crédit",
     "creditCardDebt": "Dette de Crédit",
     "debit": "Débit",
     "credit": "Crédit",

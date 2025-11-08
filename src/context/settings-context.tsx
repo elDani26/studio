@@ -15,6 +15,8 @@ type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 interface SettingsContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
+  hasCreditCard: boolean;
+  setHasCreditCard: (hasCreditCard: boolean) => void;
   isDataLoading: boolean;
   categories: WithId<Category>[];
   accounts: WithId<SourceAccount>[];
@@ -35,6 +37,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const t = useTranslations('Toasts');
   
   const [currency, setCurrencyState] = useState<Currency>('EUR');
+  const [hasCreditCard, setHasCreditCardState] = useState(true);
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
   const [accounts, setAccounts] = useState<WithId<SourceAccount>[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -55,9 +58,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           if (userData.currency) setCurrencyState(userData.currency as Currency);
+          // Default to true if not set
+          setHasCreditCardState(userData.hasCreditCard === false ? false : true);
         } else {
             // First time user, create their document
-            const initialUserData = { id: user.uid, email: user.email, currency: 'EUR' };
+            const initialUserData: User = { 
+                id: user.uid, 
+                email: user.email!, 
+                currency: 'EUR', 
+                hasCreditCard: true 
+            };
             setDoc(userDocRef, initialUserData)
                 .catch(e => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'create', requestResourceData: initialUserData })));
         }
@@ -122,6 +132,19 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   };
+  
+  const setHasCreditCard = async (hasCC: boolean) => {
+    setHasCreditCardState(hasCC);
+    if (user && firestore) {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const data = { hasCreditCard: hasCC };
+        setDoc(userDocRef, data, { merge: true })
+            .catch((error) => {
+                errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: data }));
+            });
+    }
+  };
+
 
   const handleError = (operation: string) => (error: any) => {
     toast({ variant: 'destructive', title: t('operationError'), description: t('operationErrorDescription') });
@@ -164,6 +187,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     <SettingsContext.Provider value={{ 
         currency, 
         setCurrency, 
+        hasCreditCard,
+        setHasCreditCard,
         isDataLoading,
         categories, 
         accounts,

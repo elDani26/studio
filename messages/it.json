@@ -168,6 +168,9 @@
     "currencySectionDescription": "Seleziona la valuta principale per le tue transazioni.",
     "currencyLabel": "Valuta",
     "selectCurrency": "Seleziona una valuta",
+    "creditCardSectionTitle": "Carte di Credito",
+    "creditCardSectionDescription": "Abilita questa opzione se usi e vuoi tracciare le carte di credito.",
+    "hasCreditCardLabel": "Ho una carta di credito",
     "accountsSectionTitle": "I tuoi conti",
     "accountsSectionDescription": "Aggiungi e gestisci i conti che utilizzi (es. Banca, Contanti).",
     "newAccountPlaceholder": "Nome nuovo conto",
@@ -178,9 +181,9 @@
     "income": "Entrata",
     "expense": "Uscita",
     "closeButton": "Chiudi",
-    "saveCurrencyButton": "Salva Valuta",
-    "currencySuccessToast": "Valuta Salvata!",
-    "currencySuccessDescription": "La tua valuta principale è stata aggiornata.",
+    "saveButton": "Salva Impostazioni",
+    "currencySuccessToast": "Impostazioni Salvate!",
+    "currencySuccessDescription": "Le tue preferenze sono state aggiornate.",
     "accountAddedToast": "Conto aggiunto!",
     "categoryAddedToast": "Categoria aggiunta!",
     "editAccountTitle": "Modifica Conto",
@@ -200,6 +203,11 @@
     "title": "Distribuzione Entrate",
     "description": "Entrate per categoria",
     "noData": "Nessun dato di reddito disponibile."
+  },
+  "DebtChart": {
+    "title": "Distribuzione del Debito",
+    "description": "Visualizza il tuo debito per carta di credito",
+    "noData": "Nessun dato sul debito disponibile."
   },
   "Toasts": {
     "signupSuccessTitle": "Registrazione riuscita!",

@@ -168,6 +168,9 @@
     "currencySectionDescription": "Select the main currency for your transactions.",
     "currencyLabel": "Currency",
     "selectCurrency": "Select a currency",
+    "creditCardSectionTitle": "Credit Cards",
+    "creditCardSectionDescription": "Enable this if you use and want to track credit cards.",
+    "hasCreditCardLabel": "I have a credit card",
     "accountsSectionTitle": "Your Accounts",
     "accountsSectionDescription": "Add and manage the accounts you use (e.g., Bank, Cash).",
     "newAccountPlaceholder": "New account name",
@@ -178,9 +181,9 @@
     "income": "Income",
     "expense": "Expense",
     "closeButton": "Close",
-    "saveCurrencyButton": "Save Currency",
-    "currencySuccessToast": "Currency Saved!",
-    "currencySuccessDescription": "Your main currency has been updated.",
+    "saveButton": "Save Settings",
+    "currencySuccessToast": "Settings Saved!",
+    "currencySuccessDescription": "Your preferences have been updated.",
     "accountAddedToast": "Account added!",
     "categoryAddedToast": "Category added!",
     "editAccountTitle": "Edit Account",
@@ -200,6 +203,11 @@
     "title": "Income Distribution",
     "description": "Income by category",
     "noData": "No income data available."
+  },
+  "DebtChart": {
+    "title": "Debt Distribution",
+    "description": "Visualize your debt by credit card",
+    "noData": "No debt data available."
   },
   "Toasts": {
     "signupSuccessTitle": "Signup successful!",

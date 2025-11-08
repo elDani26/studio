@@ -168,6 +168,9 @@
     "currencySectionDescription": "Wählen Sie die Hauptwährung für Ihre Transaktionen.",
     "currencyLabel": "Währung",
     "selectCurrency": "Wählen Sie eine Währung",
+    "creditCardSectionTitle": "Kreditkarten",
+    "creditCardSectionDescription": "Aktivieren Sie diese Option, wenn Sie Kreditkarten verwenden und verfolgen möchten.",
+    "hasCreditCardLabel": "Ich habe eine Kreditkarte",
     "accountsSectionTitle": "Ihre Konten",
     "accountsSectionDescription": "Fügen Sie die von Ihnen verwendeten Konten hinzu und verwalten Sie sie (z. B. Bank, Bargeld).",
     "newAccountPlaceholder": "Neuer Kontoname",
@@ -178,9 +181,9 @@
     "income": "Einnahme",
     "expense": "Ausgabe",
     "closeButton": "Schließen",
-    "saveCurrencyButton": "Währung speichern",
-    "currencySuccessToast": "Währung gespeichert!",
-    "currencySuccessDescription": "Ihre Hauptwährung wurde aktualisiert.",
+    "saveButton": "Einstellungen speichern",
+    "currencySuccessToast": "Einstellungen gespeichert!",
+    "currencySuccessDescription": "Ihre Einstellungen wurden aktualisiert.",
     "accountAddedToast": "Konto hinzugefügt!",
     "categoryAddedToast": "Kategorie hinzugefügt!",
     "editAccountTitle": "Konto bearbeiten",
@@ -200,6 +203,11 @@
     "title": "Einkommensverteilung",
     "description": "Einkommen nach Kategorie",
     "noData": "Keine Einkommensdaten verfügbar."
+  },
+  "DebtChart": {
+    "title": "Schuldenverteilung",
+    "description": "Visualisieren Sie Ihre Schulden nach Kreditkarte",
+    "noData": "Keine Schuldendaten verfügbar."
   },
   "Toasts": {
     "signupSuccessTitle": "Registrierung erfolgreich!",

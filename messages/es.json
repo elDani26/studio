@@ -168,6 +168,9 @@
     "currencySectionDescription": "Selecciona la moneda principal para tus transacciones.",
     "currencyLabel": "Moneda",
     "selectCurrency": "Selecciona una moneda",
+    "creditCardSectionTitle": "Tarjetas de Crédito",
+    "creditCardSectionDescription": "Habilita esta opción si usas y quieres seguir tus tarjetas de crédito.",
+    "hasCreditCardLabel": "Tengo tarjeta de crédito",
     "accountsSectionTitle": "Tus Cuentas",
     "accountsSectionDescription": "Agrega y gestiona las cuentas que usas (ej. Nequi, Bancolombia, Efectivo).",
     "newAccountPlaceholder": "Nombre de la nueva cuenta",
@@ -178,9 +181,9 @@
     "income": "Ingreso",
     "expense": "Egreso",
     "closeButton": "Cerrar",
-    "saveCurrencyButton": "Guardar Moneda",
-    "currencySuccessToast": "¡Moneda Guardada!",
-    "currencySuccessDescription": "Tu moneda principal ha sido actualizada.",
+    "saveButton": "Guardar Ajustes",
+    "currencySuccessToast": "¡Ajustes Guardados!",
+    "currencySuccessDescription": "Tus preferencias han sido actualizadas.",
     "accountAddedToast": "¡Cuenta agregada!",
     "categoryAddedToast": "¡Categoría agregada!",
     "editAccountTitle": "Editar Cuenta",
@@ -200,6 +203,11 @@
     "title": "Distribución de Ingresos",
     "description": "Ingresos por categoría",
     "noData": "No hay datos de ingresos."
+  },
+  "DebtChart": {
+    "title": "Distribución de Deuda",
+    "description": "Visualiza tu deuda por tarjeta de crédito",
+    "noData": "No hay datos de deuda disponibles."
   },
   "Toasts": {
     "signupSuccessTitle": "¡Registro exitoso!",

@@ -89,6 +89,11 @@
             "type": "string",
             "description": "The user's preferred currency.",
             "default": "EUR"
+        },
+        "hasCreditCard": {
+          "type": "boolean",
+          "description": "Indicates if the user has and wants to track credit cards.",
+          "default": true
         }
       },
       "required": [

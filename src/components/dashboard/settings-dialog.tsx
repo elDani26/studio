@@ -27,6 +27,7 @@ import { ICONS } from '@/lib/constants';
 import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
 import { useTranslations } from 'next-intl';
+import { Checkbox } from '../ui/checkbox';
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -42,6 +43,8 @@ export function SettingsDialog() {
   const { 
     currency, 
     setCurrency, 
+    hasCreditCard,
+    setHasCreditCard,
     accounts, 
     categories,
     addAccount,
@@ -66,8 +69,9 @@ export function SettingsDialog() {
 
   const [editingItem, setEditingItem] = useState<{id: string, name: string, icon: string, type: 'account' | 'category'} | null>(null);
 
-  const handleSaveCurrency = () => {
+  const handleSaveSettings = () => {
     setCurrency(selectedCurrency);
+    // The setHasCreditCard is already being called onCheckChange
     toast({
       title: t('currencySuccessToast'),
       description: t('currencySuccessDescription'),
@@ -168,6 +172,21 @@ export function SettingsDialog() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                   <div>
+                    <h3 className="text-lg font-medium">{t('creditCardSectionTitle')}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t('creditCardSectionDescription')}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="hasCreditCard" checked={hasCreditCard} onCheckedChange={(checked) => setHasCreditCard(checked as boolean)} />
+                    <label
+                      htmlFor="hasCreditCard"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {t('hasCreditCardLabel')}
+                    </label>
                   </div>
                 </div>
               </TabsContent>
@@ -312,7 +331,7 @@ export function SettingsDialog() {
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {t('closeButton')}
           </Button>
-          <Button onClick={handleSaveCurrency}>{t('saveCurrencyButton')}</Button>
+          <Button onClick={handleSaveSettings}>{t('saveButton')}</Button>
         </DialogFooter>
 
       </DialogContent>

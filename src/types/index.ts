@@ -34,6 +34,7 @@ export type User = {
     firstName?: string;
     lastName?: string;
     currency?: string;
+    hasCreditCard?: boolean;
 };
 
 export interface Category {
