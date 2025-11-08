@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -121,8 +121,11 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
 
   const handleTypeChange = (value: 'income' | 'expense') => {
     form.setValue('type', value);
-    form.setValue('category', '');
-    form.setValue('account', '');
+    // Defer the reset of other fields to avoid flushSync error
+    setTimeout(() => {
+      form.setValue('category', '');
+      form.setValue('account', '');
+    }, 0);
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);

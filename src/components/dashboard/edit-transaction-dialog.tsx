@@ -58,7 +58,7 @@ export function EditTransactionDialog({
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories, accounts } = useSettings();
+  const { categories, accounts, currency } = useSettings();
   const t = useTranslations('EditTransactionDialog');
   const tAdd = useTranslations('AddTransactionDialog');
   const tPay = useTranslations('PayCreditCardDialog');
@@ -70,26 +70,35 @@ export function EditTransactionDialog({
   const creditAccounts = useMemo(() => accounts.filter(a => a.type === 'credit'), [accounts]);
   const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
 
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    accounts.forEach(acc => balances[acc.id] = 0);
+    allTransactions.forEach(t => {
+      if (balances.hasOwnProperty(t.account)) {
+        if (t.type === 'income') balances[t.account] += t.amount;
+        else balances[t.account] -= t.amount;
+      }
+    });
+    return balances;
+  }, [allTransactions, accounts]);
+
   const maxPayableAmount = useMemo(() => {
     if (!transaction || !isPayment) return 0;
-
-    // Calculate current debt for the specific card
     const cardId = transaction.paymentFor;
     if (!cardId) return 0;
-    
-    const cardExpenses = allTransactions
-      .filter(t => t.isCreditCardExpense && t.account === cardId)
-      .reduce((sum, t) => sum + t.amount, 0);
-      
-    const cardPayments = allTransactions
-      .filter(t => t.paymentFor === cardId)
-      .reduce((sum, t) => sum + t.amount, 0);
-
+    const cardExpenses = allTransactions.filter(t => t.isCreditCardExpense && t.account === cardId).reduce((sum, t) => sum + t.amount, 0);
+    const cardPayments = allTransactions.filter(t => t.paymentFor === cardId).reduce((sum, t) => sum + t.amount, 0);
     const currentDebt = cardExpenses - cardPayments;
-    
-    // The max payable amount is the current debt PLUS the amount of the very payment we are editing.
     return currentDebt + transaction.amount;
   }, [allTransactions, transaction, isPayment]);
+
+  const maxTransferAmount = useMemo(() => {
+    if (!transaction || !isTransfer) return 0;
+    const originAccount = allTransactions.find(t => t.transferId === transaction.transferId && t.type === 'expense');
+    if (!originAccount) return 0;
+    const balance = accountBalances[originAccount.account] || 0;
+    return balance + originAccount.amount;
+  }, [allTransactions, transaction, isTransfer, accountBalances]);
 
 
   const transactionSchema = useMemo(() => {
@@ -104,13 +113,18 @@ export function EditTransactionDialog({
       paymentFor: z.string().optional(),
     }).refine(data => {
         if (!isPayment || !data.paymentFor) return true;
-        // The new amount cannot be greater than the max payable amount.
         return data.amount <= maxPayableAmount;
       }, {
         message: 'El monto a pagar no puede ser mayor que la deuda de la tarjeta.',
         path: ['amount'],
+      }).refine(data => {
+        if (!isTransfer) return true;
+        return data.amount <= maxTransferAmount;
+      }, {
+        message: 'El monto a transferir no puede ser mayor que el saldo de la cuenta de origen.',
+        path: ['amount'],
       });
-  }, [isPayment, maxPayableAmount]);
+  }, [isPayment, maxPayableAmount, isTransfer, maxTransferAmount]);
 
 
   const form = useForm<z.infer<typeof transactionSchema>>({
@@ -210,9 +224,8 @@ export function EditTransactionDialog({
             );
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
-                if (doc.id !== transaction.id) {
-                    batch.update(doc.ref, { amount: values.amount, date: Timestamp.fromDate(values.date) });
-                }
+                // For both transactions in the transfer, update amount and date
+                batch.update(doc.ref, { amount: values.amount, date: Timestamp.fromDate(values.date) });
             });
         }
         
