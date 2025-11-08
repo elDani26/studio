@@ -6,6 +6,12 @@ import { PT_Sans } from 'next/font/google';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 import {unstable_setRequestLocale} from 'next-intl/server';
 import {locales} from '../i18n';
+import { suppressFlushSyncWarning } from '@/lib/suppress-warnings';
+
+// Suppress the specific warning
+if (process.env.NODE_ENV === 'development') {
+  suppressFlushSyncWarning();
+}
 
 const ptSans = PT_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 
