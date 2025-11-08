@@ -107,6 +107,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   });
   
   const transactionType = form.watch('type');
+  const isMountedRef = useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -118,8 +119,18 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
         description: '',
         account: '',
       });
+      // Set ref to true after initial mount reset
+      isMountedRef.current = false;
+      setTimeout(() => { isMountedRef.current = true }, 100);
     }
   }, [open, form]);
+
+  useEffect(() => {
+    if (isMountedRef.current) {
+        form.setValue('category', '');
+        form.setValue('account', '');
+    }
+  }, [transactionType, form]);
   
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
@@ -174,7 +185,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
         setLoading(false);
       });
   };
-
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
