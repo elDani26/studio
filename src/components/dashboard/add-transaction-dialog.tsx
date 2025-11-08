@@ -107,16 +107,12 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   });
   
   const transactionType = form.watch('type');
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    form.resetField('category', { defaultValue: '' });
-    form.resetField('account', { defaultValue: '' });
-  }, [transactionType, form]);
+  
+  const handleTypeChange = (value: 'income' | 'expense') => {
+    form.setValue('type', value);
+    form.setValue('category', '');
+    form.setValue('account', '');
+  };
 
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
@@ -128,10 +124,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     }
     return accounts;
   }, [accounts, transactionType]);
-
-  const handleTypeChange = (value: 'income' | 'expense') => {
-    form.setValue('type', value);
-  };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
