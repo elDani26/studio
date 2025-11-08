@@ -159,8 +159,9 @@ export default function DashboardPage() {
       </div>
       
       <TransactionDataTable 
-        transactions={transactions} 
+        transactions={filteredChartTransactions} 
         loading={loading}
+        allTransactions={transactions}
       />
     </div>
   );

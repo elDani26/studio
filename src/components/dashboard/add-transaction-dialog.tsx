@@ -38,6 +38,7 @@ import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { getLocale } from '@/lib/utils';
 import type { Transaction } from '@/types';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 interface AddTransactionDialogProps {
   transactions: Transaction[];
@@ -106,10 +107,11 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   const transactionType = form.watch('type');
   
   const handleTypeChange = (newType: 'income' | 'expense') => {
-    form.setValue('type', newType, { shouldValidate: true });
-    // Reset category and account as they are dependent on the type
-    form.setValue('category', '');
-    form.setValue('account', '');
+    form.setValue('type', newType);
+    setTimeout(() => {
+        form.setValue('category', '');
+        form.setValue('account', '');
+    }, 0);
   };
 
 
@@ -202,35 +204,49 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                control={form.control}
-                name="type"
-                render={() => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>{t('transactionType')}</FormLabel>
-                    <FormControl>
-                      <div className="flex space-x-4">
-                         <Button
-                          type="button"
-                          variant={transactionType === 'income' ? 'default' : 'outline'}
-                          onClick={() => handleTypeChange('income')}
-                          className="flex-1"
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>{t('transactionType')}</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={handleTypeChange}
+                          value={field.value}
+                          className="flex space-x-4"
                         >
-                          {t('income')}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={transactionType === 'expense' ? 'destructive' : 'outline'}
-                          onClick={() => handleTypeChange('expense')}
-                           className="flex-1"
-                        >
-                          {t('expense')}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <RadioGroupItem value="income" className="sr-only" />
+                            </FormControl>
+                            <FormLabel
+                              className={cn(
+                                "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                                field.value === 'income' && "border-primary"
+                              )}
+                            >
+                              {t('income')}
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <RadioGroupItem value="expense" className="sr-only" />
+                            </FormControl>
+                            <FormLabel
+                              className={cn(
+                                "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                                field.value === 'expense' && "border-destructive"
+                              )}
+                            >
+                              {t('expense')}
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
               <FormField
                 control={form.control}

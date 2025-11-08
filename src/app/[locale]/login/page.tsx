@@ -79,7 +79,7 @@ export default function LoginPage() {
       });
       
       const userDocRef = doc(firestore, 'users', userId);
-      batch.set(userDocRef, { email: TEST_USER_EMAIL, id: userId, currency: 'EUR' }, { merge: true });
+      batch.set(userDocRef, { email: TEST_USER_EMAIL, id: userId, currency: 'EUR', hasCreditCard: true }, { merge: true });
 
       await batch.commit();
 

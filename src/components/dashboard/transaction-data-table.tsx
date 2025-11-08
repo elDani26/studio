@@ -40,26 +40,23 @@ import { PayCreditCardDialog } from './pay-credit-card-dialog';
 interface TransactionDataTableProps {
   transactions: Transaction[];
   loading: boolean;
+  allTransactions: Transaction[];
 }
 
 export function TransactionDataTable({ 
   transactions, 
   loading, 
+  allTransactions,
 }: TransactionDataTableProps) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { categories, accounts, currency } = useSettings();
   const t = useTranslations('TransactionDataTable');
-  const tDatePicker = useTranslations('TransactionDataTable.datePicker');
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
   const tMisc = useTranslations('misc');
-  const locale = useLocale();
-  const dateFnsLocale = getLocale(locale);
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>();
-  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
@@ -104,19 +101,6 @@ export function TransactionDataTable({
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
-      let dateFilterPassed = true;
-      if (dateFrom) {
-        let tDate;
-        if (t.date && typeof (t.date as any).toDate === 'function') {
-          tDate = (t.date as any).toDate();
-        } else {
-          tDate = new Date(t.date as any);
-        }
-        const fromDate = startOfDay(dateFrom);
-        const toDate = dateTo ? endOfDay(dateTo) : endOfDay(fromDate);
-        dateFilterPassed = tDate >= fromDate && tDate <= toDate;
-      }
-
       const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
       
       let typeFilterPassed = true;
@@ -135,14 +119,14 @@ export function TransactionDataTable({
       // Special logic for account filter when a credit account is selected
       if (accountFilter !== 'all' && isCreditAccountSelected) {
         // Show expenses made WITH this card OR payments made TO this card
-        return dateFilterPassed && (t.account === accountFilter || t.paymentFor === accountFilter);
+        return (t.account === accountFilter || t.paymentFor === accountFilter);
       }
       
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
 
-      return dateFilterPassed && categoryFilterPassed && typeFilterPassed && accountFilterPassed;
+      return categoryFilterPassed && typeFilterPassed && accountFilterPassed;
     });
-  }, [transactions, dateFrom, dateTo, categoryFilter, type, accountFilter, isCreditAccountSelected]);
+  }, [transactions, categoryFilter, type, accountFilter, isCreditAccountSelected]);
 
   const filteredTotals = useMemo(() => {
     const relevantTransactions = accountFilter === 'all' ? transactions : filteredTransactions;
@@ -157,7 +141,7 @@ export function TransactionDataTable({
 
     const balance = income - expenses;
     
-    const creditTransactionsSource = accountFilter === 'all' || !isCreditAccountSelected ? transactions : filteredTransactions;
+    const creditTransactionsSource = accountFilter === 'all' || !isCreditAccountSelected ? allTransactions : filteredTransactions;
 
     const creditHistoryTotal = creditTransactionsSource
         .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
@@ -177,7 +161,7 @@ export function TransactionDataTable({
       creditHistoryTotal,
       currentDebt,
     };
-  }, [filteredTransactions, transactions, accountFilter, isCreditAccountSelected]);
+  }, [filteredTransactions, transactions, allTransactions, accountFilter, isCreditAccountSelected]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -248,11 +232,6 @@ export function TransactionDataTable({
 
   const columns = getColumns(handleEdit, handleDelete);
   
-  const clearDates = () => {
-    setDateFrom(undefined);
-    setDateTo(undefined);
-  };
-
   const showCreditCardView = type === 'credit-expense' || isCreditAccountSelected;
 
 
@@ -266,9 +245,9 @@ export function TransactionDataTable({
               <CardDescription>{t('description')}</CardDescription>
             </div>
             <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start">
-                <PayCreditCardDialog transactions={transactions} />
-                <AddTransferDialog transactions={transactions} />
-                <AddTransactionDialog transactions={transactions} />
+                <PayCreditCardDialog transactions={allTransactions} />
+                <AddTransferDialog transactions={allTransactions} />
+                <AddTransactionDialog transactions={allTransactions} />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4">
@@ -302,45 +281,6 @@ export function TransactionDataTable({
                       {availableAccountsForFilter.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              <div className="flex flex-wrap items-center gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-full sm:w-[240px] justify-start text-left font-normal',
-                        !dateFrom && !dateTo && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFrom && dateTo ? (
-                        <>
-                          {format(dateFrom, 'LLL dd, y')} - {format(dateTo, 'LLL dd, y')}
-                        </>
-                      ) : dateFrom ? (
-                        format(dateFrom, 'LLL dd, y')
-                      ) : (
-                        <span>{tDatePicker('placeholder')}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateFrom}
-                      selected={{ from: dateFrom, to: dateTo }}
-                      onSelect={(range) => {
-                        setDateFrom(range?.from);
-                        setDateTo(range?.to);
-                      }}
-                      numberOfMonths={2}
-                      locale={dateFnsLocale}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {(dateFrom || dateTo) && <Button variant="ghost" size="icon" onClick={clearDates}><X className="h-4 w-4"/></Button>}
-              </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -466,7 +406,7 @@ export function TransactionDataTable({
             setIsEditDialogOpen(false);
             setSelectedTransaction(null);
           }}
-          allTransactions={transactions}
+          allTransactions={allTransactions}
         />
       )}
 
