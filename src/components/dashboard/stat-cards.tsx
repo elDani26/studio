@@ -38,7 +38,7 @@ const StatCard = ({ title, value, icon: Icon, colorClass }: { title: string; val
         </div>
       </CardHeader>
       <CardContent className="flex-grow flex items-end">
-        <div className={`text-2xl lg:text-xl xl:text-2xl font-bold ${colorClass} leading-tight break-all`}>{formatCurrency(value)}</div>
+        <div className={`text-2xl lg:text-xl xl:text-2xl font-bold ${colorClass} leading-tight`}>{formatCurrency(value)}</div>
       </CardContent>
     </Card>
   );
@@ -83,17 +83,11 @@ export function StatCards({ transactions }: StatCardsProps) {
   const balance = totalIncome - totalExpenses;
   
   return (
-    <>
-      <div className="col-span-1">
-        <StatCard title={t('totalIncome')} value={totalIncome} icon={ArrowUp} colorClass="text-green-500" />
-      </div>
-      <div className="col-span-1">
-        <StatCard title={t('totalExpenses')} value={totalExpenses} icon={ArrowDown} colorClass="text-red-500" />
-      </div>
-      {hasCreditCard && <div className="col-span-1"><StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" /></div>}
-       <div className="col-span-1">
-        <StatCard title={t('currentBalance')} value={balance} icon={Scale} colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'} />
-      </div>
-    </>
+    <div className="w-full space-y-4">
+      <StatCard title={t('totalIncome')} value={totalIncome} icon={ArrowUp} colorClass="text-green-500" />
+      <StatCard title={t('totalExpenses')} value={totalExpenses} icon={ArrowDown} colorClass="text-red-500" />
+      {hasCreditCard && <StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" />}
+      <StatCard title={t('currentBalance')} value={balance} icon={Scale} colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'} />
+    </div>
   );
 }
