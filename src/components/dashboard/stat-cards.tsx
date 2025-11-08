@@ -27,7 +27,7 @@ const StatCard = ({ title, value, icon: Icon, colorClass }: { title: string; val
   };
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <div className="flex items-center gap-x-1">
@@ -37,7 +37,7 @@ const StatCard = ({ title, value, icon: Icon, colorClass }: { title: string; val
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow flex items-end">
+      <CardContent>
         <div className={`text-2xl lg:text-xl xl:text-2xl font-bold ${colorClass} leading-tight`}>{formatCurrency(value)}</div>
       </CardContent>
     </Card>
@@ -83,7 +83,7 @@ export function StatCards({ transactions }: StatCardsProps) {
   const balance = totalIncome - totalExpenses;
   
   return (
-    <div className="w-full space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
       <StatCard title={t('totalIncome')} value={totalIncome} icon={ArrowUp} colorClass="text-green-500" />
       <StatCard title={t('totalExpenses')} value={totalExpenses} icon={ArrowDown} colorClass="text-red-500" />
       {hasCreditCard && <StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" />}

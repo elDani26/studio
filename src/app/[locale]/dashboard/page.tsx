@@ -155,9 +155,13 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      <div className="flex flex-col gap-8">
-        <StatCards transactions={transactions} />
-        <AiSummary transactions={transactions} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+            <StatCards transactions={transactions} />
+        </div>
+        <div className="lg:row-span-2">
+            <AiSummary transactions={transactions} />
+        </div>
       </div>
       
        <div className="pt-4 border-t">
