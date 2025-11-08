@@ -25,12 +25,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { ICONS } from '@/lib/constants';
-import { Calendar as CalendarIcon, Loader2, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -46,9 +47,7 @@ interface AddTransactionDialogProps {
 export function AddTransactionDialog({ transactions }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [transactionType, setTransactionType] = useState<'income' | 'expense' | null>(null);
-
+  
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -75,7 +74,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
 
   const transactionSchema = useMemo(() => {
     return z.object({
-      type: z.enum(['income', 'expense']),
+      type: z.enum(['income', 'expense'], { required_error: 'Debe seleccionar un tipo.' }),
       amount: z.coerce.number().positive({ message: 'El monto debe ser positivo.' }),
       category: z.string().min(1, { message: 'Por favor, selecciona una categoría.' }),
       date: z.date({ required_error: 'Por favor, selecciona una fecha.' }),
@@ -100,31 +99,26 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       amount: 0,
       date: new Date(),
       description: '',
-      account: '',
-      category: '',
     },
   });
 
-  // Reset state when dialog is closed or opened
+  const transactionType = form.watch('type');
+
   useEffect(() => {
     if (open) {
-      setStep(1);
-      setTransactionType(null);
       form.reset({
         amount: 0,
         date: new Date(),
         description: '',
-        account: '',
-        category: '',
       });
     }
   }, [open, form]);
 
-  const handleTypeSelect = (type: 'income' | 'expense') => {
-    setTransactionType(type);
-    form.setValue('type', type);
-    setStep(2);
-  };
+  useEffect(() => {
+    form.setValue('category', '');
+    form.setValue('account', '');
+  }, [transactionType, form]);
+
 
   const filteredCategories = useMemo(() => {
     if (!transactionType) return [];
@@ -190,178 +184,189 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
             {t('title')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <div className="flex items-center">
-            {step === 2 && (
-              <Button variant="ghost" size="icon" className="mr-2" onClick={() => setStep(1)}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <div>
-              <DialogTitle>{t('title')}</DialogTitle>
-              <DialogDescription>
-                {step === 1 ? t('transactionType') : t('description')}
-              </DialogDescription>
-            </div>
-          </div>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>
+            {t('description')}
+          </DialogDescription>
         </DialogHeader>
-
-        {step === 1 ? (
-          <div className="flex-grow flex flex-col justify-center items-center gap-4 py-8">
-              <Button onClick={() => handleTypeSelect('income')} className="w-48 h-16 text-lg bg-green-500 hover:bg-green-600">
-                {t('income')}
-              </Button>
-              <Button onClick={() => handleTypeSelect('expense')} className="w-48 h-16 text-lg bg-red-500 hover:bg-red-600">
-                {t('expense')}
-              </Button>
-          </div>
-        ) : (
-          <div className="flex-grow overflow-y-auto pr-4 -mr-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('amount')}</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('category')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('selectCategory')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredCategories.map(cat => {
-                            const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
-                            return (
-                              <SelectItem key={cat.id} value={cat.id}>
-                                <div className="flex items-center">
-                                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                                  {cat.name}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t('date')}</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
+        
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>{t('transactionType')}</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
-                            <Button
-                              variant={'outline'}
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{t('pickDate')}</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
+                            <RadioGroupItem value="income" />
                           </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                            initialFocus
-                            locale={dateFnsLocale}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('optionalDescription')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          <FormLabel className="font-normal">{t('income')}</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="expense" />
+                          </FormControl>
+                          <FormLabel className="font-normal">{t('expense')}</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="account"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('account')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('selectAccount')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableAccounts.map(acc => {
-                            const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
-                            const balance = accountBalances[acc.id];
-                            const isDebit = acc.type === 'debit';
-                            return (
-                              <SelectItem key={acc.id} value={acc.id}>
-                              <div className="flex items-center justify-between w-full">
-                                <div className="flex items-center">
-                                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                                  {acc.name}
-                                </div>
-                                {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('amount')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('category')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('selectCategory')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCategories.map(cat => {
+                          const Icon = ICONS[cat.icon] || ICONS.MoreHorizontal;
+                          return (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {cat.name}
                               </div>
                             </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{t('date')}</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? format(field.value, 'PPP', { locale: dateFnsLocale }) : <span>{t('pickDate')}</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                          initialFocus
+                          locale={dateFnsLocale}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('optionalDescription')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('descriptionPlaceholder')} {...field} value={field.value ?? ''}/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <DialogFooter className="pt-4 sticky bottom-0 bg-background">
-                  <Button type="submit" disabled={loading} className="w-full">
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {t('addButton')}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </div>
-        )}
+              <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('account')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!transactionType}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('selectAccount')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableAccounts.map(acc => {
+                          const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
+                          const balance = accountBalances[acc.id];
+                          const isDebit = acc.type === 'debit';
+                          return (
+                            <SelectItem key={acc.id} value={acc.id}>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center">
+                                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                {acc.name}
+                              </div>
+                              {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
+                            </div>
+                          </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter className="pt-4 sticky bottom-0 bg-background">
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {t('addButton')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
