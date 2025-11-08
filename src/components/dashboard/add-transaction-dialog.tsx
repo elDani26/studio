@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -107,9 +107,19 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   });
   
   const transactionType = form.watch('type');
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    form.resetField('category', { defaultValue: '' });
+    form.resetField('account', { defaultValue: '' });
+  }, [transactionType, form]);
 
   const filteredCategories = useMemo(() => {
-    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago tarjeta de crédito');
+    return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
   }, [categories, transactionType]);
   
   const availableAccounts = useMemo(() => {
@@ -121,8 +131,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
 
   const handleTypeChange = (value: 'income' | 'expense') => {
     form.setValue('type', value);
-    form.resetField('category');
-    form.resetField('account');
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
