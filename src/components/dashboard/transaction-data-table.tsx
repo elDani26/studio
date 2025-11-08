@@ -198,6 +198,7 @@ export function TransactionDataTable({
         const mainDocRef = doc(firestore, 'users', user.uid, 'transactions', transactionToDelete.id);
         batch.delete(mainDocRef);
 
+        // If it's a transfer, find and delete the sibling transaction
         if (transactionToDelete.transferId) {
             const q = query(
                 collection(firestore, 'users', user.uid, 'transactions'),
@@ -205,7 +206,7 @@ export function TransactionDataTable({
             );
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
-                if (doc.id !== transactionToDelete.id) {
+                if (doc.id !== transactionToDelete.id) { // Don't delete the one we already are
                     batch.delete(doc.ref);
                 }
             });
@@ -219,8 +220,12 @@ export function TransactionDataTable({
         });
 
     } catch (error) {
+        const path = transactionToDelete.transferId 
+            ? `users/${user.uid}/transactions/{multiple}` 
+            : `users/${user.uid}/transactions/${transactionToDelete.id}`;
+
         errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: `users/${user.uid}/transactions`,
+            path: path,
             operation: 'delete',
         }));
         toast({

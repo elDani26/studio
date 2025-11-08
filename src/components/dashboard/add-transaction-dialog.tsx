@@ -119,18 +119,11 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
     return accounts;
   }, [accounts, transactionType]);
 
-  useEffect(() => {
-    const currentCategory = form.getValues('category');
-    if (currentCategory && !filteredCategories.some(c => c.id === currentCategory)) {
-        form.setValue('category', '');
-    }
-    
-    const currentAccount = form.getValues('account');
-    if (currentAccount && !availableAccounts.some(a => a.id === currentAccount)) {
-        form.setValue('account', '');
-    }
-
-  }, [transactionType, form, filteredCategories, availableAccounts]);
+  const handleTypeChange = (value: 'income' | 'expense') => {
+    form.setValue('type', value);
+    form.setValue('category', '');
+    form.setValue('account', '');
+  };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
 
@@ -202,7 +195,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                   <FormLabel>{t('transactionType')}</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => handleTypeChange(value as 'income' | 'expense')}
                       defaultValue={field.value}
                       className="flex space-x-4"
                     >
