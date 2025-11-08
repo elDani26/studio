@@ -30,7 +30,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
         </div>
         <div>
           <div className="font-medium">{tMisc('transfer')}</div>
-          <div className="text-sm text-muted-foreground">{transaction.description}</div>
+          <div className="text-sm text-muted-foreground truncate max-w-[150px]">{transaction.description}</div>
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ const TransactionCell = ({ transaction }: { transaction: Transaction }) => {
       </div>
       <div>
         <div className="font-medium">{categoryInfo?.name || tMisc('unknownCategory')}</div>
-        <div className="text-sm text-muted-foreground">{transaction.description || t('noDescription')}</div>
+        <div className="text-sm text-muted-foreground truncate max-w-[150px]">{transaction.description || t('noDescription')}</div>
       </div>
     </div>
   );
@@ -91,9 +91,10 @@ const AmountCell = ({ type, amount, isCreditCardExpense }: { type: 'income' | 'e
   const formattedAmount = new Intl.NumberFormat('es-ES', {
     style: 'currency',
     currency: currency,
+    maximumFractionDigits: 0,
   }).format(amount);
 
-  return <div className={`font-semibold ${color}`}>{`${sign}${formattedAmount}`}</div>;
+  return <div className={`font-semibold ${color} text-right`}>{`${sign}${formattedAmount}`}</div>;
 };
 
 const DateCell = ({ date }: { date: any }) => {
@@ -109,7 +110,7 @@ const DateCell = ({ date }: { date: any }) => {
     } else {
         return <div className="text-muted-foreground">{t('invalidDate')}</div>;
     }
-    const formattedDate = format(dateObj, "dd MMM, yyyy", { locale: dateFnsLocale });
+    const formattedDate = format(dateObj, "dd MMM, yy", { locale: dateFnsLocale });
     return <div className="text-muted-foreground">{formattedDate}</div>;
 }
 
@@ -131,19 +132,19 @@ export const getColumns = (
         header: t('description'),
         accessor: 'category',
         cell: (item) => <TransactionCell transaction={item} />,
-        className: 'w-[300px]',
+        className: 'w-[250px]',
       },
       {
         header: t('date'),
         accessor: 'date',
         cell: (item) => <DateCell date={item.date} />,
-        className: 'text-left',
+        className: 'text-left hidden md:table-cell',
       },
       {
         header: t('account'),
         accessor: 'account',
         cell: (item) => <AccountCell accountId={item.account} />,
-        className: 'text-left',
+        className: 'text-left hidden lg:table-cell',
       },
       {
         header: t('amount'),

@@ -168,7 +168,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full sm:w-auto">
+        <Button variant="outline" className="w-full">
             <Repeat className="mr-2 h-4 w-4" />
             {t('title')}
         </Button>

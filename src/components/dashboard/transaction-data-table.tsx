@@ -31,9 +31,8 @@ import {
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations, useLocale } from 'next-intl';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 import { getLocale } from '@/lib/utils';
-import { startOfDay, endOfDay } from 'date-fns';
 import { PayCreditCardDialog } from './pay-credit-card-dialog';
 
 
@@ -51,7 +50,7 @@ export function TransactionDataTable({
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories, accounts, currency } = useSettings();
+  const { categories, accounts, currency, hasCreditCard } = useSettings();
   const t = useTranslations('TransactionDataTable');
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
@@ -254,7 +253,7 @@ export function TransactionDataTable({
 
   const columns = getColumns(handleEdit, handleDelete);
   
-  const showCreditCardView = type === 'credit-expense' || isCreditAccountSelected;
+  const showCreditCardView = (type === 'credit-expense' || isCreditAccountSelected) && hasCreditCard;
 
 
   return (
@@ -266,38 +265,32 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-            <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start">
-                <PayCreditCardDialog transactions={allTransactions} />
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                {hasCreditCard && <PayCreditCardDialog transactions={allTransactions} />}
                 <AddTransferDialog transactions={allTransactions} />
                 <AddTransactionDialog transactions={allTransactions} />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 pt-4">
               <Select value={type} onValueChange={setType}>
-                  <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder={t('filterType')} />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('filterType')} /></SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">{t('all')}</SelectItem>
                       <SelectItem value="income">{t('income')}</SelectItem>
                       <SelectItem value="expense">{t('expense')}</SelectItem>
-                      <SelectItem value="credit-expense">{tMisc('creditCardDebt')}</SelectItem>
+                      {hasCreditCard && <SelectItem value="credit-expense">{tMisc('creditCardDebt')}</SelectItem>}
                       <SelectItem value="transfer">{tMisc('transfer')}</SelectItem>
                   </SelectContent>
               </Select>
               <Select value={categoryFilter} onValueChange={setCategoryFilter} disabled={type === 'transfer' || type === 'credit-expense'}>
-                  <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder={t('filterCategory')} />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('filterCategory')} /></SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">{t('all')}</SelectItem>
                       {filteredCategories.filter(c => c.name.toLowerCase() !== 'transfer').map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={accountFilter} onValueChange={setAccountFilter}>
-                  <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder={t('filterAccount')} />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('filterAccount')} /></SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all">{t('all')}</SelectItem>
                       {availableAccountsForFilter.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
@@ -307,106 +300,90 @@ export function TransactionDataTable({
                 <PopoverTrigger asChild>
                   <Button
                     variant={'outline'}
-                    className={cn(
-                      'w-full sm:w-auto justify-start text-left font-normal',
-                      !dateFrom && 'text-muted-foreground'
-                    )}
+                    className={cn( 'w-full justify-start text-left font-normal', !dateFrom && 'text-muted-foreground' )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateFrom ? format(dateFrom, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    initialFocus
-                    locale={dateFnsLocale}
-                  />
+                  <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus locale={dateFnsLocale}/>
                 </PopoverContent>
               </Popover>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={'outline'}
-                    className={cn(
-                      'w-full sm:w-auto justify-start text-left font-normal',
-                      !dateTo && 'text-muted-foreground'
-                    )}
+                    className={cn( 'w-full justify-start text-left font-normal', !dateTo && 'text-muted-foreground' )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateTo ? format(dateTo, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    initialFocus
-                    locale={dateFnsLocale}
-                  />
+                  <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus locale={dateFnsLocale} />
                 </PopoverContent>
               </Popover>
-              {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
+              {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates} className="w-full sm:w-auto"><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
           </div>
         </CardHeader>
         <CardContent>
-          {showCreditCardView ? (
-            <div className="grid gap-4 md:grid-cols-2 mb-6">
+          <div className={cn("grid gap-4 mb-6", showCreditCardView ? "md:grid-cols-2" : "md:grid-cols-3")}>
+            {showCreditCardView ? (
+              <>
+                  <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">{t('accountHistory')}</CardTitle>
+                          <History className="h-4 w-4 text-blue-500" />
+                      </CardHeader>
+                      <CardContent>
+                          <div className="text-2xl font-bold text-blue-500">{formatCurrency(filteredTotals.creditHistoryTotal)}</div>
+                      </CardContent>
+                  </Card>
+                  <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">{t('currentAccountDebt')}</CardTitle>
+                          <CreditCard className="h-4 w-4 text-orange-500" />
+                      </CardHeader>
+                      <CardContent>
+                          <div className="text-2xl font-bold text-orange-500">{formatCurrency(filteredTotals.currentDebt)}</div>
+                      </CardContent>
+                  </Card>
+              </>
+            ) : (
+              <>
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{t('accountHistory')}</CardTitle>
-                        <History className="h-4 w-4 text-blue-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-blue-500">{formatCurrency(filteredTotals.creditHistoryTotal)}</div>
-                    </CardContent>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
+                    <ArrowUp className="h-4 w-4 text-green-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
+                  </CardContent>
                 </Card>
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{t('currentAccountDebt')}</CardTitle>
-                        <CreditCard className="h-4 w-4 text-orange-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-orange-500">{formatCurrency(filteredTotals.currentDebt)}</div>
-                    </CardContent>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
+                    <ArrowDown className="h-4 w-4 text-red-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
+                  </CardContent>
                 </Card>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-3 mb-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
-                  <ArrowUp className="h-4 w-4 text-green-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
-                  <ArrowDown className="h-4 w-4 text-red-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
-                  <Scale className="h-4 w-4 text-blue-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
-                    {formatCurrency(filteredTotals.balance)}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
+                    <Scale className="h-4 w-4 text-blue-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
+                      {formatCurrency(filteredTotals.balance)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
 
           <div className="rounded-md border">
             <Table>

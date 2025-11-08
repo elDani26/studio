@@ -187,9 +187,9 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full">
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t('title')}
+            {t('addButton')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
