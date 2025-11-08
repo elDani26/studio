@@ -19,12 +19,14 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { SOURCE_ACCOUNTS, TRANSACTION_CATEGORIES } from '@/lib/constants';
+import {unstable_setRequestLocale} from 'next-intl/server';
 
 // Special test account credentials
 const TEST_USER_EMAIL = 'test@test.com';
 const TEST_USER_PASS = 'Password123!';
 
-export default function LoginPage() {
+export default function LoginPage({params: {locale}}: {params: {locale: string}}) {
+  //unstable_setRequestLocale(locale);
   const { user, isUserLoading } = useUser();
   const auth = useFirebaseAuth();
   const firestore = getFirestore();
@@ -32,7 +34,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const t = useTranslations('LoginPage');
   const tToast = useTranslations('Toasts');
-  const locale = useLocale();
+  const currentLocale = useLocale();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -113,7 +115,7 @@ export default function LoginPage() {
         await resetTestAccountData(userCredential.user.uid);
       }
 
-      router.push(`/${locale}/dashboard`);
+      router.push(`/${currentLocale}/dashboard`);
     } catch (error: any) {
       setError(t('invalidCredentialsError'));
     } finally {
@@ -204,9 +206,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isUserLoading && user) {
-      router.push(`/${locale}/dashboard`);
+      router.push(`/${currentLocale}/dashboard`);
     }
-  }, [user, isUserLoading, router, locale]);
+  }, [user, isUserLoading, router, currentLocale]);
 
   if (isUserLoading || user) {
     return (

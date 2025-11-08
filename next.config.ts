@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@opentelemetry/instrumentation'],
-  },
+  serverExternalPackages: ['@opentelemetry/instrumentation'],
   images: {
     remotePatterns: [
       {
