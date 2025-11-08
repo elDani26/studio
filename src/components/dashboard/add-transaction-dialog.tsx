@@ -121,11 +121,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
 
   const handleTypeChange = (value: 'income' | 'expense') => {
     form.setValue('type', value);
-    // Defer the reset of other fields to avoid flushSync error
-    setTimeout(() => {
-      form.setValue('category', '');
-      form.setValue('account', '');
-    }, 0);
+    form.resetField('category');
+    form.resetField('account');
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
@@ -177,7 +174,7 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addButton')}
+            {t('title')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
