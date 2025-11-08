@@ -107,13 +107,20 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   });
   
   const transactionType = form.watch('type');
-  
-  const handleTypeChange = (value: 'income' | 'expense') => {
-    form.setValue('type', value);
-    form.setValue('category', '');
-    form.setValue('account', '');
-  };
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        type: 'expense',
+        amount: 0,
+        category: '',
+        date: new Date(),
+        description: '',
+        account: '',
+      });
+    }
+  }, [open, form]);
+  
   const filteredCategories = useMemo(() => {
     return categories.filter(c => c.type === transactionType && c.name.toLowerCase() !== 'transfer' && c.name.toLowerCase() !== 'pago creditos');
   }, [categories, transactionType]);
@@ -149,7 +156,6 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
           title: t('successToast'),
         });
         setOpen(false);
-        form.reset();
       })
       .catch((error) => {
         const permissionError = new FirestorePermissionError({
@@ -195,8 +201,8 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
                   <FormLabel>{t('transactionType')}</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value) => handleTypeChange(value as 'income' | 'expense')}
-                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      value={field.value}
                       className="flex space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
