@@ -56,10 +56,15 @@ export function TransactionDataTable({
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
   const tMisc = useTranslations('misc');
+  const tDatePicker = useTranslations('TransactionDataTable.datePicker');
+  const locale = useLocale();
+  const dateFnsLocale = getLocale(locale);
 
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -86,6 +91,11 @@ export function TransactionDataTable({
     return accounts;
   }, [accounts, type]);
 
+  const clearDates = () => {
+    setDateFrom(undefined);
+    setDateTo(undefined);
+  };
+
 
   useEffect(() => {
     if (categoryFilter !== 'all' && !filteredCategories.some(c => c.id === categoryFilter)) {
@@ -103,6 +113,18 @@ export function TransactionDataTable({
     return transactions.filter(t => {
       const categoryFilterPassed = categoryFilter === 'all' || t.category === categoryFilter;
       
+      let tDate;
+      if (t.date && typeof (t.date as any).toDate === 'function') {
+        tDate = (t.date as any).toDate();
+      } else {
+        tDate = new Date(t.date as any);
+      }
+      
+      const fromDate = dateFrom ? startOfDay(dateFrom) : null;
+      const toDate = dateTo ? endOfDay(dateTo) : (dateFrom ? endOfDay(dateFrom) : null);
+
+      const dateFilterPassed = (!fromDate || tDate >= fromDate) && (!toDate || tDate <= toDate);
+      
       let typeFilterPassed = true;
       if (type === 'all') {
         typeFilterPassed = true;
@@ -119,17 +141,17 @@ export function TransactionDataTable({
       // Special logic for account filter when a credit account is selected
       if (accountFilter !== 'all' && isCreditAccountSelected) {
         // Show expenses made WITH this card OR payments made TO this card
-        return (t.account === accountFilter || t.paymentFor === accountFilter);
+        return (t.account === accountFilter || t.paymentFor === accountFilter) && dateFilterPassed;
       }
       
       const accountFilterPassed = accountFilter === 'all' || t.account === accountFilter;
 
-      return categoryFilterPassed && typeFilterPassed && accountFilterPassed;
+      return categoryFilterPassed && typeFilterPassed && accountFilterPassed && dateFilterPassed;
     });
-  }, [transactions, categoryFilter, type, accountFilter, isCreditAccountSelected]);
+  }, [transactions, categoryFilter, type, accountFilter, isCreditAccountSelected, dateFrom, dateTo]);
 
   const filteredTotals = useMemo(() => {
-    const relevantTransactions = accountFilter === 'all' ? transactions : filteredTransactions;
+    const relevantTransactions = filteredTransactions;
 
     const income = relevantTransactions
       .filter(t => t.type === 'income' && (accountFilter === 'all' ? !t.transferId : true))
@@ -141,7 +163,7 @@ export function TransactionDataTable({
 
     const balance = income - expenses;
     
-    const creditTransactionsSource = accountFilter === 'all' || !isCreditAccountSelected ? allTransactions : filteredTransactions;
+    const creditTransactionsSource = filteredTransactions;
 
     const creditHistoryTotal = creditTransactionsSource
         .filter(t => t.isCreditCardExpense && (accountFilter === 'all' || t.account === accountFilter))
@@ -161,7 +183,7 @@ export function TransactionDataTable({
       creditHistoryTotal,
       currentDebt,
     };
-  }, [filteredTransactions, transactions, allTransactions, accountFilter, isCreditAccountSelected]);
+  }, [filteredTransactions, accountFilter, isCreditAccountSelected]);
   
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -281,6 +303,53 @@ export function TransactionDataTable({
                       {availableAccountsForFilter.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={'outline'}
+                    className={cn(
+                      'w-full sm:w-auto justify-start text-left font-normal',
+                      !dateFrom && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    locale={dateFnsLocale}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={'outline'}
+                    className={cn(
+                      'w-full sm:w-auto justify-start text-left font-normal',
+                      !dateTo && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    locale={dateFnsLocale}
+                  />
+                </PopoverContent>
+              </Popover>
+              {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates}><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
           </div>
         </CardHeader>
         <CardContent>
