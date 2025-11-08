@@ -155,11 +155,11 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-2 space-y-4">
-          <StatCards transactions={transactions} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+        <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCards transactions={transactions} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="xl:col-span-1 row-start-1 xl:row-auto">
           <AiSummary transactions={transactions} />
         </div>
       </div>
@@ -218,7 +218,7 @@ export default function DashboardPage() {
 
         <div className={cn(
             "grid gap-8",
-            hasCreditCard ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"
+            hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"
         )}>
             <ExpenseChart data={expenseChartData} />
             <IncomeChart data={incomeChartData} />
