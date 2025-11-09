@@ -203,7 +203,7 @@
   "IncomeChart": {
     "title": "收入分布",
     "description": "按类别查看收入",
-noData": "无可用收入数据。"
+    "noData": "无可用收入数据。"
   },
   "DebtChart": {
     "title": "债务分布",
@@ -239,3 +239,5 @@ noData": "无可用收入数据。"
     "calculatorTitle": "计算器"
   }
 }
+
+    
