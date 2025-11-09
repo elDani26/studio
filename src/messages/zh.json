@@ -67,6 +67,7 @@
     "title": "最近的交易",
     "description": "查看和管理您的财务动向。",
     "addTransaction": "添加交易",
+    "exportToCsv": "导出为CSV",
     "filterType": "类型",
     "filterCategory": "类别",
     "filterAccount": "账户",
@@ -168,6 +169,9 @@
     "currencySectionDescription": "选择您交易的主要货币。",
     "currencyLabel": "货币",
     "selectCurrency": "选择一种货币",
+    "creditCardSectionTitle": "信用卡",
+    "creditCardSectionDescription": "如果您使用并希望跟踪信用卡，请启用此选项。",
+    "hasCreditCardLabel": "我有一张信用卡",
     "accountsSectionTitle": "您的账户",
     "accountsSectionDescription": "添加和管理您使用的账户（例如：银行、现金）。",
     "newAccountPlaceholder": "新账户名称",
@@ -178,9 +182,9 @@
     "income": "收入",
     "expense": "支出",
     "closeButton": "关闭",
-    "saveCurrencyButton": "保存货币",
-    "currencySuccessToast": "货币已保存！",
-    "currencySuccessDescription": "您的主要货币已更新。",
+    "saveButton": "保存设置",
+    "currencySuccessToast": "设置已保存！",
+    "currencySuccessDescription": "您的偏好已更新。",
     "accountAddedToast": "账户已添加！",
     "categoryAddedToast": "类别已添加！",
     "editAccountTitle": "编辑账户",
@@ -199,7 +203,12 @@
   "IncomeChart": {
     "title": "收入分布",
     "description": "按类别查看收入",
-    "noData": "无可用收入数据。"
+noData": "无可用收入数据。"
+  },
+  "DebtChart": {
+    "title": "债务分布",
+    "description": "按信用卡查看您的债务",
+    "noData": "无可用债务数据。"
   },
   "Toasts": {
     "signupSuccessTitle": "注册成功！",
@@ -222,7 +231,9 @@
     "debit": "借记",
     "credit": "信用",
     "optionalDescription": "描述（可选）",
-    "descriptionPlaceholder": "例如：支付给..."
+    "descriptionPlaceholder": "例如：支付给...",
+    "income": "收入",
+    "expense": "支出"
   },
   "CalculatorDialog": {
     "calculatorTitle": "计算器"

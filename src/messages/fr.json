@@ -67,6 +67,7 @@
     "title": "Transactions récentes",
     "description": "Consultez et gérez vos mouvements financiers.",
     "addTransaction": "Ajouter une transaction",
+    "exportToCsv": "Exporter vers CSV",
     "filterType": "Type",
     "filterCategory": "Catégorie",
     "filterAccount": "Compte",
@@ -168,6 +169,9 @@
     "currencySectionDescription": "Sélectionnez la devise principale pour vos transactions.",
     "currencyLabel": "Devise",
     "selectCurrency": "Sélectionner une devise",
+    "creditCardSectionTitle": "Cartes de Crédit",
+    "creditCardSectionDescription": "Activez cette option si vous utilisez et souhaitez suivre les cartes de crédit.",
+    "hasCreditCardLabel": "J'ai une carte de crédit",
     "accountsSectionTitle": "Vos comptes",
     "accountsSectionDescription": "Ajoutez et gérez les comptes que vous utilisez (ex: Banque, Espèces).",
     "newAccountPlaceholder": "Nom du nouveau compte",
@@ -178,9 +182,9 @@
     "income": "Revenu",
     "expense": "Dépense",
     "closeButton": "Fermer",
-    "saveCurrencyButton": "Enregistrer la devise",
-    "currencySuccessToast": "Devise enregistrée !",
-    "currencySuccessDescription": "Votre devise principale a été mise à jour.",
+    "saveButton": "Enregistrer les Paramètres",
+    "currencySuccessToast": "Paramètres enregistrés !",
+    "currencySuccessDescription": "Vos préférences ont été mises à jour.",
     "accountAddedToast": "Compte ajouté !",
     "categoryAddedToast": "Catégorie ajoutée !",
     "editAccountTitle": "Modifier le compte",
@@ -200,6 +204,11 @@
     "title": "Répartition des revenus",
     "description": "Revenus par catégorie",
     "noData": "Aucune donnée de revenu disponible."
+  },
+  "DebtChart": {
+    "title": "Répartition de la Dette",
+    "description": "Visualisez votre dette par carte de crédit",
+    "noData": "Aucune donnée de dette disponible."
   },
   "Toasts": {
     "signupSuccessTitle": "Inscription réussie !",
@@ -222,7 +231,9 @@
     "debit": "Débit",
     "credit": "Crédit",
     "optionalDescription": "Description (facultatif)",
-    "descriptionPlaceholder": "Ex: Paiement pour..."
+    "descriptionPlaceholder": "Ex: Paiement pour...",
+    "income": "Revenu",
+    "expense": "Dépense"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculatrice"

@@ -15,7 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '../ui/skeleton';
-import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard, History } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard, History, FileDown } from 'lucide-react';
 import { doc, deleteDoc, writeBatch, collection, query, where, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -93,6 +93,48 @@ export function TransactionDataTable({
   const clearDates = () => {
     setDateFrom(undefined);
     setDateTo(undefined);
+  };
+  
+  const exportTransactionsToCSV = () => {
+    const accountMap = new Map(accounts.map(acc => [acc.id, acc]));
+    const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+
+    const headers = ['Tipo de Transacción', 'Monto', 'Categoría', 'Descripción', 'Fecha', 'Cuenta'];
+    const csvRows = [headers.join(',')];
+
+    allTransactions.forEach(t => {
+      let tDate;
+      if (t.date && typeof (t.date as any).toDate === 'function') {
+        tDate = (t.date as any).toDate();
+      } else {
+        tDate = new Date(t.date as any);
+      }
+      
+      const transactionType = t.type === 'income' ? tMisc('income') : tMisc('expense');
+      const amount = t.amount;
+      const category = categoryMap.get(t.category)?.name || tMisc('unknownCategory');
+      const description = t.description?.replace(/,/g, '') || '';
+      const date = format(tDate, 'yyyy-MM-dd');
+      const accountName = accountMap.get(t.account)?.name || tMisc('unknownAccount');
+
+      const row = [transactionType, amount, category, description, date, accountName];
+      csvRows.push(row.join(','));
+    });
+
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      const today = format(new Date(), 'yyyy-MM-dd');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `GestionaTuDinero_Transacciones_${today}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
 
@@ -266,6 +308,10 @@ export function TransactionDataTable({
               <CardDescription>{t('description')}</CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <Button variant="outline" onClick={exportTransactionsToCSV} className="w-full">
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Exportar a CSV
+                </Button>
                 {hasCreditCard && <PayCreditCardDialog transactions={allTransactions} />}
                 <AddTransferDialog transactions={allTransactions} />
                 <AddTransactionDialog transactions={allTransactions} />

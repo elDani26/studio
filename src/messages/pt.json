@@ -67,6 +67,7 @@
     "title": "Transações recentes",
     "description": "Visualize e gerencie seus movimentos financeiros.",
     "addTransaction": "Adicionar transação",
+    "exportToCsv": "Exportar para CSV",
     "filterType": "Tipo",
     "filterCategory": "Categoria",
     "filterAccount": "Conta",
@@ -149,7 +150,7 @@
     "selectAccount": "Selecione uma conta",
     "transferButton": "Realizar Transferência",
     "successToast": "Sua transferência foi registrada!",
-    "errorToast": "Não foi possível registrar la transferência. Por favor, tente novamente."
+    "errorToast": "Não foi possível registrar a transferência. Por favor, tente novamente."
   },
   "EditTransactionDialog": {
     "title": "Editar transação",
@@ -168,6 +169,9 @@
     "currencySectionDescription": "Selecione a moeda principal para suas transações.",
     "currencyLabel": "Moeda",
     "selectCurrency": "Selecione uma moeda",
+    "creditCardSectionTitle": "Cartões de Crédito",
+    "creditCardSectionDescription": "Ative esta opção se você usa e deseja rastrear cartões de crédito.",
+    "hasCreditCardLabel": "Eu tenho um cartão de crédito",
     "accountsSectionTitle": "Suas contas",
     "accountsSectionDescription": "Adicione e gerencie as contas que você usa (ex: Banco, Dinheiro).",
     "newAccountPlaceholder": "Nome da nova conta",
@@ -178,9 +182,9 @@
     "income": "Renda",
     "expense": "Despesa",
     "closeButton": "Fechar",
-    "saveCurrencyButton": "Salvar moeda",
-    "currencySuccessToast": "Moeda salva!",
-    "currencySuccessDescription": "Sua moeda principal foi atualizada.",
+    "saveButton": "Salvar Configurações",
+    "currencySuccessToast": "Configurações salvas!",
+    "currencySuccessDescription": "Suas preferências foram atualizadas.",
     "accountAddedToast": "Conta adicionada!",
     "categoryAddedToast": "Categoria adicionada!",
     "editAccountTitle": "Editar conta",
@@ -200,6 +204,11 @@
     "title": "Distribuição de renda",
     "description": "Renda por categoria",
     "noData": "Nenhum dado de renda disponível."
+  },
+  "DebtChart": {
+    "title": "Distribuição da Dívida",
+    "description": "Visualize sua dívida por cartão de crédito",
+    "noData": "Nenhum dado de dívida disponível."
   },
   "Toasts": {
     "signupSuccessTitle": "Cadastro bem-sucedido!",
@@ -222,7 +231,9 @@
     "debit": "Débito",
     "credit": "Crédito",
     "optionalDescription": "Descrição (opcional)",
-    "descriptionPlaceholder": "Ex: Pagamento para..."
+    "descriptionPlaceholder": "Ex: Pagamento para...",
+    "income": "Renda",
+    "expense": "Despesa"
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
