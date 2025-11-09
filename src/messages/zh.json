@@ -67,7 +67,6 @@
     "title": "最近的交易",
     "description": "查看和管理您的财务动向。",
     "addTransaction": "添加交易",
-    "exportToCsv": "导出为CSV",
     "filterType": "类型",
     "filterCategory": "类别",
     "filterAccount": "账户",

@@ -67,7 +67,6 @@
     "title": "Letzte Transaktionen",
     "description": "Sehen und verwalten Sie Ihre Finanzbewegungen.",
     "addTransaction": "Transaktion hinzufügen",
-    "exportToCsv": "Nach CSV exportieren",
     "filterType": "Typ",
     "filterCategory": "Kategorie",
     "filterAccount": "Konto",

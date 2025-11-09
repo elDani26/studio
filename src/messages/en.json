@@ -67,7 +67,6 @@
     "title": "Recent Transactions",
     "description": "View and manage your financial movements.",
     "addTransaction": "Add Transaction",
-    "exportToCsv": "Export to CSV",
     "filterType": "Type",
     "filterCategory": "Category",
     "filterAccount": "Account",

@@ -67,7 +67,6 @@
     "title": "Transactions récentes",
     "description": "Consultez et gérez vos mouvements financiers.",
     "addTransaction": "Ajouter une transaction",
-    "exportToCsv": "Exporter vers CSV",
     "filterType": "Type",
     "filterCategory": "Catégorie",
     "filterAccount": "Compte",
