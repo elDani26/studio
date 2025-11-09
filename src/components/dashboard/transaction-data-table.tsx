@@ -95,34 +95,90 @@ export function TransactionDataTable({
     setDateTo(undefined);
   };
   
+  const escapeCsvField = (field: any) => {
+    const stringField = String(field ?? '').replace(/"/g, '""');
+    return `"${stringField}"`;
+  };
+
   const exportTransactionsToCSV = () => {
     const accountMap = new Map(accounts.map(acc => [acc.id, acc]));
     const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+    const transfers: Record<string, Transaction[]> = {};
 
-    const headers = ['Tipo de Transacción', 'Monto', 'Categoría', 'Descripción', 'Fecha', 'Cuenta'];
-    const csvRows = [headers.join(',')];
+    // Group transfers together
+    allTransactions.forEach(t => {
+      if (t.transferId) {
+        if (!transfers[t.transferId]) {
+          transfers[t.transferId] = [];
+        }
+        transfers[t.transferId].push(t);
+      }
+    });
+
+    const headers = [
+      'Fecha',
+      'Tipo transaccion',
+      'Cuenta Origen',
+      'Cuenta de destino',
+      'Monto',
+      'Categoria',
+      'Descripcion'
+    ].map(escapeCsvField).join(',');
+    
+    const csvRows = [headers];
+    const processedTransfers = new Set<string>();
 
     allTransactions.forEach(t => {
-      let tDate;
-      if (t.date && typeof (t.date as any).toDate === 'function') {
-        tDate = (t.date as any).toDate();
-      } else {
-        tDate = new Date(t.date as any);
-      }
-      
-      const transactionType = t.type === 'income' ? tMisc('income') : tMisc('expense');
-      const amount = t.amount;
-      const category = categoryMap.get(t.category)?.name || tMisc('unknownCategory');
-      const description = t.description?.replace(/,/g, '') || '';
-      const date = format(tDate, 'yyyy-MM-dd');
-      const accountName = accountMap.get(t.account)?.name || tMisc('unknownAccount');
+      if (t.transferId) {
+        if (processedTransfers.has(t.transferId)) return; // Skip if already processed
 
-      const row = [transactionType, amount, category, description, date, accountName];
-      csvRows.push(row.join(','));
+        const transferPair = transfers[t.transferId];
+        if (transferPair?.length === 2) {
+          const expense = transferPair.find(tr => tr.type === 'expense');
+          const income = transferPair.find(tr => tr.type === 'income');
+          
+          if(expense && income) {
+            const row = [
+              format((expense.date as any).toDate(), 'yyyy-MM-dd'),
+              'Transferencia',
+              accountMap.get(expense.account)?.name || tMisc('unknownAccount'),
+              accountMap.get(income.account)?.name || tMisc('unknownAccount'),
+              expense.amount,
+              tMisc('transfer'),
+              expense.description?.split('(')[0].trim() || '-'
+            ];
+            csvRows.push(row.map(escapeCsvField).join(','));
+            processedTransfers.add(t.transferId);
+          }
+        }
+      } else if (t.paymentFor) {
+        const row = [
+          format((t.date as any).toDate(), 'yyyy-MM-dd'),
+          'Pago de Tarjeta',
+          accountMap.get(t.account)?.name || tMisc('unknownAccount'),
+          accountMap.get(t.paymentFor)?.name || tMisc('unknownAccount'),
+          t.amount,
+          categoryMap.get(t.category)?.name || tMisc('unknownCategory'),
+          t.description || '-'
+        ];
+        csvRows.push(row.map(escapeCsvField).join(','));
+
+      } else {
+        const row = [
+          format((t.date as any).toDate(), 'yyyy-MM-dd'),
+          t.type === 'income' ? tMisc('income') : tMisc('expense'),
+          accountMap.get(t.account)?.name || tMisc('unknownAccount'),
+          '', // No destination account
+          t.amount,
+          categoryMap.get(t.category)?.name || tMisc('unknownCategory'),
+          t.description || '-'
+        ];
+        csvRows.push(row.map(escapeCsvField).join(','));
+      }
     });
 
     const csvString = csvRows.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
     
     const link = document.createElement('a');
     if (link.download !== undefined) {
@@ -342,39 +398,36 @@ export function TransactionDataTable({
                       {availableAccountsForFilter.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
               </Select>
-              <Popover>
+             <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={'outline'}
                     className={cn( 'w-full justify-start text-left font-normal', !dateFrom && 'text-muted-foreground' )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
+                    {dateFrom ? (dateTo ? `${format(dateFrom, 'LLL dd, y')} - ${format(dateTo, 'LLL dd, y')}`: format(dateFrom, 'LLL dd, y')) : <span>{tDatePicker('placeholder')}</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus locale={dateFnsLocale}/>
-                </PopoverContent>
-              </Popover>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={'outline'}
-                    className={cn( 'w-full justify-start text-left font-normal', !dateTo && 'text-muted-foreground' )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, 'PPP', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus locale={dateFnsLocale} />
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateFrom}
+                    selected={{ from: dateFrom, to: dateTo }}
+                    onSelect={(range) => {
+                      setDateFrom(range?.from);
+                      setDateTo(range?.to);
+                    }}
+                    numberOfMonths={2}
+                    locale={dateFnsLocale}
+                  />
                 </PopoverContent>
               </Popover>
               {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates} className="w-full sm:w-auto"><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
           </div>
         </CardHeader>
         <CardContent>
-          <div className={cn("grid gap-4 mb-6", showCreditCardView ? "md:grid-cols-2" : "md:grid-cols-3")}>
+          <div className="grid gap-4 mb-6 md:grid-cols-2 lg:grid-cols-3">
             {showCreditCardView ? (
               <>
                   <Card>
