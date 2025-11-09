@@ -101,97 +101,93 @@ export function TransactionDataTable({
   };
 
   const exportTransactionsToCSV = () => {
-    const accountMap = new Map(accounts.map(acc => [acc.id, acc]));
-    const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+    const accountMap = new Map(accounts.map(acc => [acc.id, acc.name]));
+    const categoryMap = new Map(categories.map(cat => [cat.id, cat.name]));
     const transfers: Record<string, Transaction[]> = {};
 
-    // Group transfers together
     allTransactions.forEach(t => {
       if (t.transferId) {
-        if (!transfers[t.transferId]) {
-          transfers[t.transferId] = [];
-        }
+        if (!transfers[t.transferId]) transfers[t.transferId] = [];
         transfers[t.transferId].push(t);
       }
     });
 
     const headers = [
-      'Fecha',
-      'Tipo transaccion',
-      'Cuenta Origen',
-      'Cuenta de destino',
-      'Monto',
-      'Categoria',
-      'Descripcion'
-    ].map(escapeCsvField).join(',');
-    
+        "Fecha", "Tipo transaccion", "Cuenta Origen", 
+        "Cuenta de destino", "Monto", "Categoria", "Descripcion"
+    ].join(';');
+
     const csvRows = [headers];
     const processedTransfers = new Set<string>();
 
     allTransactions.forEach(t => {
-      if (t.transferId) {
-        if (processedTransfers.has(t.transferId)) return; // Skip if already processed
-
-        const transferPair = transfers[t.transferId];
-        if (transferPair?.length === 2) {
-          const expense = transferPair.find(tr => tr.type === 'expense');
-          const income = transferPair.find(tr => tr.type === 'income');
-          
-          if(expense && income) {
-            const row = [
-              format((expense.date as any).toDate(), 'yyyy-MM-dd'),
-              'Transferencia',
-              accountMap.get(expense.account)?.name || tMisc('unknownAccount'),
-              accountMap.get(income.account)?.name || tMisc('unknownAccount'),
-              expense.amount,
-              tMisc('transfer'),
-              expense.description?.split('(')[0].trim() || '-'
-            ];
-            csvRows.push(row.map(escapeCsvField).join(','));
-            processedTransfers.add(t.transferId);
-          }
+        let row: string[] = [];
+        let date;
+        try {
+            date = format((t.date as any).toDate(), 'yyyy-MM-dd');
+        } catch (e) {
+            date = 'Fecha inválida';
         }
-      } else if (t.paymentFor) {
-        const row = [
-          format((t.date as any).toDate(), 'yyyy-MM-dd'),
-          'Pago de Tarjeta',
-          accountMap.get(t.account)?.name || tMisc('unknownAccount'),
-          accountMap.get(t.paymentFor)?.name || tMisc('unknownAccount'),
-          t.amount,
-          categoryMap.get(t.category)?.name || tMisc('unknownCategory'),
-          t.description || '-'
-        ];
-        csvRows.push(row.map(escapeCsvField).join(','));
 
-      } else {
-        const row = [
-          format((t.date as any).toDate(), 'yyyy-MM-dd'),
-          t.type === 'income' ? tMisc('income') : tMisc('expense'),
-          accountMap.get(t.account)?.name || tMisc('unknownAccount'),
-          '', // No destination account
-          t.amount,
-          categoryMap.get(t.category)?.name || tMisc('unknownCategory'),
-          t.description || '-'
-        ];
-        csvRows.push(row.map(escapeCsvField).join(','));
-      }
+        if (t.transferId) {
+            if (processedTransfers.has(t.transferId)) return;
+            const pair = transfers[t.transferId];
+            if (pair && pair.length === 2) {
+                const expense = pair.find(tr => tr.type === 'expense');
+                const income = pair.find(tr => tr.type === 'income');
+                if (expense && income) {
+                    row = [
+                        date,
+                        "Transferencia",
+                        accountMap.get(expense.account) || tMisc('unknownAccount'),
+                        accountMap.get(income.account) || tMisc('unknownAccount'),
+                        String(expense.amount),
+                        tMisc('transfer'),
+                        expense.description?.split('(')[0].trim() || '-'
+                    ];
+                    processedTransfers.add(t.transferId);
+                }
+            }
+        } else if (t.paymentFor) {
+            row = [
+                date,
+                "Pago de Tarjeta",
+                accountMap.get(t.account) || tMisc('unknownAccount'),
+                accountMap.get(t.paymentFor) || tMisc('unknownAccount'),
+                String(t.amount),
+                categoryMap.get(t.category) || tMisc('unknownCategory'),
+                t.description || '-'
+            ];
+        } else {
+             row = [
+                date,
+                t.type === 'income' ? 'Ingreso' : 'Egreso',
+                accountMap.get(t.account) || tMisc('unknownAccount'),
+                '', // No destination account
+                String(t.amount),
+                categoryMap.get(t.category) || tMisc('unknownCategory'),
+                t.description || '-'
+            ];
+        }
+        
+        if (row.length > 0) {
+            csvRows.push(row.join(';'));
+        }
     });
 
     const csvString = csvRows.join('\n');
     const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
     
     const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      const today = format(new Date(), 'yyyy-MM-dd');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `GestionaTuDinero_Transacciones_${today}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+    const url = URL.createObjectURL(blob);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `GestionaTuDinero_Transacciones_${today}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 
   useEffect(() => {
@@ -373,7 +369,7 @@ export function TransactionDataTable({
                 <AddTransactionDialog transactions={allTransactions} />
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 pt-4">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-4">
               <Select value={type} onValueChange={setType}>
                   <SelectTrigger><SelectValue placeholder={t('filterType')} /></SelectTrigger>
                   <SelectContent>
@@ -421,9 +417,15 @@ export function TransactionDataTable({
                     numberOfMonths={2}
                     locale={dateFnsLocale}
                   />
+                   {(dateFrom || dateTo) && 
+                    <div className="p-2 border-t">
+                      <Button variant="ghost" onClick={clearDates} className="w-full justify-center">
+                        {tDatePicker('clearButton')}
+                      </Button>
+                    </div>
+                  }
                 </PopoverContent>
               </Popover>
-              {(dateFrom || dateTo) && <Button variant="ghost" onClick={clearDates} className="w-full sm:w-auto"><X className="mr-2 h-4 w-4"/>{tDatePicker('clearButton')}</Button>}
           </div>
         </CardHeader>
         <CardContent>
@@ -572,3 +574,5 @@ export function TransactionDataTable({
     </>
   );
 }
+
+    
