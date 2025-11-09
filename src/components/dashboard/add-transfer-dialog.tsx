@@ -56,7 +56,8 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
   const locale = useLocale();
   const dateFnsLocale = getLocale(locale);
 
-  const debitAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
+  const fromAccounts = useMemo(() => accounts, [accounts]);
+  const toAccounts = useMemo(() => accounts.filter(a => a.type === 'debit'), [accounts]);
 
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
@@ -85,13 +86,17 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
       message: 'La cuenta de origen y destino no pueden ser la misma.',
       path: ['toAccount'],
     }).refine(data => {
-      const balance = accountBalances[data.fromAccount] || 0;
-      return data.amount <= balance;
+      const fromAccountDetails = accounts.find(a => a.id === data.fromAccount);
+      if (fromAccountDetails?.type === 'debit') {
+        const balance = accountBalances[data.fromAccount] || 0;
+        return data.amount <= balance;
+      }
+      return true; // No balance check for credit accounts
     }, {
       message: 'El monto de la transferencia supera el saldo disponible en la cuenta de origen.',
       path: ['amount'],
     });
-  }, [accountBalances]);
+  }, [accountBalances, accounts]);
 
   const form = useForm<z.infer<typeof transferSchema>>({
     resolver: zodResolver(transferSchema),
@@ -110,28 +115,37 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
     if (!user) return;
     setLoading(true);
 
+    const fromAccountDetails = accounts.find(a => a.id === values.fromAccount);
+    if (!fromAccountDetails) {
+        setLoading(false);
+        return;
+    }
+
     const transferId = uuidv4();
-    const fromAccountName = accounts.find(a => a.id === values.fromAccount)?.name;
+    const fromAccountName = fromAccountDetails.name;
     const toAccountName = accounts.find(a => a.id === values.toAccount)?.name;
     const batch = writeBatch(firestore);
     
+    // Create expense from origin account
     const expenseTransactionRef = doc(collection(firestore, 'users', user.uid, 'transactions'));
     const expenseTransaction = {
       userId: user.uid,
-      type: 'expense',
+      type: 'expense' as const,
       category: 'transfer',
       account: values.fromAccount,
       amount: values.amount,
       date: Timestamp.fromDate(values.date),
       description: `${values.description || ''} (${tMisc('transferTo')} ${toAccountName})`.trim(),
       transferId: transferId,
+      isCreditCardExpense: fromAccountDetails.type === 'credit', // This is key for cash advances
     };
     batch.set(expenseTransactionRef, expenseTransaction);
 
+    // Create income to destination account
     const incomeTransactionRef = doc(collection(firestore, 'users', user.uid, 'transactions'));
     const incomeTransaction = {
         userId: user.uid,
-        type: 'income',
+        type: 'income' as const,
         category: 'transfer',
         account: values.toAccount,
         amount: values.amount,
@@ -197,9 +211,10 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {debitAccounts.map(acc => {
+                      {fromAccounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                         const balance = accountBalances[acc.id];
+                        const isDebit = acc.type === 'debit';
                         return (
                           <SelectItem key={acc.id} value={acc.id}>
                            <div className="flex items-center justify-between w-full">
@@ -207,7 +222,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                               <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                               {acc.name}
                             </div>
-                            <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>
+                            {isDebit && <span className="text-xs text-muted-foreground">{formatCurrency(balance)}</span>}
                           </div>
                         </SelectItem>
                         );
@@ -232,7 +247,7 @@ export function AddTransferDialog({ transactions }: AddTransferDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {debitAccounts.map(acc => {
+                      {toAccounts.map(acc => {
                         const Icon = ICONS[acc.icon] || ICONS.MoreHorizontal;
                         const balance = accountBalances[acc.id];
                         return (
