@@ -359,7 +359,7 @@ export function TransactionDataTable({
               <CardTitle>{t('title')}</CardTitle>
               <CardDescription>{t('description')}</CardDescription>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-2 w-full lg:w-auto">
                 <Button variant="outline" onClick={exportTransactionsToCSV} className="w-full">
                     <FileDown className="mr-2 h-4 w-4" />
                     Exportar a CSV
