@@ -94,6 +94,16 @@
           "type": "boolean",
           "description": "Indicates if the user has and wants to track credit cards.",
           "default": true
+        },
+        "cardsVisibility": {
+          "type": "object",
+          "description": "User preferences for stat card visibility.",
+          "properties": {
+            "totalIncome": { "type": "boolean" },
+            "totalExpenses": { "type": "boolean" },
+            "creditCardDebt": { "type": "boolean" },
+            "currentBalance": { "type": "boolean" }
+          }
         }
       },
       "required": [

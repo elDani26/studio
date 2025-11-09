@@ -3,12 +3,18 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
-import type { User, Category, SourceAccount, WithId } from '@/types';
+import type { User, Category, SourceAccount, WithId, CardsVisibility } from '@/types';
 import { TRANSACTION_CATEGORIES, SOURCE_ACCOUNTS } from '@/lib/constants';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
 
+const initialVisibilityState: CardsVisibility = {
+  totalIncome: true,
+  totalExpenses: true,
+  creditCardDebt: true,
+  currentBalance: true,
+};
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -20,6 +26,8 @@ interface SettingsContextType {
   isDataLoading: boolean;
   categories: WithId<Category>[];
   accounts: WithId<SourceAccount>[];
+  cardsVisibility: CardsVisibility;
+  updateCardsVisibility: (visibility: CardsVisibility) => void;
   addCategory: (category: Category) => Promise<void>;
   updateCategory: (id: string, category: Partial<Category>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
@@ -41,6 +49,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [categories, setCategories] = useState<WithId<Category>[]>([]);
   const [accounts, setAccounts] = useState<WithId<SourceAccount>[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const [cardsVisibility, setCardsVisibility] = useState<CardsVisibility>(initialVisibilityState);
+
 
   useEffect(() => {
     if (!user || !firestore) {
@@ -58,15 +68,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         if (docSnap.exists()) {
           const userData = docSnap.data() as User;
           if (userData.currency) setCurrencyState(userData.currency as Currency);
-          // Default to true if not set
           setHasCreditCardState(userData.hasCreditCard === false ? false : true);
+          setCardsVisibility(userData.cardsVisibility || initialVisibilityState);
         } else {
             // First time user, create their document
             const initialUserData: User = { 
                 id: user.uid, 
                 email: user.email!, 
                 currency: 'EUR', 
-                hasCreditCard: true 
+                hasCreditCard: true,
+                cardsVisibility: initialVisibilityState
             };
             setDoc(userDocRef, initialUserData)
                 .catch(e => errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'create', requestResourceData: initialUserData })));
@@ -145,6 +156,18 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateCardsVisibility = (visibility: CardsVisibility) => {
+    setCardsVisibility(visibility);
+    if (user && firestore) {
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const data = { cardsVisibility: visibility };
+      setDoc(userDocRef, data, { merge: true })
+        .catch((error) => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: data }));
+        });
+    }
+  };
+
 
   const handleError = (operation: string) => (error: any) => {
     toast({ variant: 'destructive', title: t('operationError'), description: t('operationErrorDescription') });
@@ -192,6 +215,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         isDataLoading,
         categories, 
         accounts,
+        cardsVisibility,
+        updateCardsVisibility,
         addCategory,
         updateCategory,
         deleteCategory,

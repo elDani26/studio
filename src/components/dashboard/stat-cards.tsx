@@ -8,8 +8,6 @@ import { ArrowDown, ArrowUp, Scale, CreditCard, Eye, EyeOff } from 'lucide-react
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 
-const VISIBILITY_STORAGE_KEY = 'money-visibility-state';
-
 const StatCard = ({
   title,
   value,
@@ -55,17 +53,6 @@ const StatCard = ({
   );
 }
 
-type VisibilityState = {
-  [key: string]: boolean;
-};
-
-const initialVisibilityState: VisibilityState = {
-  totalIncome: true,
-  totalExpenses: true,
-  creditCardDebt: true,
-  currentBalance: true,
-};
-
 interface StatCardsProps {
   transactions: Transaction[];
 }
@@ -74,30 +61,10 @@ export function StatCards({ transactions }: StatCardsProps) {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [creditCardDebt, setCreditCardDebt] = useState(0);
-  const [visibility, setVisibility] = useState<VisibilityState>(initialVisibilityState);
 
-  const { hasCreditCard } = useSettings();
+  const { hasCreditCard, cardsVisibility, updateCardsVisibility } = useSettings();
   const t = useTranslations('StatCards');
   const tMisc = useTranslations('misc');
-
-  useEffect(() => {
-    try {
-      const storedVisibility = localStorage.getItem(VISIBILITY_STORAGE_KEY);
-      if (storedVisibility) {
-        setVisibility(JSON.parse(storedVisibility));
-      }
-    } catch (error) {
-      console.error("Failed to read visibility from localStorage", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(visibility));
-    } catch (error) {
-      console.error("Failed to save visibility to localStorage", error);
-    }
-  }, [visibility]);
 
   useEffect(() => {
     const income = transactions
@@ -128,7 +95,8 @@ export function StatCards({ transactions }: StatCardsProps) {
   const balance = totalIncome - totalExpenses;
   
   const toggleVisibility = (key: string) => {
-    setVisibility(prev => ({ ...prev, [key]: !prev[key] }));
+    const newVisibility = { ...cardsVisibility, [key]: !cardsVisibility[key] };
+    updateCardsVisibility(newVisibility);
   };
   
   return (
@@ -138,7 +106,7 @@ export function StatCards({ transactions }: StatCardsProps) {
         value={totalIncome} 
         icon={ArrowUp} 
         colorClass="text-green-500" 
-        isVisible={visibility.totalIncome}
+        isVisible={cardsVisibility.totalIncome}
         onToggleVisibility={() => toggleVisibility('totalIncome')}
       />
       <StatCard 
@@ -146,7 +114,7 @@ export function StatCards({ transactions }: StatCardsProps) {
         value={totalExpenses} 
         icon={ArrowDown} 
         colorClass="text-red-500"
-        isVisible={visibility.totalExpenses}
+        isVisible={cardsVisibility.totalExpenses}
         onToggleVisibility={() => toggleVisibility('totalExpenses')}
       />
       {hasCreditCard && (
@@ -155,7 +123,7 @@ export function StatCards({ transactions }: StatCardsProps) {
           value={creditCardDebt} 
           icon={CreditCard} 
           colorClass="text-orange-500"
-          isVisible={visibility.creditCardDebt}
+          isVisible={cardsVisibility.creditCardDebt}
           onToggleVisibility={() => toggleVisibility('creditCardDebt')}
         />
       )}
@@ -164,7 +132,7 @@ export function StatCards({ transactions }: StatCardsProps) {
         value={balance} 
         icon={Scale} 
         colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'}
-        isVisible={visibility.currentBalance}
+        isVisible={cardsVisibility.currentBalance}
         onToggleVisibility={() => toggleVisibility('currentBalance')}
       />
     </div>

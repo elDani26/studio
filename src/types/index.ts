@@ -4,6 +4,14 @@ import { type Timestamp } from 'firebase/firestore';
 
 export type WithId<T> = T & { id: string };
 
+export type CardsVisibility = {
+  [key: string]: boolean;
+  totalIncome: boolean;
+  totalExpenses: boolean;
+  creditCardDebt: boolean;
+  currentBalance: boolean;
+};
+
 export type Transaction = {
   id: string;
   userId: string;
@@ -35,6 +43,7 @@ export type User = {
     lastName?: string;
     currency?: string;
     hasCreditCard?: boolean;
+    cardsVisibility?: CardsVisibility;
 };
 
 export interface Category {
