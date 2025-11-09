@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { ArrowDown, ArrowUp, Scale, CreditCard, Eye, EyeOff } from 'lucide-react
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 
-const VISIBILITY_STORAGE_KEY = 'money-visibility';
+const VISIBILITY_STORAGE_KEY = 'money-visibility-state';
 
 const StatCard = ({
   title,
@@ -55,13 +55,26 @@ const StatCard = ({
   );
 }
 
+type VisibilityState = {
+  [key: string]: boolean;
+};
+
+const initialVisibilityState: VisibilityState = {
+  totalIncome: true,
+  totalExpenses: true,
+  creditCardDebt: true,
+  currentBalance: true,
+};
+
+interface StatCardsProps {
+  transactions: Transaction[];
+}
 
 export function StatCards({ transactions }: StatCardsProps) {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [creditCardDebt, setCreditCardDebt] = useState(0);
-  const [areAmountsVisible, setAreAmountsVisible] = useState(true);
-
+  const [visibility, setVisibility] = useState<VisibilityState>(initialVisibilityState);
 
   const { hasCreditCard } = useSettings();
   const t = useTranslations('StatCards');
@@ -70,21 +83,21 @@ export function StatCards({ transactions }: StatCardsProps) {
   useEffect(() => {
     try {
       const storedVisibility = localStorage.getItem(VISIBILITY_STORAGE_KEY);
-      if (storedVisibility !== null) {
-        setAreAmountsVisible(JSON.parse(storedVisibility));
+      if (storedVisibility) {
+        setVisibility(JSON.parse(storedVisibility));
       }
     } catch (error) {
       console.error("Failed to read visibility from localStorage", error);
     }
   }, []);
-  
+
   useEffect(() => {
-     try {
-      localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(areAmountsVisible));
+    try {
+      localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(visibility));
     } catch (error) {
       console.error("Failed to save visibility to localStorage", error);
     }
-  }, [areAmountsVisible]);
+  }, [visibility]);
 
   useEffect(() => {
     const income = transactions
@@ -114,16 +127,46 @@ export function StatCards({ transactions }: StatCardsProps) {
   
   const balance = totalIncome - totalExpenses;
   
-  const toggleVisibility = () => {
-    setAreAmountsVisible(prev => !prev);
+  const toggleVisibility = (key: string) => {
+    setVisibility(prev => ({ ...prev, [key]: !prev[key] }));
   };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      <StatCard title={t('totalIncome')} value={totalIncome} icon={ArrowUp} colorClass="text-green-500" isVisible={areAmountsVisible} onToggleVisibility={toggleVisibility} />
-      <StatCard title={t('totalExpenses')} value={totalExpenses} icon={ArrowDown} colorClass="text-red-500" isVisible={areAmountsVisible} onToggleVisibility={toggleVisibility} />
-      {hasCreditCard && <StatCard title={tMisc('creditCardDebt')} value={creditCardDebt} icon={CreditCard} colorClass="text-orange-500" isVisible={areAmountsVisible} onToggleVisibility={toggleVisibility} />}
-      <StatCard title={t('currentBalance')} value={balance} icon={Scale} colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'} isVisible={areAmountsVisible} onToggleVisibility={toggleVisibility} />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <StatCard 
+        title={t('totalIncome')} 
+        value={totalIncome} 
+        icon={ArrowUp} 
+        colorClass="text-green-500" 
+        isVisible={visibility.totalIncome}
+        onToggleVisibility={() => toggleVisibility('totalIncome')}
+      />
+      <StatCard 
+        title={t('totalExpenses')} 
+        value={totalExpenses} 
+        icon={ArrowDown} 
+        colorClass="text-red-500"
+        isVisible={visibility.totalExpenses}
+        onToggleVisibility={() => toggleVisibility('totalExpenses')}
+      />
+      {hasCreditCard && (
+        <StatCard 
+          title={tMisc('creditCardDebt')} 
+          value={creditCardDebt} 
+          icon={CreditCard} 
+          colorClass="text-orange-500"
+          isVisible={visibility.creditCardDebt}
+          onToggleVisibility={() => toggleVisibility('creditCardDebt')}
+        />
+      )}
+      <StatCard 
+        title={t('currentBalance')} 
+        value={balance} 
+        icon={Scale} 
+        colorClass={balance >= 0 ? 'text-blue-500' : 'text-red-500'}
+        isVisible={visibility.currentBalance}
+        onToggleVisibility={() => toggleVisibility('currentBalance')}
+      />
     </div>
   );
 }
