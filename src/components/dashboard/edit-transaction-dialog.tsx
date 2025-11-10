@@ -189,12 +189,16 @@ export function EditTransactionDialog({
         if (isTransfer) {
             const expensePart = allTransactions.find(t => t.transferId === transaction.transferId && t.type === 'expense');
             if (expensePart) {
-                const fromAccountBalance = accountBalances[expensePart.account] || 0;
-                const maxAllowed = fromAccountBalance + expensePart.amount;
-                if (values.amount > maxAllowed) {
-                    form.setError('amount', { type: 'manual', message: 'El monto de la transferencia supera el saldo disponible.' });
-                    setLoading(false);
-                    return;
+                const fromAccount = accounts.find(a => a.id === expensePart.account);
+                // Only validate balance for debit accounts
+                if (fromAccount?.type === 'debit') {
+                    const fromAccountBalance = accountBalances[expensePart.account] || 0;
+                    const maxAllowed = fromAccountBalance + expensePart.amount;
+                    if (values.amount > maxAllowed) {
+                        form.setError('amount', { type: 'manual', message: 'El monto de la transferencia supera el saldo disponible.' });
+                        setLoading(false);
+                        return;
+                    }
                 }
             }
 
