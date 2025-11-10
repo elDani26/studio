@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "Riepilogo statistiche",
     "aiSummaryTitle": "Consulente Finanziario IA",
-    "transactionsTitle": "Tabella transazioni"
+    "transactionsTitle": "Tabella transazioni",
+    "chartsTitle": "Grafici"
   },
   "StatCards": {
     "totalIncome": "Entrate totali",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "Sei sicuro?",
     "confirmDeleteDescription": "Questa azione non può essere annullata. Eliminerà permanentemente la transazione dai tuoi registri.",
     "cancel": "Annulla",
-    "delete": "Elimina"
+    "delete": "Elimina",
+    "exportButton": "Esporta CSV",
+    "confirmExportTitle": "Scaricare il report?",
+    "confirmExportDescription": "Questo scaricherà un file CSV con le transazioni attualmente filtrate.",
+    "download": "Scaricare"
   },
   "TransactionTableColumns": {
     "description": "Descrizione",

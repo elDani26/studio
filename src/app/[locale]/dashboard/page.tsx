@@ -14,6 +14,12 @@ import { IncomeChart } from '@/components/dashboard/income-chart';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Calendar as CalendarIcon, X } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { format, startOfDay, endOfDay } from 'date-fns';
+import { getLocale } from '@/lib/utils';
 
 
 export default function DashboardPage() {
@@ -22,8 +28,15 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { hasCreditCard, categories, accounts } = useSettings();
+
+  const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>();
+  const [chartDateTo, setChartDateTo] = useState<Date | undefined>();
   
   const tMisc = useTranslations('misc');
+  const tDatePicker = useTranslations('TransactionDataTable.datePicker');
+  const tDashboard = useTranslations('DashboardPage');
+  const locale = useLocale();
+  const dateFnsLocale = getLocale(locale);
 
   const transactionsQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -53,8 +66,25 @@ export default function DashboardPage() {
   }, [transactionsQuery]);
   
   // --- Chart Data Calculation ---
+  const chartTransactions = useMemo(() => {
+    const fromDate = chartDateFrom ? startOfDay(chartDateFrom) : null;
+    const toDate = chartDateTo ? endOfDay(chartDateTo) : null;
+
+    if (!fromDate && !toDate) return transactions;
+
+    return transactions.filter(t => {
+      let tDate;
+      if (t.date && typeof (t.date as any).toDate === 'function') {
+        tDate = (t.date as any).toDate();
+      } else {
+        tDate = new Date(t.date as any);
+      }
+      return (!fromDate || tDate >= fromDate) && (!toDate || tDate <= toDate);
+    });
+  }, [transactions, chartDateFrom, chartDateTo]);
+
   const incomeChartData = useMemo(() => {
-    const incomes = transactions.filter(t => t.type === 'income' && !t.transferId);
+    const incomes = chartTransactions.filter(t => t.type === 'income' && !t.transferId);
     const incomeByCategory = incomes.reduce((acc, transaction) => {
       const categoryId = transaction.category;
       if (!acc[categoryId]) acc[categoryId] = 0;
@@ -66,11 +96,11 @@ export default function DashboardPage() {
       const categoryInfo = categories.find(c => c.id === categoryId);
       return { name: categoryInfo?.name || categoryId, value: incomeByCategory[categoryId] };
     }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
-  }, [transactions, categories]);
+  }, [chartTransactions, categories]);
 
   const expenseChartData = useMemo(() => {
-    const debitExpenses = transactions.filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor);
-    const creditCardPaymentsTotal = transactions.filter(t => !!t.paymentFor).reduce((sum, t) => sum + t.amount, 0);
+    const debitExpenses = chartTransactions.filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor);
+    const creditCardPaymentsTotal = chartTransactions.filter(t => !!t.paymentFor).reduce((sum, t) => sum + t.amount, 0);
 
     const expenseByCategory = debitExpenses.reduce((acc, transaction) => {
       const categoryId = transaction.category;
@@ -89,15 +119,13 @@ export default function DashboardPage() {
     }
 
     return data.filter(item => item.value > 0).sort((a, b) => b.value - a.value);
-  }, [transactions, categories, tMisc]);
+  }, [chartTransactions, categories, tMisc]);
 
   const debtChartData = useMemo(() => {
     if (!hasCreditCard) return [];
     
-    // Get all expenses made with credit cards
-    const creditCardExpenses = transactions.filter(t => t.isCreditCardExpense);
+    const creditCardExpenses = chartTransactions.filter(t => t.isCreditCardExpense);
     
-    // Group them by category
     const debtByCategory = creditCardExpenses.reduce((acc, transaction) => {
         const categoryId = transaction.category;
         const categoryInfo = categories.find(c => c.id === categoryId);
@@ -111,13 +139,12 @@ export default function DashboardPage() {
         return acc;
     }, {} as Record<string, number>);
 
-    // Format for the chart
     return Object.entries(debtByCategory)
         .map(([name, value]) => ({ name, value }))
         .filter(item => item.value > 0)
         .sort((a, b) => b.value - a.value);
 
-  }, [transactions, categories, hasCreditCard, tMisc]);
+  }, [chartTransactions, categories, hasCreditCard, tMisc]);
 
 
   return (
@@ -134,6 +161,44 @@ export default function DashboardPage() {
         </div>
         
          <div className="pt-4 border-t">
+          <div className="mb-4">
+              <h3 className="text-lg font-medium">{tDashboard('chartsTitle')}</h3>
+              <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                  <Popover>
+                      <PopoverTrigger asChild>
+                          <Button
+                              variant={'outline'}
+                              className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateFrom && 'text-muted-foreground')}
+                          >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {chartDateFrom ? format(chartDateFrom, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
+                          </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={chartDateFrom} onSelect={setChartDateFrom} locale={dateFnsLocale} />
+                      </PopoverContent>
+                  </Popover>
+                  <Popover>
+                      <PopoverTrigger asChild>
+                          <Button
+                              variant={'outline'}
+                              className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateTo && 'text-muted-foreground')}
+                          >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {chartDateTo ? format(chartDateTo, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
+                          </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={chartDateTo} onSelect={setChartDateTo} locale={dateFnsLocale} />
+                      </PopoverContent>
+                  </Popover>
+                   {(chartDateFrom || chartDateTo) && (
+                      <Button variant="ghost" onClick={() => { setChartDateFrom(undefined); setChartDateTo(undefined); }}>
+                          <X className="mr-2 h-4 w-4" /> {tDatePicker('clearButton')}
+                      </Button>
+                  )}
+              </div>
+          </div>
           <div className={cn(
               "grid gap-8",
               hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"

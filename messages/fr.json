@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "Résumé des statistiques",
     "aiSummaryTitle": "Conseiller Financier IA",
-    "transactionsTitle": "Tableau des transactions"
+    "transactionsTitle": "Tableau des transactions",
+    "chartsTitle": "Graphiques"
   },
   "StatCards": {
     "totalIncome": "Revenus totaux",
@@ -64,7 +65,7 @@
     "noTransactions": "Aucune transaction disponible à analyser."
   },
   "TransactionDataTable": {
-    "title": "Transactions récentes",
+    "title": "Transactions recentes",
     "description": "Consultez et gérez vos mouvements financiers.",
     "addTransaction": "Ajouter une transaction",
     "filterType": "Type",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "Êtes-vous sûr ?",
     "confirmDeleteDescription": "Cette action est irréversible. Cela supprimera définitivement la transaction de vos registres.",
     "cancel": "Annuler",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "exportButton": "Exporter CSV",
+    "confirmExportTitle": "Télécharger le rapport?",
+    "confirmExportDescription": "Cela téléchargera un fichier CSV avec les transactions actuellement filtrées.",
+    "download": "Télécharger"
   },
   "TransactionTableColumns": {
     "description": "Description",
@@ -175,7 +180,7 @@
     "accountsSectionDescription": "Ajoutez et gérez les comptes que vous utilisez (ex: Banque, Espèces).",
     "newAccountPlaceholder": "Nom du nouveau compte",
     "icon": "Icône",
-    "categoriesSectionTitle": "Vos catégories",
+    "categoriesSectionTitle": "Vos categories",
     "categoriesSectionDescription": "Organisez vos revenus et dépenses avec des catégories personnalisées.",
     "newCategoryPlaceholder": "Nom de la catégorie",
     "income": "Revenu",

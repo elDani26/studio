@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "统计摘要",
     "aiSummaryTitle": "AI财务顾问",
-    "transactionsTitle": "交易表"
+    "transactionsTitle": "交易表",
+    "chartsTitle": "图表"
   },
   "StatCards": {
     "totalIncome": "总收入",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "您确定吗？",
     "confirmDeleteDescription": "此操作无法撤销。这将从您的记录中永久删除该交易。",
     "cancel": "取消",
-    "delete": "删除"
+    "delete": "删除",
+    "exportButton": "导出CSV",
+    "confirmExportTitle": "下载报告？",
+    "confirmExportDescription": "这将下载一个包含当前筛选交易的CSV文件。",
+    "download": "下载"
   },
   "TransactionTableColumns": {
     "description": "描述",
@@ -263,5 +268,3 @@
     "adjustmentDescription": "账户余额调整"
   }
 }
-
-    

@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "Statistics Summary",
     "aiSummaryTitle": "AI Financial Advisor",
-    "transactionsTitle": "Transactions Table"
+    "transactionsTitle": "Transactions Table",
+    "chartsTitle": "Charts"
   },
   "StatCards": {
     "totalIncome": "Total Income",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "Are you sure?",
     "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the transaction from your records.",
     "cancel": "Cancel",
-    "delete": "Delete"
+    "delete": "Delete",
+    "exportButton": "Export CSV",
+    "confirmExportTitle": "Download report?",
+    "confirmExportDescription": "This will download a CSV file with the currently filtered transactions.",
+    "download": "Download"
   },
   "TransactionTableColumns": {
     "description": "Description",

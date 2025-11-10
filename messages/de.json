@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "Statistikübersicht",
     "aiSummaryTitle": "KI-Finanzberater",
-    "transactionsTitle": "Transaktionstabelle"
+    "transactionsTitle": "Transaktionstabelle",
+    "chartsTitle": "Diagramme"
   },
   "StatCards": {
     "totalIncome": "Gesamteinnahmen",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "Sind Sie sicher?",
     "confirmDeleteDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch wird die Transaktion dauerhaft aus Ihren Unterlagen gelöscht.",
     "cancel": "Abbrechen",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "exportButton": "CSV exportieren",
+    "confirmExportTitle": "Bericht herunterladen?",
+    "confirmExportDescription": "Dadurch wird eine CSV-Datei mit den aktuell gefilterten Transaktionen heruntergeladen.",
+    "download": "Herunterladen"
   },
   "TransactionTableColumns": {
     "description": "Beschreibung",

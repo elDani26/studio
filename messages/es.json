@@ -46,7 +46,8 @@
   "DashboardPage": {
     "statCardsTitle": "Resumen de Estadísticas",
     "aiSummaryTitle": "Asesor Financiero IA",
-    "transactionsTitle": "Tabla de Transacciones"
+    "transactionsTitle": "Tabla de Transacciones",
+    "chartsTitle": "Gráficos"
   },
   "StatCards": {
     "totalIncome": "Ingresos Totales",
@@ -91,7 +92,11 @@
     "confirmDeleteTitle": "¿Estás seguro?",
     "confirmDeleteDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la transacción de tus registros.",
     "cancel": "Cancelar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "exportButton": "Exportar CSV",
+    "confirmExportTitle": "¿Descargar informe?",
+    "confirmExportDescription": "Se descargará un archivo CSV con las transacciones actualmente filtradas.",
+    "download": "Descargar"
   },
   "TransactionTableColumns": {
     "description": "Descripción",
