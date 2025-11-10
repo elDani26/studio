@@ -150,7 +150,7 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
             setSelectedAccount(null);
         }
     }}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="w-[95vw] max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
@@ -158,78 +158,80 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="accountId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('selectAccountLabel')}</FormLabel>
-                  <Select 
-                    onValueChange={(value) => {
-                        field.onChange(value);
-                        setSelectedAccount(value);
-                        form.setValue('actualBalance', accountBalances[value] || 0);
-                    }} 
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectAccountPlaceholder')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts.filter(a => a.type === 'debit').map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>
-                          {acc.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {selectedAccount && (
-              <>
-                <div className="space-y-2">
-                    <FormLabel>{t('registeredBalanceLabel')}</FormLabel>
-                    <Input readOnly value={formatCurrency(registeredBalance)} className="font-mono bg-muted" />
-                </div>
-                
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
-                  control={form.control}
-                  name="actualBalance"
-                  render={({ field }) => (
+                control={form.control}
+                name="accountId"
+                render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('actualBalanceLabel', { accountName: accounts.find(a => a.id === selectedAccount)?.name })}</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="any" {...field} />
-                      </FormControl>
-                      <FormMessage />
+                    <FormLabel>{t('selectAccountLabel')}</FormLabel>
+                    <Select 
+                        onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedAccount(value);
+                            form.setValue('actualBalance', accountBalances[value] || 0);
+                        }} 
+                        value={field.value}
+                    >
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder={t('selectAccountPlaceholder')} />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {accounts.filter(a => a.type === 'debit').map(acc => (
+                            <SelectItem key={acc.id} value={acc.id}>
+                            {acc.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
                     </FormItem>
-                  )}
+                )}
                 />
 
-                <div className="p-3 bg-muted/50 rounded-md text-center">
-                    <p className="text-sm text-muted-foreground">{t('differenceLabel')}</p>
-                    <p className={`text-lg font-bold ${difference === 0 ? 'text-foreground' : difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {formatCurrency(difference)}
-                    </p>
-                </div>
-              </>
-            )}
+                {selectedAccount && (
+                <>
+                    <div className="space-y-2">
+                        <FormLabel>{t('registeredBalanceLabel')}</FormLabel>
+                        <Input readOnly value={formatCurrency(registeredBalance)} className="font-mono bg-muted" />
+                    </div>
+                    
+                    <FormField
+                    control={form.control}
+                    name="actualBalance"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('actualBalanceLabel', { accountName: accounts.find(a => a.id === selectedAccount)?.name })}</FormLabel>
+                        <FormControl>
+                            <Input type="number" step="any" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
 
-            <DialogFooter className="pt-4">
-              <Button type="submit" disabled={loading || !selectedAccount} className="w-full">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t('saveButton')}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                    <div className="p-3 bg-muted/50 rounded-md text-center">
+                        <p className="text-sm text-muted-foreground">{t('differenceLabel')}</p>
+                        <p className={`text-lg font-bold ${difference === 0 ? 'text-foreground' : difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {formatCurrency(difference)}
+                        </p>
+                    </div>
+                </>
+                )}
+
+                <DialogFooter className="pt-4 sticky bottom-0 bg-background">
+                <Button type="submit" disabled={loading || !selectedAccount} className="w-full">
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t('saveButton')}
+                </Button>
+                </DialogFooter>
+            </form>
+            </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -100,7 +100,7 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
             <span className="sr-only">{t('title')}</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-lg md:max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>
