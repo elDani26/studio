@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
-import { format, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { getLocale } from '@/lib/utils';
 
 
@@ -29,8 +29,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { hasCreditCard, categories, accounts } = useSettings();
 
-  const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>();
-  const [chartDateTo, setChartDateTo] = useState<Date | undefined>();
+  const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 7));
+  const [chartDateTo, setChartDateTo] = useState<Date | undefined>(new Date());
   
   const tMisc = useTranslations('misc');
   const tDatePicker = useTranslations('TransactionDataTable.datePicker');
