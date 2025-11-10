@@ -127,7 +127,7 @@
     "totalDebt": "总债务",
     "toCreditCard": "要支付的信用卡",
     "selectCreditCard": "选择信用卡",
-fromAccount": "从账户支付",
+    "fromAccount": "从账户支付",
     "selectDebitAccount": "选择借记账户",
     "amountToPay": "支付金额",
     "paymentDate": "支付日期",
@@ -263,3 +263,5 @@ fromAccount": "从账户支付",
     "adjustmentDescription": "账户余额调整"
   }
 }
+
+    
