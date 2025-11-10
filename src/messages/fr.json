@@ -91,7 +91,11 @@
     "confirmDeleteTitle": "Êtes-vous sûr ?",
     "confirmDeleteDescription": "Cette action est irréversible. Cela supprimera définitivement la transaction de vos registres.",
     "cancel": "Annuler",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "exportButton": "Exporter CSV",
+    "confirmExportTitle": "Télécharger le rapport?",
+    "confirmExportDescription": "Cela téléchargera un fichier CSV avec les transactions actuellement filtrées.",
+    "download": "Télécharger"
   },
   "TransactionTableColumns": {
     "description": "Description",
@@ -230,13 +234,36 @@
     "debit": "Débit",
     "credit": "Crédit",
     "optionalDescription": "Description (facultatif)",
-    "descriptionPlaceholder": "Ex: Paiement pour...",
-    "income": "Revenu",
-    "expense": "Dépense"
+    "descriptionPlaceholder": "Ex: Paiement pour..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculatrice"
+  },
+  "AccountSummaryDialog": {
+    "title": "Résumé du Compte",
+    "description": "Vérifiez les soldes et les mouvements de chacun de vos comptes.",
+    "totalIncome": "Revenu Total",
+    "totalExpenses": "Dépenses Totales",
+    "currentBalance": "Solde Actuel",
+    "debtHistory": "Historique de la Dette Totale",
+    "currentDebt": "Dette Actuelle",
+    "adjustButton": "Les comptes ne correspondent pas ?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Ajuster le Solde",
+    "description": "Sélectionnez un compte et entrez votre solde réel pour effectuer un ajustement automatique.",
+    "selectAccountLabel": "Compte à Ajuster",
+    "selectAccountPlaceholder": "Sélectionnez un compte",
+    "selectAccountError": "Vous devez sélectionner un compte.",
+    "registeredBalanceLabel": "Solde enregistré dans l'application",
+    "actualBalanceLabel": "Solde réel dans {accountName}",
+    "invalidAmountError": "Veuillez entrer un montant valide.",
+    "differenceLabel": "Différence d'Ajustement",
+    "saveButton": "Enregistrer l'Ajustement",
+    "noChangeToast": "Aucun changement nécessaire, le solde correspond.",
+    "successToast": "Solde ajusté avec succès !",
+    "errorToast": "Impossible d'enregistrer l'ajustement.",
+    "adjustmentCategoryName": "Ajustement de Solde",
+    "adjustmentDescription": "Ajustement du solde du compte"
   }
 }
-
-    

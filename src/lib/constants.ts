@@ -1,9 +1,9 @@
 import {
-  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat, type LucideIcon
+  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat, Scale, type LucideIcon
 } from 'lucide-react';
 
 export const ICONS: Record<string, LucideIcon> = {
-  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat
+  Car, ShoppingBasket, Home, HeartPulse, ShoppingBag, Briefcase, MoreHorizontal, Ticket, Coins, Clapperboard, Landmark, CreditCard, Wallet, Building, Gift, Shirt, Utensils, Plane, BookOpen, PawPrint, ShieldCheck, FileText, Sparkles, Dumbbell, Newspaper, GraduationCap, PiggyBank, Handshake, Repeat, Scale
 };
 
 export const TRANSACTION_CATEGORIES = [

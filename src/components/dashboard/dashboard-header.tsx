@@ -6,8 +6,10 @@ import { SettingsDialog } from '@/components/dashboard/settings-dialog';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { CalculatorDialog } from './calculator-dialog';
+import { AccountSummaryDialog } from './account-summary-dialog';
+import type { Transaction } from '@/types';
 
-export function DashboardHeader() {
+export function DashboardHeader({ allTransactions }: { allTransactions: Transaction[] }) {
   const t = useTranslations('DashboardHeader');
   
   return (
@@ -20,6 +22,7 @@ export function DashboardHeader() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <CalculatorDialog />
+          <AccountSummaryDialog allTransactions={allTransactions} />
           <SettingsDialog />
           <UserNav />
         </div>

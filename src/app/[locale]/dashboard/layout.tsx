@@ -4,7 +4,6 @@ import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { SettingsProvider } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 
@@ -42,7 +41,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader />
       <main>{children}</main>
     </div>
   );

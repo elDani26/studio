@@ -91,7 +91,11 @@
     "confirmDeleteTitle": "Sind Sie sicher?",
     "confirmDeleteDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch wird die Transaktion dauerhaft aus Ihren Unterlagen gelöscht.",
     "cancel": "Abbrechen",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "exportButton": "CSV exportieren",
+    "confirmExportTitle": "Bericht herunterladen?",
+    "confirmExportDescription": "Dadurch wird eine CSV-Datei mit den aktuell gefilterten Transaktionen heruntergeladen.",
+    "download": "Herunterladen"
   },
   "TransactionTableColumns": {
     "description": "Beschreibung",
@@ -230,13 +234,36 @@
     "debit": "Lastschrift",
     "credit": "Kredit",
     "optionalDescription": "Beschreibung (Optional)",
-    "descriptionPlaceholder": "z.B. Zahlung für...",
-    "income": "Einkommen",
-    "expense": "Ausgabe"
+    "descriptionPlaceholder": "z.B. Zahlung für..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Taschenrechner"
+  },
+  "AccountSummaryDialog": {
+    "title": "Kontozusammenfassung",
+    "description": "Überprüfen Sie die Salden und Bewegungen jedes Ihrer Konten.",
+    "totalIncome": "Gesamteinkommen",
+    "totalExpenses": "Gesamtausgaben",
+    "currentBalance": "Aktueller Saldo",
+    "debtHistory": "Gesamtschuldenverlauf",
+    "currentDebt": "Aktuelle Schulden",
+    "adjustButton": "Konten stimmen nicht überein?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Saldo anpassen",
+    "description": "Wählen Sie ein Konto aus und geben Sie Ihren tatsächlichen Saldo ein, um eine automatische Anpassung vorzunehmen.",
+    "selectAccountLabel": "Konto zum Anpassen",
+    "selectAccountPlaceholder": "Wählen Sie ein Konto",
+    "selectAccountError": "Sie müssen ein Konto auswählen.",
+    "registeredBalanceLabel": "Registrierter Saldo in der App",
+    "actualBalanceLabel": "Tatsächlicher Saldo in {accountName}",
+    "invalidAmountError": "Bitte geben Sie einen gültigen Betrag ein.",
+    "differenceLabel": "Anpassungsdifferenz",
+    "saveButton": "Anpassung speichern",
+    "noChangeToast": "Keine Änderung erforderlich, der Saldo stimmt überein.",
+    "successToast": "Saldo erfolgreich angepasst!",
+    "errorToast": "Anpassung konnte nicht gespeichert werden.",
+    "adjustmentCategoryName": "Saldoanpassung",
+    "adjustmentDescription": "Anpassung des Kontosaldos"
   }
 }
-
-    

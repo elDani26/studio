@@ -91,7 +91,11 @@
     "confirmDeleteTitle": "Are you sure?",
     "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the transaction from your records.",
     "cancel": "Cancel",
-    "delete": "Delete"
+    "delete": "Delete",
+    "exportButton": "Export CSV",
+    "confirmExportTitle": "Download report?",
+    "confirmExportDescription": "This will download a CSV file with the currently filtered transactions.",
+    "download": "Download"
   },
   "TransactionTableColumns": {
     "description": "Description",
@@ -230,13 +234,36 @@
     "debit": "Debit",
     "credit": "Credit",
     "optionalDescription": "Description (Optional)",
-    "descriptionPlaceholder": "e.g., Payment for...",
-    "income": "Income",
-    "expense": "Expense"
+    "descriptionPlaceholder": "e.g., Payment for..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculator"
+  },
+  "AccountSummaryDialog": {
+    "title": "Account Summary",
+    "description": "Review the balances and movements of each of your accounts.",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "currentBalance": "Current Balance",
+    "debtHistory": "Total Debt History",
+    "currentDebt": "Current Debt",
+    "adjustButton": "Accounts don't match?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Adjust Balance",
+    "description": "Select an account and enter your real balance to make an automatic adjustment.",
+    "selectAccountLabel": "Account to Adjust",
+    "selectAccountPlaceholder": "Select an account",
+    "selectAccountError": "You must select an account.",
+    "registeredBalanceLabel": "Registered balance in the app",
+    "actualBalanceLabel": "Actual balance in {accountName}",
+    "invalidAmountError": "Please enter a valid amount.",
+    "differenceLabel": "Adjustment Difference",
+    "saveButton": "Save Adjustment",
+    "noChangeToast": "No change needed, the balance matches.",
+    "successToast": "Balance adjusted successfully!",
+    "errorToast": "Could not save the adjustment.",
+    "adjustmentCategoryName": "Balance Adjustment",
+    "adjustmentDescription": "Account balance adjustment"
   }
 }
-
-    

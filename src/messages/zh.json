@@ -91,7 +91,11 @@
     "confirmDeleteTitle": "您确定吗？",
     "confirmDeleteDescription": "此操作无法撤销。这将从您的记录中永久删除该交易。",
     "cancel": "取消",
-    "delete": "删除"
+    "delete": "删除",
+    "exportButton": "导出CSV",
+    "confirmExportTitle": "下载报告？",
+    "confirmExportDescription": "这将下载一个包含当前筛选的交易的CSV文件。",
+    "download": "下载"
   },
   "TransactionTableColumns": {
     "description": "描述",
@@ -230,13 +234,36 @@
     "debit": "借记",
     "credit": "信用",
     "optionalDescription": "描述（可选）",
-    "descriptionPlaceholder": "例如：支付给...",
-    "income": "收入",
-    "expense": "支出"
+    "descriptionPlaceholder": "例如：支付给..."
   },
   "CalculatorDialog": {
     "calculatorTitle": "计算器"
+  },
+  "AccountSummaryDialog": {
+    "title": "账户摘要",
+    "description": "查看您每个账户的余额和动向。",
+    "totalIncome": "总收入",
+    "totalExpenses": "总支出",
+    "currentBalance": "当前余额",
+    "debtHistory": "总债务历史",
+    "currentDebt": "当前债务",
+    "adjustButton": "账户不匹配？"
+  },
+  "AdjustBalanceDialog": {
+    "title": "调整余额",
+    "description": "选择一个账户并输入您的真实余额以进行自动调整。",
+    "selectAccountLabel": "要调整的账户",
+    "selectAccountPlaceholder": "选择一个账户",
+    "selectAccountError": "您必须选择一个账户。",
+    "registeredBalanceLabel": "应用中注册的余额",
+    "actualBalanceLabel": "{accountName}中的实际余额",
+    "invalidAmountError": "请输入有效金额。",
+    "differenceLabel": "调整差额",
+    "saveButton": "保存调整",
+    "noChangeToast": "无需更改，余额匹配。",
+    "successToast": "余额调整成功！",
+    "errorToast": "无法保存调整。",
+    "adjustmentCategoryName": "余额调整",
+    "adjustmentDescription": "账户余额调整"
   }
 }
-
-    

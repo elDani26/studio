@@ -13,6 +13,7 @@ import { ExpenseChart } from '@/components/dashboard/expense-chart';
 import { IncomeChart } from '@/components/dashboard/income-chart';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 
 export default function DashboardPage() {
@@ -120,32 +121,35 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-            <StatCards transactions={transactions} />
+    <>
+      <DashboardHeader allTransactions={transactions} />
+      <div className="p-4 md:p-8 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+              <StatCards transactions={transactions} />
+          </div>
+          <div className="lg:row-span-2 flex flex-col">
+              <AiSummary transactions={transactions} />
+          </div>
         </div>
-        <div className="lg:row-span-2 flex flex-col">
-            <AiSummary transactions={transactions} />
+        
+         <div className="pt-4 border-t">
+          <div className={cn(
+              "grid gap-8",
+              hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"
+          )}>
+              <ExpenseChart data={expenseChartData} />
+              <IncomeChart data={incomeChartData} />
+              {hasCreditCard && <DebtChart data={debtChartData} />}
+          </div>
         </div>
+        
+        <TransactionDataTable 
+          transactions={transactions} 
+          loading={loading}
+          allTransactions={transactions}
+        />
       </div>
-      
-       <div className="pt-4 border-t">
-        <div className={cn(
-            "grid gap-8",
-            hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"
-        )}>
-            <ExpenseChart data={expenseChartData} />
-            <IncomeChart data={incomeChartData} />
-            {hasCreditCard && <DebtChart data={debtChartData} />}
-        </div>
-      </div>
-      
-      <TransactionDataTable 
-        transactions={transactions} 
-        loading={loading}
-        allTransactions={transactions}
-      />
-    </div>
+    </>
   );
 }
