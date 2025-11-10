@@ -62,8 +62,8 @@ export function TransactionDataTable({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [type, setType] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(subDays(new Date(), 7));
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -584,3 +584,5 @@ export function TransactionDataTable({
     </>
   );
 }
+
+    

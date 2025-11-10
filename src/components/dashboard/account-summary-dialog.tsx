@@ -176,3 +176,5 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
     </>
   );
 }
+
+    
