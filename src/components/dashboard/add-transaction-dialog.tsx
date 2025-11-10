@@ -57,13 +57,20 @@ export function AddTransactionDialog({ transactions }: AddTransactionDialogProps
   
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
-    accounts.forEach(acc => balances[acc.id] = 0);
+    accounts.forEach(acc => {
+      if (acc.type === 'debit') {
+        balances[acc.id] = 0;
+      }
+    });
 
     transactions.forEach(t => {
+      // Only consider transactions for debit accounts
       if (balances.hasOwnProperty(t.account)) {
         if (t.type === 'income') {
           balances[t.account] += t.amount;
-        } else {
+        } else if (t.type === 'expense' && !t.isCreditCardExpense) {
+          // IMPORTANT: Only subtract if it's a real expense from a debit account,
+          // not a credit card purchase.
           balances[t.account] -= t.amount;
         }
       }
