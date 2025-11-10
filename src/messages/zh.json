@@ -48,22 +48,8 @@
     "aiSummaryTitle": "AI财务顾问",
     "transactionsTitle": "交易表"
   },
-  "StatCards": {
-    "totalIncome": "总收入",
-    "totalExpenses": "总支出",
-    "currentBalance": "当前余额"
-  },
-  "AiSummary": {
-    "title": "AI财务顾问",
-    "description": "获取个性化建议以改善您的财务习惯。",
-    "generateButton": "获取建议",
-    "generatingButton": "正在分析...",
-    "placeholderTitle": "获取您的财务分析",
-    "placeholderDescription": "点击下方按钮，从我们的AI顾问处获取个性化提示。",
-    "error": "无法生成建议。请重试。",
-    "noTransactions": "没有可供分析的交易。"
-  },
-  "TransactionDataTable": {
+},
+"TransactionDataTable": {
     "title": "最近的交易",
     "description": "查看和管理您的财务动向。",
     "addTransaction": "添加交易",
@@ -267,3 +253,5 @@
     "adjustmentDescription": "账户余额调整"
   }
 }
+
+    
