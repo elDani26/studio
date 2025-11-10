@@ -88,11 +88,15 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
   };
   
   const getAccountIncome = (accountId: string) => {
-    return allTransactions.filter(t => t.account === accountId && t.type === 'income' && !t.transferId).reduce((sum, t) => sum + t.amount, 0);
+    return allTransactions
+      .filter(t => t.account === accountId && t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
   }
   
   const getAccountExpenses = (accountId: string) => {
-    return allTransactions.filter(t => t.account === accountId && t.type === 'expense' && !t.transferId && !t.isCreditCardExpense).reduce((sum, t) => sum + t.amount, 0);
+    return allTransactions
+      .filter(t => t.account === accountId && t.type === 'expense' && !t.isCreditCardExpense)
+      .reduce((sum, t) => sum + t.amount, 0);
   }
 
   return (
