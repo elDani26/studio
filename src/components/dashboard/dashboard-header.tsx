@@ -4,7 +4,6 @@ import { UserNav } from '@/components/dashboard/user-nav';
 import { Icons } from '@/components/icons';
 import { SettingsDialog } from '@/components/dashboard/settings-dialog';
 import { useTranslations } from 'next-intl';
-import { LanguageSwitcher } from '@/components/language-switcher';
 import { CalculatorDialog } from './calculator-dialog';
 import { AccountSummaryDialog } from './account-summary-dialog';
 import type { Transaction } from '@/types';
@@ -20,7 +19,6 @@ export function DashboardHeader({ allTransactions }: { allTransactions: Transact
           <h1 className="text-xl font-bold tracking-tight text-primary">{t('title')}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <LanguageSwitcher />
           <CalculatorDialog />
           <AccountSummaryDialog allTransactions={allTransactions} />
           <SettingsDialog />

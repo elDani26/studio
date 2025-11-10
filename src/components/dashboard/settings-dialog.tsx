@@ -26,8 +26,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ICONS } from '@/lib/constants';
 import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Checkbox } from '../ui/checkbox';
+import { useRouter, usePathname } from 'next/navigation';
+import { locales } from '@/i18n';
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
 
@@ -56,6 +58,7 @@ export function SettingsDialog() {
   } = useSettings();
   const t = useTranslations('SettingsDialog');
   const tMisc = useTranslations('misc');
+  const tHeader = useTranslations('DashboardHeader');
 
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currency);
 
@@ -68,6 +71,15 @@ export function SettingsDialog() {
   const [newCategoryIcon, setNewCategoryIcon] = useState('ShoppingBasket');
 
   const [editingItem, setEditingItem] = useState<{id: string, name: string, icon: string, type: 'account' | 'category'} | null>(null);
+
+  const currentLocale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLocaleChange = (newLocale: string) => {
+    const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
+    router.replace(newPath);
+  };
 
   const handleSaveSettings = () => {
     setCurrency(selectedCurrency);
@@ -148,6 +160,33 @@ export function SettingsDialog() {
               <TabsContent value="general">
                 <div className="space-y-6 py-4">
                   <div>
+                    <h3 className="text-lg font-medium">{tHeader('language')}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Selecciona tu idioma de preferencia.
+                    </p>
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="language" className="text-right">
+                      {tHeader('language')}
+                    </Label>
+                    <Select
+                      value={currentLocale}
+                      onValueChange={handleLocaleChange}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder={tHeader('language')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locales.map((loc) => (
+                          <SelectItem key={loc} value={loc}>
+                            {tHeader(`languages.${loc}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <h3 className="text-lg font-medium">{t('currencySectionTitle')}</h3>
                     <p className="text-sm text-muted-foreground">
                       {t('currencySectionDescription')}
@@ -173,6 +212,7 @@ export function SettingsDialog() {
                       </SelectContent>
                     </Select>
                   </div>
+
                    <div>
                     <h3 className="text-lg font-medium">{t('creditCardSectionTitle')}</h3>
                     <p className="text-sm text-muted-foreground">
