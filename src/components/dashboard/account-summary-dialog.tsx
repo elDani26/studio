@@ -39,16 +39,12 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
       const accountId = t.account;
       if (data[accountId]) {
          if (t.type === 'income') {
-            if (!t.transferId) data[accountId].income += t.amount;
-         } else {
+            data[accountId].income += t.amount;
+         } else { // expense
             if (t.isCreditCardExpense) {
               // This is a credit card expense, it increases debt, not a direct expense from a debit account
-            } else if (t.paymentFor) {
-               // This is a payment TO a credit card, it's an expense from this account
-               if(!t.transferId) data[accountId].expenses += t.amount;
-            }
-            else {
-               if(!t.transferId) data[accountId].expenses += t.amount;
+            } else {
+               data[accountId].expenses += t.amount;
             }
          }
       }
@@ -65,12 +61,12 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
     
     // Calculate final balances and debts
     accounts.forEach(acc => {
-      if (acc.type === 'debit') {
-        const incomeTransfers = allTransactions.filter(tr => tr.transferId && tr.type === 'income' && tr.account === acc.id).reduce((sum, tr) => sum + tr.amount, 0);
-        const expenseTransfers = allTransactions.filter(tr => tr.transferId && tr.type === 'expense' && tr.account === acc.id).reduce((sum, tr) => sum + tr.amount, 0);
-        data[acc.id].balance = data[acc.id].income - data[acc.id].expenses + incomeTransfers - expenseTransfers;
-      } else { // credit
-        data[acc.id].currentDebt = data[acc.id].creditHistory;
+      if (data[acc.id]) {
+        if (acc.type === 'debit') {
+          data[acc.id].balance = data[acc.id].income - data[acc.id].expenses;
+        } else { // credit
+          data[acc.id].currentDebt = data[acc.id].creditHistory;
+        }
       }
     });
 
@@ -91,6 +87,14 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
   };
   
+  const getAccountIncome = (accountId: string) => {
+    return allTransactions.filter(t => t.account === accountId && t.type === 'income' && !t.transferId).reduce((sum, t) => sum + t.amount, 0);
+  }
+  
+  const getAccountExpenses = (accountId: string) => {
+    return allTransactions.filter(t => t.account === accountId && t.type === 'expense' && !t.transferId && !t.isCreditCardExpense).reduce((sum, t) => sum + t.amount, 0);
+  }
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -119,11 +123,11 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                         <div className="p-2 rounded-lg bg-green-50">
                             <p className="text-sm text-muted-foreground">{t('totalIncome')}</p>
-                            <p className="text-lg font-bold text-green-600">{formatCurrency(accountData[account.id]?.income || 0)}</p>
+                            <p className="text-lg font-bold text-green-600">{formatCurrency(getAccountIncome(account.id))}</p>
                         </div>
                         <div className="p-2 rounded-lg bg-red-50">
                             <p className="text-sm text-muted-foreground">{t('totalExpenses')}</p>
-                            <p className="text-lg font-bold text-red-600">{formatCurrency(accountData[account.id]?.expenses || 0)}</p>
+                            <p className="text-lg font-bold text-red-600">{formatCurrency(getAccountExpenses(account.id))}</p>
                         </div>
                         <div className="p-2 rounded-lg bg-blue-50">
                             <p className="text-sm text-muted-foreground">{t('currentBalance')}</p>
