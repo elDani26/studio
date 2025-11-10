@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Scale, ArrowUp, ArrowDown, CreditCard, History } from 'lucide-react';
+import { Scale } from 'lucide-react';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 import type { Transaction } from '@/types';
@@ -39,17 +39,16 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
       const accountId = t.account;
       if (data[accountId]) {
          if (t.type === 'income') {
-            data[accountId].income += t.amount;
+            if (!t.transferId) data[accountId].income += t.amount;
          } else {
-            // Debit expenses are direct expenses
             if (t.isCreditCardExpense) {
               // This is a credit card expense, it increases debt, not a direct expense from a debit account
             } else if (t.paymentFor) {
                // This is a payment TO a credit card, it's an expense from this account
-               data[accountId].expenses += t.amount;
+               if(!t.transferId) data[accountId].expenses += t.amount;
             }
             else {
-               data[accountId].expenses += t.amount;
+               if(!t.transferId) data[accountId].expenses += t.amount;
             }
          }
       }
@@ -67,7 +66,9 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
     // Calculate final balances and debts
     accounts.forEach(acc => {
       if (acc.type === 'debit') {
-        data[acc.id].balance = data[acc.id].income - data[acc.id].expenses;
+        const incomeTransfers = allTransactions.filter(tr => tr.transferId && tr.type === 'income' && tr.account === acc.id).reduce((sum, tr) => sum + tr.amount, 0);
+        const expenseTransfers = allTransactions.filter(tr => tr.transferId && tr.type === 'expense' && tr.account === acc.id).reduce((sum, tr) => sum + tr.amount, 0);
+        data[acc.id].balance = data[acc.id].income - data[acc.id].expenses + incomeTransfers - expenseTransfers;
       } else { // credit
         data[acc.id].currentDebt = data[acc.id].creditHistory;
       }

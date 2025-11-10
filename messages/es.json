@@ -234,5 +234,32 @@
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
+  },
+  "AccountSummaryDialog": {
+    "title": "Resumen de Cuentas",
+    "description": "Revisa los saldos y movimientos de cada una de tus cuentas.",
+    "totalIncome": "Ingresos Totales",
+    "totalExpenses": "Egresos Totales",
+    "currentBalance": "Saldo Actual",
+    "debtHistory": "Historial de Deuda Total",
+    "currentDebt": "Deuda Actual",
+    "adjustButton": "¿Las cuentas no cuadran?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Ajustar Saldo",
+    "description": "Selecciona una cuenta e ingresa tu saldo real para realizar un ajuste automático.",
+    "selectAccountLabel": "Cuenta a Ajustar",
+    "selectAccountPlaceholder": "Selecciona una cuenta",
+    "selectAccountError": "Debes seleccionar una cuenta.",
+    "registeredBalanceLabel": "Saldo registrado en la app",
+    "actualBalanceLabel": "Saldo real en {accountName}",
+    "invalidAmountError": "Por favor, ingresa un monto válido.",
+    "differenceLabel": "Diferencia de Ajuste",
+    "saveButton": "Guardar Ajuste",
+    "noChangeToast": "No se necesita ningún cambio, el saldo coincide.",
+    "successToast": "¡Saldo ajustado exitosamente!",
+    "errorToast": "No se pudo guardar el ajuste.",
+    "adjustmentCategoryName": "Ajuste de Saldo",
+    "adjustmentDescription": "Ajuste de saldo de la cuenta"
   }
 }

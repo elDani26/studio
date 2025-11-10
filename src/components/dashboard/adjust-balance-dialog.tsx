@@ -30,7 +30,6 @@ import { useToast } from '@/hooks/use-toast';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
-import type { Transaction } from '@/types';
 
 interface AdjustBalanceDialogProps {
   isOpen: boolean;
@@ -43,7 +42,7 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { accounts, categories, addCategory, currency } = useSettings();
+  const { accounts, categories, currency } = useSettings();
   const t = useTranslations('AdjustBalanceDialog');
   
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -74,11 +73,9 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
     if (!user) throw new Error("User not found");
     const adjustmentCategoryName = t('adjustmentCategoryName');
     
-    // First, check if it exists in the context state
     const existingCategory = categories.find(c => c.name === adjustmentCategoryName);
     if (existingCategory) return existingCategory.id;
 
-    // If not, check Firestore
     const categoriesColRef = collection(firestore, 'users', user.uid, 'categories');
     const q = query(categoriesColRef, where("name", "==", adjustmentCategoryName));
     const querySnapshot = await getDocs(q);
@@ -87,11 +84,10 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
         return querySnapshot.docs[0].id;
     }
 
-    // If it doesn't exist, create it
     const newCategory = {
         name: adjustmentCategoryName,
         icon: 'Scale',
-        type: 'expense' as 'expense', // It can be either, but let's default to expense
+        type: 'expense' as 'expense', 
     };
     const docRef = await addDoc(categoriesColRef, newCategory);
     return docRef.id;
@@ -103,7 +99,7 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
 
     const diff = values.actualBalance - registeredBalance;
 
-    if (Math.abs(diff) < 0.01) { // No change needed
+    if (Math.abs(diff) < 0.01) { 
       toast({ title: t('noChangeToast') });
       setLoading(false);
       onOpenChange(false);
@@ -199,7 +195,7 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
             {selectedAccount && (
               <>
                 <div className="space-y-2">
-                    <Label>{t('registeredBalanceLabel')}</Label>
+                    <FormLabel>{t('registeredBalanceLabel')}</FormLabel>
                     <Input readOnly value={formatCurrency(registeredBalance)} className="font-mono bg-muted" />
                 </div>
                 

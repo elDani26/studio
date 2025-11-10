@@ -127,7 +127,7 @@
     "totalDebt": "总债务",
     "toCreditCard": "要支付的信用卡",
     "selectCreditCard": "选择信用卡",
-    "fromAccount": "从账户支付",
+fromAccount": "从账户支付",
     "selectDebitAccount": "选择借记账户",
     "amountToPay": "支付金额",
     "paymentDate": "支付日期",
@@ -234,5 +234,32 @@
   },
   "CalculatorDialog": {
     "calculatorTitle": "计算器"
+  },
+  "AccountSummaryDialog": {
+    "title": "账户摘要",
+    "description": "查看您每个账户的余额和动向。",
+    "totalIncome": "总收入",
+    "totalExpenses": "总支出",
+    "currentBalance": "当前余额",
+    "debtHistory": "总债务历史",
+    "currentDebt": "当前债务",
+    "adjustButton": "账户不匹配？"
+  },
+  "AdjustBalanceDialog": {
+    "title": "调整余额",
+    "description": "选择一个账户并输入您的真实余额以进行自动调整。",
+    "selectAccountLabel": "要调整的账户",
+    "selectAccountPlaceholder": "选择一个账户",
+    "selectAccountError": "您必须选择一个账户。",
+    "registeredBalanceLabel": "应用中注册的余额",
+    "actualBalanceLabel": "{accountName}中的实际余额",
+    "invalidAmountError": "请输入有效金额。",
+    "differenceLabel": "调整差额",
+    "saveButton": "保存调整",
+    "noChangeToast": "无需更改，余额匹配。",
+    "successToast": "余额调整成功！",
+    "errorToast": "无法保存调整。",
+    "adjustmentCategoryName": "余额调整",
+    "adjustmentDescription": "账户余额调整"
   }
 }

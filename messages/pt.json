@@ -149,7 +149,7 @@
     "selectAccount": "Selecione uma conta",
     "transferButton": "Realizar Transferência",
     "successToast": "Sua transferência foi registrada!",
-    "errorToast": "Não foi possível registrar la transferência. Por favor, tente novamente."
+    "errorToast": "Não foi possível registrar a transferência. Por favor, tente novamente."
   },
   "EditTransactionDialog": {
     "title": "Editar transação",
@@ -234,5 +234,32 @@
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calculadora"
+  },
+  "AccountSummaryDialog": {
+    "title": "Resumo da Conta",
+    "description": "Revise os saldos e movimentos de cada uma de suas contas.",
+    "totalIncome": "Renda Total",
+    "totalExpenses": "Despesas Totais",
+    "currentBalance": "Saldo Atual",
+    "debtHistory": "Histórico Total da Dívida",
+    "currentDebt": "Dívida Atual",
+    "adjustButton": "As contas não batem?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Ajustar Saldo",
+    "description": "Selecione uma conta e insira seu saldo real para fazer um ajuste automático.",
+    "selectAccountLabel": "Conta para Ajustar",
+    "selectAccountPlaceholder": "Selecione uma conta",
+    "selectAccountError": "Você deve selecionar uma conta.",
+    "registeredBalanceLabel": "Saldo registrado no aplicativo",
+    "actualBalanceLabel": "Saldo real em {accountName}",
+    "invalidAmountError": "Por favor, insira um valor válido.",
+    "differenceLabel": "Diferença de Ajuste",
+    "saveButton": "Salvar Ajuste",
+    "noChangeToast": "Nenhuma alteração necessária, o saldo corresponde.",
+    "successToast": "Saldo ajustado com sucesso!",
+    "errorToast": "Não foi possível salvar o ajuste.",
+    "adjustmentCategoryName": "Ajuste de Saldo",
+    "adjustmentDescription": "Ajuste de saldo da conta"
   }
 }

@@ -234,5 +234,32 @@
   },
   "CalculatorDialog": {
     "calculatorTitle": "Calcolatrice"
+  },
+  "AccountSummaryDialog": {
+    "title": "Riepilogo Account",
+    "description": "Rivedi i saldi e i movimenti di ciascuno dei tuoi account.",
+    "totalIncome": "Entrate Totali",
+    "totalExpenses": "Spese Totali",
+    "currentBalance": "Saldo Attuale",
+    "debtHistory": "Cronologia Debito Totale",
+    "currentDebt": "Debito Attuale",
+    "adjustButton": "I conti non tornano?"
+  },
+  "AdjustBalanceDialog": {
+    "title": "Adegua Saldo",
+    "description": "Seleziona un account e inserisci il tuo saldo reale per effettuare un adeguamento automatico.",
+    "selectAccountLabel": "Account da Adeguare",
+    "selectAccountPlaceholder": "Seleziona un account",
+    "selectAccountError": "Devi selezionare un account.",
+    "registeredBalanceLabel": "Saldo registrato nell'app",
+    "actualBalanceLabel": "Saldo reale in {accountName}",
+    "invalidAmountError": "Inserisci un importo valido.",
+    "differenceLabel": "Differenza di Adeguamento",
+    "saveButton": "Salva Adeguamento",
+    "noChangeToast": "Nessuna modifica necessaria, il saldo corrisponde.",
+    "successToast": "Saldo adeguato con successo!",
+    "errorToast": "Impossibile salvare l'adeguamento.",
+    "adjustmentCategoryName": "Adeguamento Saldo",
+    "adjustmentDescription": "Adeguamento del saldo del conto"
   }
 }
