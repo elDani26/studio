@@ -35,9 +35,10 @@ interface AdjustBalanceDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   accountBalances: Record<string, number>;
+  onAdjustmentSaved: () => void;
 }
 
-export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: AdjustBalanceDialogProps) {
+export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances, onAdjustmentSaved }: AdjustBalanceDialogProps) {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
@@ -126,6 +127,7 @@ export function AdjustBalanceDialog({ isOpen, onOpenChange, accountBalances }: A
         await addDoc(collectionRef, newTransaction);
         
         toast({ title: t('successToast') });
+        onAdjustmentSaved(); // Notify parent component
         onOpenChange(false);
         form.reset();
         setSelectedAccount(null);

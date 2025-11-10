@@ -25,6 +25,7 @@ interface AccountSummaryDialogProps {
 export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdjusting, setIsAdjusting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // State to force re-calculation
   const { accounts, currency } = useSettings();
   const t = useTranslations('AccountSummaryDialog');
 
@@ -71,7 +72,8 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
     });
 
     return data;
-  }, [allTransactions, accounts]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTransactions, accounts, refreshKey]); // Add refreshKey as a dependency
   
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
@@ -98,6 +100,10 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
       .filter(t => t.account === accountId && t.type === 'expense' && !t.isCreditCardExpense)
       .reduce((sum, t) => sum + t.amount, 0);
   }
+  
+  const handleAdjustmentSaved = () => {
+    setRefreshKey(prev => prev + 1); // Trigger re-calculation
+  };
 
   return (
     <>
@@ -165,6 +171,7 @@ export function AccountSummaryDialog({ allTransactions }: AccountSummaryDialogPr
         isOpen={isAdjusting} 
         onOpenChange={setIsAdjusting} 
         accountBalances={accountBalances}
+        onAdjustmentSaved={handleAdjustmentSaved}
       />
     </>
   );
