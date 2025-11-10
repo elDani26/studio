@@ -17,8 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getFirestore, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useTranslations, useLocale } from 'next-intl';
-import { LanguageSwitcher } from '@/components/language-switcher';
 import { SOURCE_ACCOUNTS, TRANSACTION_CATEGORIES } from '@/lib/constants';
+import { locales } from '@/i18n';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { usePathname } from 'next/navigation';
 
 // Special test account credentials
 const TEST_USER_EMAIL = 'test@test.com';
@@ -29,9 +31,11 @@ export default function LoginPage() {
   const auth = useFirebaseAuth();
   const firestore = getFirestore();
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const t = useTranslations('LoginPage');
   const tToast = useTranslations('Toasts');
+  const tHeader = useTranslations('DashboardHeader');
   const currentLocale = useLocale();
 
   const [email, setEmail] = useState('');
@@ -41,6 +45,11 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+
+  const handleLocaleChange = (newLocale: string) => {
+    const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
+    router.replace(newPath);
+  };
   
   // --- Test Account Reset Logic ---
   const resetTestAccountData = async (userId: string) => {
@@ -218,8 +227,22 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
-      <div className="absolute top-4 right-4">
-        <LanguageSwitcher />
+       <div className="absolute top-4 right-4">
+        <Select
+          value={currentLocale}
+          onValueChange={handleLocaleChange}
+        >
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder={tHeader('language')} />
+          </SelectTrigger>
+          <SelectContent>
+            {locales.map((loc) => (
+              <SelectItem key={loc} value={loc}>
+                {tHeader(`languages.${loc}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <Card className="w-full max-w-md shadow-2xl rounded-2xl">
         <CardHeader className="text-center space-y-4">

@@ -141,7 +141,7 @@ export function SettingsDialog() {
           <span className="sr-only">{t('title')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] flex flex-col">
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
@@ -379,7 +379,7 @@ export function SettingsDialog() {
 
     {/* Edit Dialog */}
     <Dialog open={!!editingItem} onOpenChange={(isOpen) => !isOpen && setEditingItem(null)}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="w-[95vw] max-w-sm">
             <DialogHeader>
                 <DialogTitle>{editingItem?.type === 'account' ? t('editAccountTitle') : t('editCategoryTitle')}</DialogTitle>
             </DialogHeader>
