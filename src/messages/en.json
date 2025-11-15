@@ -1,4 +1,3 @@
-
 {
   "LoginPage": {
     "title": "ManageYourMoney",
@@ -22,7 +21,16 @@
     "weakPasswordError": "Password must be at least 8 characters long, with one uppercase, one lowercase, one number, and one special character.",
     "emailInUseError": "This email is already in use.",
     "signupError": "Error signing up. Please try again.",
-    "userProfileError": "Could not create user profile. Please try again."
+    "userProfileError": "Could not create user profile. Please try again.",
+    "forgotPassword": "Forgot Password?",
+    "resetPasswordTitle": "Reset Password",
+    "sendButton": "Send Recovery Email",
+    "sendingButton": "Sending...",
+    "backToLogin": "Back to Login",
+    "passwordResetSuccess": "Recovery email sent. Check your inbox.",
+    "passwordResetError": "Could not reset password. Please try again later.",
+    "userNotFoundError": "No user found with this email.",
+    "emailRequiredError": "Email is required."
   },
   "DashboardLayout": {
     "loadingTitle": "Loading Dashboard...",
@@ -46,7 +54,8 @@
   "DashboardPage": {
     "statCardsTitle": "Statistics Summary",
     "aiSummaryTitle": "AI Financial Advisor",
-    "transactionsTitle": "Transactions Table"
+    "transactionsTitle": "Transactions Table",
+    "chartsTitle": "Charts"
   },
   "StatCards": {
     "totalIncome": "Total Income",
@@ -196,7 +205,10 @@
     "cancelButton": "Cancel",
     "saveButton": "Save",
     "accountUpdatedToast": "Account updated!",
-    "categoryUpdatedToast": "Category updated!"
+    "categoryUpdatedToast": "Category updated!",
+    "operationError": "Operation Error",
+    "accountExistsError": "An account with this name already exists.",
+    "categoryExistsError": "A category with this name and type already exists."
   },
   "ExpenseChart": {
     "title": "Expense Distribution",
@@ -267,5 +279,3 @@
     "adjustmentDescription": "Account balance adjustment"
   }
 }
-
-    

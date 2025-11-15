@@ -1,4 +1,3 @@
-
 {
   "LoginPage": {
     "title": "GestionaTuDinero",
@@ -22,7 +21,16 @@
     "weakPasswordError": "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.",
     "emailInUseError": "Este correo electrónico ya está en uso.",
     "signupError": "Error al registrar. Por favor, inténtalo de nuevo.",
-    "userProfileError": "No se pudo crear el perfil de usuario. Por favor, inténtalo de nuevo."
+    "userProfileError": "No se pudo crear el perfil de usuario. Por favor, inténtalo de nuevo.",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPasswordTitle": "Restablecer Contraseña",
+    "sendButton": "Enviar Correo de Recuperación",
+    "sendingButton": "Enviando...",
+    "backToLogin": "Volver a Iniciar Sesión",
+    "passwordResetSuccess": "Correo de recuperación enviado. Revisa tu bandeja de entrada.",
+    "passwordResetError": "No se pudo restablecer la contraseña. Por favor, inténtalo más tarde.",
+    "userNotFoundError": "No se encontró ningún usuario con este correo electrónico.",
+    "emailRequiredError": "El correo electrónico es obligatorio."
   },
   "DashboardLayout": {
     "loadingTitle": "Cargando Panel de Control...",
@@ -46,7 +54,8 @@
   "DashboardPage": {
     "statCardsTitle": "Resumen de Estadísticas",
     "aiSummaryTitle": "Asesor Financiero IA",
-    "transactionsTitle": "Tabla de Transacciones"
+    "transactionsTitle": "Tabla de Transacciones",
+    "chartsTitle": "Gráficos"
   },
   "StatCards": {
     "totalIncome": "Ingresos Totales",
@@ -196,7 +205,10 @@
     "cancelButton": "Cancelar",
     "saveButton": "Guardar",
     "accountUpdatedToast": "¡Cuenta actualizada!",
-    "categoryUpdatedToast": "¡Categoría actualizada!"
+    "categoryUpdatedToast": "¡Categoría actualizada!",
+    "operationError": "Error de Operación",
+    "accountExistsError": "Ya existe una cuenta con este nombre.",
+    "categoryExistsError": "Ya existe una categoría con este nombre y tipo."
   },
   "ExpenseChart": {
     "title": "Distribución de Egresos",
@@ -267,5 +279,3 @@
     "adjustmentDescription": "Ajuste de saldo de la cuenta"
   }
 }
-
-    
