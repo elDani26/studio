@@ -22,7 +22,16 @@
     "weakPasswordError": "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.",
     "emailInUseError": "Este e-mail já está em uso.",
     "signupError": "Erro ao se cadastrar. Por favor, tente novamente.",
-    "userProfileError": "Não foi possível criar o perfil de usuário. Por favor, tente novamente."
+    "userProfileError": "Não foi possível criar o perfil de usuário. Por favor, tente novamente.",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPasswordTitle": "Redefinir senha",
+    "sendButton": "Enviar e-mail de recuperação",
+    "sendingButton": "Enviando...",
+    "backToLogin": "Voltar para o login",
+    "passwordResetSuccess": "E-mail de recuperação enviado. Verifique sua caixa de entrada.",
+    "passwordResetError": "Não foi possível redefinir a senha. Por favor, tente novamente mais tarde.",
+    "userNotFoundError": "Nenhum usuário encontrado com este e-mail.",
+    "emailRequiredError": "O e-mail é obrigatório."
   },
   "DashboardLayout": {
     "loadingTitle": "Carregando painel...",
@@ -46,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "Resumo de estatísticas",
     "aiSummaryTitle": "Assessor Financeiro IA",
-    "transactionsTitle": "Tabela de transações"
+    "transactionsTitle": "Tabela de transações",
+    "chartsTitle": "Gráficos"
   },
   "StatCards": {
     "totalIncome": "Renda total",
@@ -196,7 +206,10 @@
     "cancelButton": "Cancelar",
     "saveButton": "Salvar",
     "accountUpdatedToast": "Conta atualizada!",
-    "categoryUpdatedToast": "Categoria atualizada!"
+    "categoryUpdatedToast": "Categoria atualizada!",
+    "operationError": "Erro de operação",
+    "accountExistsError": "Já existe uma conta com este nome.",
+    "categoryExistsError": "Já existe uma categoria com este nome e tipo."
   },
   "ExpenseChart": {
     "title": "Distribuição de despesas",
@@ -267,5 +280,3 @@
     "adjustmentDescription": "Ajuste de saldo da conta"
   }
 }
-
-    
