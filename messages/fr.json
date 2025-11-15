@@ -1,4 +1,3 @@
-
 {
   "LoginPage": {
     "title": "GérezVotreArgent",
@@ -22,7 +21,16 @@
     "weakPasswordError": "Le mot de passe doit comporter au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.",
     "emailInUseError": "Cet e-mail est déjà utilisé.",
     "signupError": "Erreur lors de l'inscription. Veuillez réessayer.",
-    "userProfileError": "Impossible de créer le profil utilisateur. Veuillez réessayer."
+    "userProfileError": "Impossible de créer le profil utilisateur. Veuillez réessayer.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPasswordTitle": "Réinitialiser le mot de passe",
+    "sendButton": "Envoyer l'e-mail de récupération",
+    "sendingButton": "Envoi en cours...",
+    "backToLogin": "Retour à la connexion",
+    "passwordResetSuccess": "E-mail de récupération envoyé. Vérifiez votre boîte de réception.",
+    "passwordResetError": "Impossible de réinitialiser le mot de passe. Veuillez réessayer plus tard.",
+    "userNotFoundError": "Aucun utilisateur trouvé avec cet e-mail.",
+    "emailRequiredError": "L'e-mail est requis."
   },
   "DashboardLayout": {
     "loadingTitle": "Chargement du tableau de bord...",
@@ -46,8 +54,7 @@
   "DashboardPage": {
     "statCardsTitle": "Résumé des statistiques",
     "aiSummaryTitle": "Conseiller Financier IA",
-    "transactionsTitle": "Tableau des transactions",
-    "chartsTitle": "Graphiques"
+    "transactionsTitle": "Tableau des transactions"
   },
   "StatCards": {
     "totalIncome": "Revenus totaux",
@@ -180,7 +187,7 @@
     "accountsSectionDescription": "Ajoutez et gérez les comptes que vous utilisez (ex: Banque, Espèces).",
     "newAccountPlaceholder": "Nom du nouveau compte",
     "icon": "Icône",
-    "categoriesSectionTitle": "Vos categories",
+    "categoriesSectionTitle": "Vos catégories",
     "categoriesSectionDescription": "Organisez vos revenus et dépenses avec des catégories personnalisées.",
     "newCategoryPlaceholder": "Nom de la catégorie",
     "income": "Revenu",
@@ -197,7 +204,10 @@
     "cancelButton": "Annuler",
     "saveButton": "Enregistrer",
     "accountUpdatedToast": "Compte mis à jour !",
-    "categoryUpdatedToast": "Catégorie mise à jour !"
+    "categoryUpdatedToast": "Catégorie mise à jour !",
+    "operationError": "Erreur d'opération",
+    "accountExistsError": "Un compte avec ce nom existe déjà.",
+    "categoryExistsError": "Une catégorie avec ce nom et ce type existe déjà."
   },
   "ExpenseChart": {
     "title": "Répartition des dépenses",

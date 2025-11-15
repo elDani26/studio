@@ -1,4 +1,3 @@
-
 {
   "LoginPage": {
     "title": "管理您的资金",
@@ -22,7 +21,16 @@
     "weakPasswordError": "密码必须至少为8个字符，包含一个大写字母、一个小写字母、一个数字和一个特殊字符。",
     "emailInUseError": "此电子邮件已被使用。",
     "signupError": "注册时出错。请重试。",
-    "userProfileError": "无法创建用户个人资料。请重试。"
+    "userProfileError": "无法创建用户个人资料。请重试。",
+    "forgotPassword": "忘记密码？",
+    "resetPasswordTitle": "重设密码",
+    "sendButton": "发送恢复邮件",
+    "sendingButton": "发送中...",
+    "backToLogin": "返回登录",
+    "passwordResetSuccess": "恢复邮件已发送。请检查您的收件箱。",
+    "passwordResetError": "无法重设密码。请稍后重试。",
+    "userNotFoundError": "未找到使用此电子邮件的用户。",
+    "emailRequiredError": "需要提供电子邮件。"
   },
   "DashboardLayout": {
     "loadingTitle": "正在加载仪表板...",
@@ -46,8 +54,7 @@
   "DashboardPage": {
     "statCardsTitle": "统计摘要",
     "aiSummaryTitle": "AI财务顾问",
-    "transactionsTitle": "交易表",
-    "chartsTitle": "图表"
+    "transactionsTitle": "交易表"
   },
   "StatCards": {
     "totalIncome": "总收入",
@@ -197,7 +204,10 @@
     "cancelButton": "取消",
     "saveButton": "保存",
     "accountUpdatedToast": "账户已更新！",
-    "categoryUpdatedToast": "类别已更新！"
+    "categoryUpdatedToast": "类别已更新！",
+    "operationError": "操作错误",
+    "accountExistsError": "已存在同名账户。",
+    "categoryExistsError": "已存在具有此名称和类型的类别。"
   },
   "ExpenseChart": {
     "title": "支出分布",

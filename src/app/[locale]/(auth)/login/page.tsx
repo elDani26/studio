@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getFirestore, collection, getDocs, writeBatch } from 'firebase/firestore';
@@ -43,8 +44,10 @@ export default function LoginPage() {
   const [confirmEmail, setConfirmEmail] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   const handleLocaleChange = (newLocale: string) => {
     const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
@@ -101,6 +104,7 @@ export default function LoginPage() {
   const handleSignIn = async () => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       if (!auth) throw new Error('Firebase Auth not available');
       let userCredential;
@@ -133,6 +137,7 @@ export default function LoginPage() {
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     if (email !== confirmEmail) {
       setError(t('emailMismatchError'));
@@ -203,12 +208,39 @@ export default function LoginPage() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    if (!email) {
+      setError(t('emailRequiredError'));
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!auth) throw new Error('Firebase Auth not available');
+      await sendPasswordResetEmail(auth, email);
+      setSuccess(t('passwordResetSuccess'));
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        setError(t('userNotFoundError'));
+      } else {
+        setError(t('passwordResetError'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const clearForm = () => {
     setEmail('');
     setPassword('');
     setConfirmEmail('');
     setConfirmPassword('');
     setError(null);
+    setSuccess(null);
   }
 
   useEffect(() => {
@@ -224,6 +256,92 @@ export default function LoginPage() {
       </div>
     );
   }
+
+  const renderContent = () => {
+    if (isResettingPassword) {
+      return (
+        <div className="space-y-4 pt-4">
+          <CardTitle className="text-xl font-bold text-center">{t('resetPasswordTitle')}</CardTitle>
+          <div className="space-y-2">
+            <Label htmlFor="email-reset">{t('emailLabel')}</Label>
+            <Input id="email-reset" type="email" placeholder={t('emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {success && <p className="text-sm text-green-600">{success}</p>}
+          <Button onClick={handlePasswordReset} disabled={loading} className="w-full">
+            {loading ? t('sendingButton') : t('sendButton')}
+          </Button>
+          <Button variant="link" onClick={() => { setIsResettingPassword(false); clearForm(); }} className="w-full">
+            {t('backToLogin')}
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(value) => {
+            setActiveTab(value);
+            clearForm();
+        }}
+        className="w-full"
+       >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="login">{t('loginTab')}</TabsTrigger>
+          <TabsTrigger value="signup">{t('signupTab')}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="login">
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-login">{t('emailLabel')}</Label>
+              <Input id="email-login" type="email" placeholder={t('emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-login">{t('passwordLabel')}</Label>
+              <Input id="password-login" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <Button onClick={handleSignIn} disabled={loading || isUserLoading} className="w-full">
+              {loading ? t('loggingInButton') : t('loginButton')}
+            </Button>
+             <div className="text-center text-sm">
+                <Button variant="link" onClick={() => { setIsResettingPassword(true); clearForm(); }}>
+                {t('forgotPassword')}
+                </Button>
+            </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="signup">
+           <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-signup">{t('emailLabel')}</Label>
+              <Input id="email-signup" type="email" placeholder={t('emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="confirm-email-signup">{t('confirmEmailLabel')}</Label>
+              <Input id="confirm-email-signup" type="email" placeholder={t('emailPlaceholder')} value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-signup">{t('passwordLabel')}</Label>
+              <Input id="password-signup" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+               <p className="text-xs text-muted-foreground pt-1">
+                {t('passwordHint')}
+              </p>
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="confirm-password-signup">{t('confirmPasswordLabel')}</Label>
+              <Input id="confirm-password-signup" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <Button onClick={handleSignUp} disabled={loading || isUserLoading} className="w-full">
+               {loading ? t('signingUpButton') : t('signupButton')}
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+    );
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
@@ -253,62 +371,7 @@ export default function LoginPage() {
           <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs 
-            value={activeTab} 
-            onValueChange={(value) => {
-                setActiveTab(value);
-                clearForm();
-            }}
-            className="w-full"
-           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">{t('loginTab')}</TabsTrigger>
-              <TabsTrigger value="signup">{t('signupTab')}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-login">{t('emailLabel')}</Label>
-                  <Input id="email-login" type="email" placeholder={t('emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-login">{t('passwordLabel')}</Label>
-                  <Input id="password-login" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                </div>
-                {error && <p className="text-sm text-destructive">{error}</p>}
-                <Button onClick={handleSignIn} disabled={loading || isUserLoading} className="w-full">
-                  {loading ? t('loggingInButton') : t('loginButton')}
-                </Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="signup">
-               <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-signup">{t('emailLabel')}</Label>
-                  <Input id="email-signup" type="email" placeholder={t('emailPlaceholder')} value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="confirm-email-signup">{t('confirmEmailLabel')}</Label>
-                  <Input id="confirm-email-signup" type="email" placeholder={t('emailPlaceholder')} value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-signup">{t('passwordLabel')}</Label>
-                  <Input id="password-signup" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                   <p className="text-xs text-muted-foreground pt-1">
-                    {t('passwordHint')}
-                  </p>
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password-signup">{t('confirmPasswordLabel')}</Label>
-                  <Input id="confirm-password-signup" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                </div>
-                {error && <p className="text-sm text-destructive">{error}</p>}
-                <Button onClick={handleSignUp} disabled={loading || isUserLoading} className="w-full">
-                   {loading ? t('signingUpButton') : t('signupButton')}
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+          {renderContent()}
         </CardContent>
       </Card>
     </div>
