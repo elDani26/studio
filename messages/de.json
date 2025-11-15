@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "VerwalteDeinGeld",
@@ -54,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "Statistikübersicht",
     "aiSummaryTitle": "KI-Finanzberater",
-    "transactionsTitle": "Transaktionstabelle"
+    "transactionsTitle": "Transaktionstabelle",
+    "chartsTitle": "Diagramme"
   },
   "StatCards": {
     "totalIncome": "Gesamteinnahmen",
@@ -278,3 +280,5 @@
     "adjustmentDescription": "Anpassung des Kontosaldos"
   }
 }
+
+    

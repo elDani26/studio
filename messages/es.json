@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "GestionaTuDinero",
@@ -54,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "Resumen de Estadísticas",
     "aiSummaryTitle": "Asesor Financiero IA",
-    "transactionsTitle": "Tabla de Transacciones"
+    "transactionsTitle": "Tabla de Transacciones",
+    "chartsTitle": "Gráficos"
   },
   "StatCards": {
     "totalIncome": "Ingresos Totales",
@@ -278,3 +280,5 @@
     "adjustmentDescription": "Ajuste de saldo de la cuenta"
   }
 }
+
+    

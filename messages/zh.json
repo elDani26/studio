@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "管理您的资金",
@@ -54,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "统计摘要",
     "aiSummaryTitle": "AI财务顾问",
-    "transactionsTitle": "交易表"
+    "transactionsTitle": "交易表",
+    "chartsTitle": "图表"
   },
   "StatCards": {
     "totalIncome": "总收入",
@@ -278,3 +280,5 @@
     "adjustmentDescription": "账户余额调整"
   }
 }
+
+    

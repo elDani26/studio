@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "ManageYourMoney",
@@ -54,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "Statistics Summary",
     "aiSummaryTitle": "AI Financial Advisor",
-    "transactionsTitle": "Transactions Table"
+    "transactionsTitle": "Transactions Table",
+    "chartsTitle": "Charts"
   },
   "StatCards": {
     "totalIncome": "Total Income",
@@ -278,3 +280,5 @@
     "adjustmentDescription": "Account balance adjustment"
   }
 }
+
+    

@@ -1,3 +1,4 @@
+
 {
   "LoginPage": {
     "title": "GérezVotreArgent",
@@ -54,7 +55,8 @@
   "DashboardPage": {
     "statCardsTitle": "Résumé des statistiques",
     "aiSummaryTitle": "Conseiller Financier IA",
-    "transactionsTitle": "Tableau des transactions"
+    "transactionsTitle": "Tableau des transactions",
+    "chartsTitle": "Graphiques"
   },
   "StatCards": {
     "totalIncome": "Revenus totaux",
@@ -278,3 +280,5 @@
     "adjustmentDescription": "Ajustement du solde du compte"
   }
 }
+
+    
