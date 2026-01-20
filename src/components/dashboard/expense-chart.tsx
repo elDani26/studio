@@ -11,6 +11,27 @@ interface ExpenseChartProps {
 
 const COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#F472B6', '#6B7280', '#EC4899', '#D946EF', '#818CF8'];
 
+const CustomLegend = ({ payload }: any) => {
+  if (!payload?.length) {
+    return null;
+  }
+  return (
+    <div className="h-full overflow-y-auto text-sm max-h-[180px] pr-2">
+      <ul className="space-y-2">
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} className="flex items-center gap-2" title={entry.value}>
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="flex-1 truncate">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 export function ExpenseChart({ data: chartData }: ExpenseChartProps) {
   const { currency } = useSettings();
   const t = useTranslations('ExpenseChart');
@@ -26,13 +47,6 @@ export function ExpenseChart({ data: chartData }: ExpenseChartProps) {
     return null;
   };
   
-  const legendFormatter = (value: string) => {
-    if (value.length > 15) {
-      return `${value.substring(0, 15)}...`;
-    }
-    return value;
-  };
-
   return (
     <Card className="h-full">
       <CardHeader>
@@ -45,7 +59,7 @@ export function ExpenseChart({ data: chartData }: ExpenseChartProps) {
             <PieChart>
               <Pie
                 data={chartData}
-                cx="50%"
+                cx="40%"
                 cy="50%"
                 labelLine={false}
                 outerRadius={80}
@@ -59,7 +73,12 @@ export function ExpenseChart({ data: chartData }: ExpenseChartProps) {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" formatter={legendFormatter} />
+              <Legend 
+                content={<CustomLegend />}
+                verticalAlign="middle" 
+                align="right" 
+                layout="vertical"
+              />
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">

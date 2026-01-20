@@ -1,6 +1,5 @@
 'use client';
 
-import type { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useSettings } from '@/context/settings-context';
@@ -11,6 +10,27 @@ interface DebtChartProps {
 }
 
 const COLORS = ['#F97316', '#EA580C', '#D97706', '#FB923C', '#FDBA74'];
+
+const CustomLegend = ({ payload }: any) => {
+  if (!payload?.length) {
+    return null;
+  }
+  return (
+    <div className="h-full overflow-y-auto text-sm max-h-[180px] pr-2">
+      <ul className="space-y-2">
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} className="flex items-center gap-2" title={entry.value}>
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="flex-1 truncate">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export function DebtChart({ data: chartData }: DebtChartProps) {
   const { currency } = useSettings();
@@ -27,13 +47,6 @@ export function DebtChart({ data: chartData }: DebtChartProps) {
     return null;
   };
 
-  const legendFormatter = (value: string) => {
-    if (value.length > 15) {
-      return `${value.substring(0, 15)}...`;
-    }
-    return value;
-  };
-
   return (
     <Card className="h-full">
       <CardHeader>
@@ -46,7 +59,7 @@ export function DebtChart({ data: chartData }: DebtChartProps) {
             <PieChart>
               <Pie
                 data={chartData}
-                cx="50%"
+                cx="40%"
                 cy="50%"
                 labelLine={false}
                 outerRadius={80}
@@ -60,7 +73,12 @@ export function DebtChart({ data: chartData }: DebtChartProps) {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" formatter={legendFormatter} />
+              <Legend 
+                content={<CustomLegend />}
+                verticalAlign="middle" 
+                align="right" 
+                layout="vertical"
+              />
             </PieChart>
           ) : (
              <div className="flex h-full w-full flex-col items-center justify-center">
