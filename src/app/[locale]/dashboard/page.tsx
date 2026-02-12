@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, X } from 'lucide-react';
+import { Calendar as CalendarIcon, X, PieChart as PieChartIcon, BarChartBig, LineChart as LineChartIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { getLocale } from '@/lib/utils';
@@ -31,6 +31,7 @@ export default function DashboardPage() {
 
   const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 7));
   const [chartDateTo, setChartDateTo] = useState<Date | undefined>(new Date());
+  const [chartType, setChartType] = useState<'pie' | 'bar' | 'line'>('pie');
   
   const tMisc = useTranslations('misc');
   const tDatePicker = useTranslations('TransactionDataTable.datePicker');
@@ -162,7 +163,20 @@ export default function DashboardPage() {
         
          <div className="pt-4 border-t">
           <div className="mb-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
               <h3 className="text-lg font-medium">{tDashboard('chartsTitle')}</h3>
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                <Button variant={chartType === 'pie' ? 'secondary' : 'ghost'} size="icon" onClick={() => setChartType('pie')}>
+                  <PieChartIcon className="h-5 w-5" />
+                </Button>
+                <Button variant={chartType === 'bar' ? 'secondary' : 'ghost'} size="icon" onClick={() => setChartType('bar')}>
+                  <BarChartBig className="h-5 w-5" />
+                </Button>
+                <Button variant={chartType === 'line' ? 'secondary' : 'ghost'} size="icon" onClick={() => setChartType('line')}>
+                  <LineChartIcon className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
               <div className="flex flex-col sm:flex-row gap-2 mt-2">
                   <Popover>
                       <PopoverTrigger asChild>
@@ -203,9 +217,9 @@ export default function DashboardPage() {
               "grid gap-8",
               hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"
           )}>
-              <ExpenseChart data={expenseChartData} />
-              <IncomeChart data={incomeChartData} />
-              {hasCreditCard && <DebtChart data={debtChartData} />}
+              <ExpenseChart data={expenseChartData} type={chartType} />
+              <IncomeChart data={incomeChartData} type={chartType} />
+              {hasCreditCard && <DebtChart data={debtChartData} type={chartType} />}
           </div>
         </div>
         
