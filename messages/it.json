@@ -56,7 +56,9 @@
     "statCardsTitle": "Riepilogo statistiche",
     "aiSummaryTitle": "Consulente Finanziario IA",
     "transactionsTitle": "Tabella transazioni",
-    "chartsTitle": "Grafici"
+    "chartsTitle": "Grafici",
+    "monthlyHistoryTitle": "Cronologia Mensile",
+    "monthlyHistoryDescription": "Evoluzione delle tue finanze negli ultimi 12 mesi."
   },
   "StatCards": {
     "totalIncome": "Entrate totali",

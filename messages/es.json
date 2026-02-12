@@ -56,7 +56,9 @@
     "statCardsTitle": "Resumen de Estadísticas",
     "aiSummaryTitle": "Asesor Financiero IA",
     "transactionsTitle": "Tabla de Transacciones",
-    "chartsTitle": "Gráficos"
+    "chartsTitle": "Gráficos",
+    "monthlyHistoryTitle": "Histórico Mensual",
+    "monthlyHistoryDescription": "Evolución de tus finanzas en los últimos 12 meses."
   },
   "StatCards": {
     "totalIncome": "Ingresos Totales",

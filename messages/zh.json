@@ -56,7 +56,9 @@
     "statCardsTitle": "统计摘要",
     "aiSummaryTitle": "AI财务顾问",
     "transactionsTitle": "交易表",
-    "chartsTitle": "图表"
+    "chartsTitle": "图表",
+    "monthlyHistoryTitle": "月度历史",
+    "monthlyHistoryDescription": "过去12个月您的财务状况演变。"
   },
   "StatCards": {
     "totalIncome": "总收入",

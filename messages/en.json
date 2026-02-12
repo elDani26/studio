@@ -56,7 +56,9 @@
     "statCardsTitle": "Statistics Summary",
     "aiSummaryTitle": "AI Financial Advisor",
     "transactionsTitle": "Transactions Table",
-    "chartsTitle": "Charts"
+    "chartsTitle": "Charts",
+    "monthlyHistoryTitle": "Monthly History",
+    "monthlyHistoryDescription": "Evolution of your finances over the last 12 months."
   },
   "StatCards": {
     "totalIncome": "Total Income",

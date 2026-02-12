@@ -56,7 +56,9 @@
     "statCardsTitle": "Statistikübersicht",
     "aiSummaryTitle": "KI-Finanzberater",
     "transactionsTitle": "Transaktionstabelle",
-    "chartsTitle": "Diagramme"
+    "chartsTitle": "Diagramme",
+    "monthlyHistoryTitle": "Monatlicher Verlauf",
+    "monthlyHistoryDescription": "Entwicklung Ihrer Finanzen in den letzten 12 Monaten."
   },
   "StatCards": {
     "totalIncome": "Gesamteinnahmen",

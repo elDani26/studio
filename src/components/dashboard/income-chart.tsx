@@ -1,13 +1,13 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useSettings } from '@/context/settings-context';
 import { useTranslations } from 'next-intl';
 
 interface IncomeChartProps {
   data: { name: string; value: number }[];
-  type: 'pie' | 'bar' | 'line';
+  type: 'pie' | 'bar';
 }
 
 const COLORS = ['#22C55E', '#84CC16', '#FBBF24', '#10B981', '#3B82F6'];
@@ -62,63 +62,57 @@ export function IncomeChart({ data: chartData, type }: IncomeChartProps) {
             <Bar dataKey="value" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
           </BarChart>
         );
-      case 'line':
-        return (
-          <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 50 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-45} textAnchor="end" />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--accent))' }} />
-            <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} dot={{ r: 4, fill: COLORS[0] }} activeDot={{ r: 8, fill: COLORS[0] }} />
-          </LineChart>
-        );
       case 'pie':
       default:
-        return (
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="40%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-              stroke="hsl(var(--background))"
-              strokeWidth={2}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              content={<CustomLegend />}
-              verticalAlign="middle" 
-              align="right" 
-              layout="vertical"
-            />
-          </PieChart>
+         return (
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                stroke="hsl(var(--background))"
+                strokeWidth={2}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
         );
     }
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>{t('title')}</CardTitle>
         <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
-          {chartData.length > 0 ? (
-            renderChart()
-          ) : (
-             <div className="flex h-full w-full flex-col items-center justify-center">
+      <CardContent className="flex-grow flex flex-col justify-center">
+         {chartData.length > 0 ? (
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center h-full">
+            <div className="w-full h-full">
+              {renderChart()}
+            </div>
+            <div className="w-full h-full flex justify-center items-center">
+               <CustomLegend payload={chartData.map((entry, index) => ({
+                value: entry.name,
+                color: COLORS[index % COLORS.length]
+              }))} />
+            </div>
+          </div>
+        ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center">
                 <p className="text-sm text-muted-foreground">{t('noData')}</p>
             </div>
-          )}
-        </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

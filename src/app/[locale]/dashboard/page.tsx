@@ -18,8 +18,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon, X, PieChart as PieChartIcon, BarChartBig, LineChart as LineChartIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
-import { format, startOfDay, endOfDay, subDays } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { format, startOfDay, endOfDay, subDays, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { getLocale } from '@/lib/utils';
+import { LineChart, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, CartesianGrid, Line, XAxis, YAxis } from 'recharts';
 
 
 export default function DashboardPage() {
@@ -27,7 +29,7 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const { hasCreditCard, categories, accounts } = useSettings();
+  const { hasCreditCard, categories, accounts, currency } = useSettings();
 
   const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 7));
   const [chartDateTo, setChartDateTo] = useState<Date | undefined>(new Date());
@@ -147,6 +149,73 @@ export default function DashboardPage() {
 
   }, [chartTransactions, categories, hasCreditCard, tMisc]);
 
+  const timeSeriesChartData = useMemo(() => {
+    const data = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const date = subMonths(now, i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+
+      const monthTransactions = transactions.filter(t => {
+        let tDate;
+        if (t.date && typeof (t.date as any).toDate === 'function') {
+            tDate = (t.date as any).toDate();
+        } else {
+            tDate = new Date(t.date as any);
+        }
+        return tDate >= monthStart && tDate <= monthEnd;
+      });
+
+      const income = monthTransactions
+        .filter(t => t.type === 'income' && !t.transferId)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const debitExpenses = monthTransactions
+        .filter(t => t.type === 'expense' && !t.transferId && !t.isCreditCardExpense && !t.paymentFor)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const creditCardPaymentsTotal = monthTransactions
+        .filter(t => !!t.paymentFor)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalExpense = debitExpenses + creditCardPaymentsTotal;
+
+      const debt = monthTransactions
+        .filter(t => t.isCreditCardExpense)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      data.push({
+        name: format(date, 'MMM yy', { locale: dateFnsLocale }),
+        Ingresos: income,
+        Egresos: totalExpense,
+        Deuda: debt,
+      });
+    }
+    return data;
+  }, [transactions, dateFnsLocale]);
+
+  const formatCurrencyForTooltip = (amount: number) => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount);
+  };
+
+  const CustomLineChartTooltip = ({ active, payload, label }: any) => {
+      if (active && payload && payload.length) {
+          return (
+              <div className="p-2 text-sm bg-background border rounded-md shadow-lg">
+                  <p className="font-bold mb-1">{label}</p>
+                  {payload.map((pld: any) => (
+                      <div key={pld.dataKey} style={{ color: pld.color }}>
+                          {`${pld.dataKey}: ${formatCurrencyForTooltip(pld.value)}`}
+                      </div>
+                  ))}
+              </div>
+          );
+      }
+      return null;
+  };
+
 
   return (
     <>
@@ -177,49 +246,76 @@ export default function DashboardPage() {
                 </Button>
               </div>
             </div>
-              <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                  <Popover>
-                      <PopoverTrigger asChild>
-                          <Button
-                              variant={'outline'}
-                              className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateFrom && 'text-muted-foreground')}
-                          >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {chartDateFrom ? format(chartDateFrom, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
-                          </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={chartDateFrom} onSelect={setChartDateFrom} locale={dateFnsLocale} />
-                      </PopoverContent>
-                  </Popover>
-                  <Popover>
-                      <PopoverTrigger asChild>
-                          <Button
-                              variant={'outline'}
-                              className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateTo && 'text-muted-foreground')}
-                          >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {chartDateTo ? format(chartDateTo, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
-                          </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={chartDateTo} onSelect={setChartDateTo} locale={dateFnsLocale} />
-                      </PopoverContent>
-                  </Popover>
-                   {(chartDateFrom || chartDateTo) && (
-                      <Button variant="ghost" onClick={() => { setChartDateFrom(undefined); setChartDateTo(undefined); }}>
-                          <X className="mr-2 h-4 w-4" /> {tDatePicker('clearButton')}
-                      </Button>
-                  )}
-              </div>
+              { chartType !== 'line' && (
+                <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant={'outline'}
+                                className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateFrom && 'text-muted-foreground')}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {chartDateFrom ? format(chartDateFrom, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('startDate')}</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={chartDateFrom} onSelect={setChartDateFrom} locale={dateFnsLocale} />
+                        </PopoverContent>
+                    </Popover>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant={'outline'}
+                                className={cn('w-full sm:w-auto justify-start text-left font-normal', !chartDateTo && 'text-muted-foreground')}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {chartDateTo ? format(chartDateTo, 'LLL dd, y', { locale: dateFnsLocale }) : <span>{tDatePicker('endDate')}</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={chartDateTo} onSelect={setChartDateTo} locale={dateFnsLocale} />
+                        </PopoverContent>
+                    </Popover>
+                    {(chartDateFrom || chartDateTo) && (
+                        <Button variant="ghost" onClick={() => { setChartDateFrom(undefined); setChartDateTo(undefined); }}>
+                            <X className="mr-2 h-4 w-4" /> {tDatePicker('clearButton')}
+                        </Button>
+                    )}
+                </div>
+              )}
           </div>
           <div className={cn(
               "grid gap-8",
-              hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"
+              chartType === 'line' ? "grid-cols-1" : (hasCreditCard ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2")
           )}>
-              <ExpenseChart data={expenseChartData} type={chartType} />
-              <IncomeChart data={incomeChartData} type={chartType} />
-              {hasCreditCard && <DebtChart data={debtChartData} type={chartType} />}
+            {chartType === 'line' ? (
+              <Card>
+                  <CardHeader>
+                      <CardTitle>{tDashboard('monthlyHistoryTitle')}</CardTitle>
+                      <CardDescription>{tDashboard('monthlyHistoryDescription')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <ResponsiveContainer width="100%" height={350}>
+                          <LineChart data={timeSeriesChartData}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                              <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
+                              <Tooltip content={<CustomLineChartTooltip />} />
+                              <Legend />
+                              <Line type="monotone" dataKey="Ingresos" stroke="hsl(var(--chart-2))" activeDot={{ r: 8 }} />
+                              <Line type="monotone" dataKey="Egresos" stroke="hsl(var(--chart-4))" activeDot={{ r: 8 }} />
+                              {hasCreditCard && <Line type="monotone" dataKey="Deuda" stroke="hsl(var(--chart-5))" activeDot={{ r: 8 }} />}
+                          </LineChart>
+                      </ResponsiveContainer>
+                  </CardContent>
+              </Card>
+            ) : (
+                <>
+                    <ExpenseChart data={expenseChartData} type={chartType} />
+                    <IncomeChart data={incomeChartData} type={chartType} />
+                    {hasCreditCard && <DebtChart data={debtChartData} type={chartType} />}
+                </>
+            )}
           </div>
         </div>
         
