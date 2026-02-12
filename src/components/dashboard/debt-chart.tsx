@@ -54,18 +54,20 @@ export function DebtChart({ data: chartData, type }: DebtChartProps) {
     switch (type) {
       case 'bar':
         return (
-          <BarChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 50 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-45} textAnchor="end" />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))' }} />
-            <Bar dataKey="value" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
-          </BarChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 50 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-45} textAnchor="end" />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))' }} />
+              <Bar dataKey="value" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         );
       case 'pie':
       default:
         return (
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartData}
@@ -97,11 +99,11 @@ export function DebtChart({ data: chartData, type }: DebtChartProps) {
       </CardHeader>
       <CardContent className="flex-grow flex flex-col justify-center">
         {chartData.length > 0 ? (
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center h-full">
-            <div className="w-full h-full">
+           <div className="flex flex-col md:flex-row gap-4 items-center h-full">
+            <div className="w-full md:w-1/2 h-[250px] md:h-full">
               {renderChart()}
             </div>
-            <div className="w-full h-full flex justify-center items-center">
+            <div className="w-full md:w-1/2 h-full flex justify-center items-center">
                <CustomLegend payload={chartData.map((entry, index) => ({
                 value: entry.name,
                 color: COLORS[index % COLORS.length]
