@@ -297,14 +297,14 @@ export default function DashboardPage() {
                   <CardContent>
                       <ResponsiveContainer width="100%" height={350}>
                           <LineChart data={timeSeriesChartData}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ccc" />
                               <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                               <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
                               <Tooltip content={<CustomLineChartTooltip />} />
                               <Legend />
-                              <Line type="monotone" dataKey="Ingresos" stroke="hsl(var(--chart-2))" activeDot={{ r: 8 }} />
+                              <Line type="monotone" dataKey="Ingresos" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} />
                               <Line type="monotone" dataKey="Egresos" stroke="hsl(var(--chart-4))" activeDot={{ r: 8 }} />
-                              {hasCreditCard && <Line type="monotone" dataKey="Deuda" stroke="hsl(var(--chart-5))" activeDot={{ r: 8 }} />}
+                              {hasCreditCard && <Line type="monotone" dataKey="Deuda" stroke="hsl(var(--chart-2))" activeDot={{ r: 8 }} />}
                           </LineChart>
                       </ResponsiveContainer>
                   </CardContent>
