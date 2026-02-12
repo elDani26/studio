@@ -297,7 +297,7 @@ export default function DashboardPage() {
                   <CardContent>
                       <ResponsiveContainer width="100%" height={350}>
                           <LineChart data={timeSeriesChartData}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ccc" />
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#bbbbbb" />
                               <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                               <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(value as number)} />
                               <Tooltip content={<CustomLineChartTooltip />} />
