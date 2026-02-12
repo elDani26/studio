@@ -14,6 +14,9 @@ const initialVisibilityState: CardsVisibility = {
   totalExpenses: true,
   creditCardDebt: true,
   currentBalance: true,
+  filteredIncome: true,
+  filteredExpenses: true,
+  filteredBalance: true,
 };
 
 type Currency = 'EUR' | 'USD' | 'PEN' | 'COP';
@@ -69,7 +72,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           const userData = docSnap.data() as User;
           if (userData.currency) setCurrencyState(userData.currency as Currency);
           setHasCreditCardState(userData.hasCreditCard === false ? false : true);
-          setCardsVisibility(userData.cardsVisibility || initialVisibilityState);
+          setCardsVisibility({ ...initialVisibilityState, ...(userData.cardsVisibility || {}) });
         } else {
             // First time user, create their document
             const initialUserData: User = { 

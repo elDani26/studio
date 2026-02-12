@@ -10,6 +10,9 @@ export type CardsVisibility = {
   totalExpenses: boolean;
   creditCardDebt: boolean;
   currentBalance: boolean;
+  filteredIncome: boolean;
+  filteredExpenses: boolean;
+  filteredBalance: boolean;
 };
 
 export type Transaction = {

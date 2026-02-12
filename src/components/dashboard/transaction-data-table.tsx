@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import type { Transaction } from '@/types';
+import type { Transaction, CardsVisibility } from '@/types';
 import { useUser, useFirestore, errorEmitter } from '@/firebase';
 import { getColumns } from './transaction-table-columns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '../ui/skeleton';
-import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard, History, FileDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Scale, Trash2, Calendar as CalendarIcon, X, CreditCard, History, FileDown, Eye, EyeOff } from 'lucide-react';
 import { doc, deleteDoc, writeBatch, collection, query, where, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -50,7 +50,7 @@ export function TransactionDataTable({
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { categories, accounts, currency, hasCreditCard } = useSettings();
+  const { categories, accounts, currency, hasCreditCard, cardsVisibility, updateCardsVisibility } = useSettings();
   const t = useTranslations('TransactionDataTable');
   const tToasts = useTranslations('Toasts');
   const tColumns = useTranslations('TransactionTableColumns');
@@ -340,6 +340,12 @@ export function TransactionDataTable({
     }).format(amount);
   };
 
+  const toggleVisibility = (key: string) => {
+    const currentVisibility = cardsVisibility || {};
+    const newVisibility = { ...currentVisibility, [key]: !(currentVisibility[key] ?? true) };
+    updateCardsVisibility(newVisibility as CardsVisibility);
+  };
+
   const columns = getColumns(handleEdit, handleDelete);
   
   const showCreditCardView = (type === 'credit-expense' || isCreditAccountSelected) && hasCreditCard;
@@ -466,29 +472,48 @@ export function TransactionDataTable({
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{t('filteredIncome')}</CardTitle>
-                    <ArrowUp className="h-4 w-4 text-green-500" />
+                    <div className="flex items-center gap-x-1">
+                      <ArrowUp className="h-4 w-4 text-green-500" />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => toggleVisibility('filteredIncome')}>
+                        {(cardsVisibility.filteredIncome ?? true) ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-500">{formatCurrency(filteredTotals.income)}</div>
+                    <div className="text-2xl font-bold text-green-500">
+                      {(cardsVisibility.filteredIncome ?? true) ? formatCurrency(filteredTotals.income) : '••••••'}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{t('filteredExpenses')}</CardTitle>
-                    <ArrowDown className="h-4 w-4 text-red-500" />
+                     <div className="flex items-center gap-x-1">
+                      <ArrowDown className="h-4 w-4 text-red-500" />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => toggleVisibility('filteredExpenses')}>
+                        {(cardsVisibility.filteredExpenses ?? true) ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-red-500">{formatCurrency(filteredTotals.expenses)}</div>
+                    <div className="text-2xl font-bold text-red-500">
+                      {(cardsVisibility.filteredExpenses ?? true) ? formatCurrency(filteredTotals.expenses) : '••••••'}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{t('filteredBalance')}</CardTitle>
-                    <Scale className="h-4 w-4 text-blue-500" />
+                    <div className="flex items-center gap-x-1">
+                      <Scale className="h-4 w-4 text-blue-500" />
+                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => toggleVisibility('filteredBalance')}>
+                        {(cardsVisibility.filteredBalance ?? true) ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className={`text-2xl font-bold ${filteredTotals.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
-                      {formatCurrency(filteredTotals.balance)}
+                      {(cardsVisibility.filteredBalance ?? true) ? formatCurrency(filteredTotals.balance) : '••••••'}
                     </div>
                   </CardContent>
                 </Card>
